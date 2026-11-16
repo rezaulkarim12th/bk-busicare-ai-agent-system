@@ -32,3 +32,12 @@ Responsive web-app MVP for BK-BusiCare, designed to evolve into a multi-tenant S
 
 ## Security
 Never commit credentials, API keys, tokens or private customer records. Use environment variables and a managed secrets store for future integrations. Require human approval before publishing, messaging customers, modifying external CRM records or spending advertising budget.
+
+## Publish with GitHub Pages
+1. Open the repository on GitHub.
+2. Go to **Settings → Pages**.
+3. Under **Build and deployment → Source**, select **GitHub Actions**.
+4. Push a commit to `main` (or run the workflow manually from **Actions → Build and deploy to GitHub Pages**).
+5. After the workflow succeeds, the site URL is `https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/`.
+
+The first deployment will not be available until GitHub Pages is enabled for this repository and the Actions workflow succeeds.
