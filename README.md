@@ -1,32 +1,34 @@
 # BK-BusiCare AI Agent System
 
-A secure foundation for BK-BusiCare's AI-assisted digital marketing, client operations, and automation workflows.
+Responsive web-app MVP for BK-BusiCare, designed to evolve into a multi-tenant SaaS product.
 
-## Objectives
+## Run locally
+1. Install Node.js 20 or later.
+2. Run `npm install`.
+3. Run `npm run dev`.
+4. Open the local URL printed by Vite.
 
-- Organize lead capture, qualification, follow-ups, and sales pipeline activities.
-- Plan and manage content for Facebook, Instagram, TikTok, LinkedIn, and YouTube.
-- Support SEO, branding, web development, and AI automation service delivery.
-- Provide clear reporting for leads, campaigns, clients, and sales.
-- Keep human approval in place for external actions that affect customers, public content, or advertising spend.
+## Included in MVP
+- Dashboard with lead and pipeline summaries.
+- Lead creation and service categorization.
+- Sales pipeline with New, Contacted, Proposal, Won and Lost stages.
+- Content planner for Facebook, Instagram, TikTok, LinkedIn and YouTube.
+- Basic lead report and CSV export.
+- Workspace name settings.
+- Responsive desktop and mobile layout.
 
-## Project status
+## Current limitations
+- Data is stored in this browser's Local Storage. It is not cloud-synced.
+- No authentication, team roles, server database or tenant isolation is implemented yet.
+- Zoho CRM, social publishing, ad accounts, messaging, payment and AI provider APIs are not connected.
+- Content planner records plans only; it does not publish content.
+- This is an MVP prototype, not production-ready SaaS.
 
-**Foundation stage.** This repository currently contains project documentation only. No live integrations, automated publishing, messaging, or advertising actions are enabled.
+## SaaS architecture roadmap
+1. Replace browser storage with a secure server API and relational database.
+2. Implement tenant-scoped data access, authentication, role-based permissions and audit logs.
+3. Add subscription plans, billing, usage limits and tenant onboarding.
+4. Add integrations only with verified API scopes and explicit approval for external actions.
 
-## Repository map
-
-- `docs/PROJECT_PLAN.md` — phased scope and implementation plan.
-- `.gitignore` — excludes local secrets and generated files.
-
-## Security rules
-
-- Never commit passwords, API keys, access tokens, private customer records, or payment details.
-- Use environment variables or a secrets manager for credentials.
-- Apply least-privilege access to every integration.
-- Require explicit human approval before publishing, messaging customers, modifying CRM records, or spending ad budget.
-- Log operational actions without storing secrets or unnecessary personal data.
-
-## Next step
-
-Review `docs/PROJECT_PLAN.md`, confirm the technology stack, and then implement a small local prototype before connecting production accounts.
+## Security
+Never commit credentials, API keys, tokens or private customer records. Use environment variables and a managed secrets store for future integrations. Require human approval before publishing, messaging customers, modifying external CRM records or spending advertising budget.
