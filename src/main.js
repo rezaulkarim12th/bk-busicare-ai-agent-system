@@ -1,10 +1,7 @@
 import './styles.css';
 
 const KEY = 'bkbusicare-workspace-v1';
-const defaultData = {workspace:{name:'BK-BusiCare',plan:'Internal workspace'},leads:[
-{id:1,name:'Rahim Uddin',company:'Rahim Fashion',service:'Digital Marketing',status:'New',value:15000,phone:'',created:new Date().toISOString()},
-{id:2,name:'Nusrat Jahan',company:'Nusrat Boutique',service:'Branding',status:'Contacted',value:12000,phone:'',created:new Date().toISOString()},
-{id:3,name:'Sajjad Ahmed',company:'Sajjad Traders',service:'Web Development',status:'Proposal',value:30000,phone:'',created:new Date().toISOString()}],content:[]};
+const defaultData = {workspace:{name:'BK-BusiCare',plan:'Internal workspace'},leads:[],content:[]};
 let data = load();
 let page = 'Dashboard';
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return structuredClone(defaultData)}}
