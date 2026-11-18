@@ -26,7 +26,7 @@ Last reviewed: 2026-11-18
 - No service-role key or database password is used in browser code.
 - Vite upgraded to 8.3.8; Vite dev and preview servers bind to `127.0.0.1` only.
 - CI audits production dependencies for high-severity vulnerabilities before tests/build.
-- Dependency audit found a high-severity `picomatch` ReDoS advisory in the Vite development-tool dependency chain. The GitHub advisory currently lists no patched version; the dev server is therefore restricted to loopback, and this residual development-only finding remains documented rather than being falsely marked fixed.
+- Production dependency audit passes. The full development dependency tree still has a documented high-severity `picomatch` ReDoS advisory in the Vite development-tool dependency chain; the dev server is restricted to loopback. This residual development-only finding is not claimed as fixed.
 
 ## Audit fixes applied in this review
 - Fixed password-recovery event handling so the password update form is displayed even when the recovery event arrives before initial session loading finishes.
@@ -41,7 +41,8 @@ Last reviewed: 2026-11-18
 - Replaced stale README and deployment guide statements with current feature status.
 
 ## Validation
-- Latest validation after cloud CRUD, team-function and viewer UI changes is pending in GitHub Actions; the earlier baseline CI passed 11/11 Node tests, both JavaScript syntax checks and Vite production build.
+- GitHub Actions run 44257206944 passed on the latest implementation: 13/13 Node tests, production dependency audit, Deno type-check for the Edge Function, JavaScript syntax checks for both app entry files and Vite production build.
+- Production-only Supabase configuration guard was skipped on the feature-branch PR as intended; Pages artifact upload and deployment were also skipped.
 - Deployment was skipped as intended because this is a feature-branch pull request.
 - Static tests do not substitute for PostgreSQL/RLS integration tests.
 - Live Supabase authentication, migration application and two-user cross-tenant tests have not been performed.
