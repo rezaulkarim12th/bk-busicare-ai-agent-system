@@ -71,9 +71,8 @@ test('RLS policy migration is re-runnable when policies already exist', () => {
     ['admins can read audit events', 'public.audit_events']
   ];
   for (const [name, table] of policyPairs) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\test('audit events are read-only to browser clients', () => {');
-    const pattern = new RegExp('drop policy if exists "' + escaped + '" on ' + table.replaceAll('.', '\\.') + '; create policy "' + escaped + '"');
-    assert.match(normalized, pattern, 'Policy must be safely replaced: ' + name);
+    const expected = 'drop policy if exists "' + name + '" on ' + table + '; create policy "' + name + '"';
+    assert.ok(normalized.includes(expected), 'Policy must be safely replaced: ' + name);
   }
 });
 
