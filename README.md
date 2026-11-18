@@ -20,15 +20,15 @@ When both Supabase variables are absent, the app opens its browser-local demo:
 
 Demo records stay in the current browser's Local Storage. They do not sync across devices or accounts.
 
-## Supabase authentication foundation
+## Supabase authentication and cloud workspace
 
-When both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured, the local demo is suppressed and the authentication portal is shown. It supports email/password sign-in, registration, password reset, workspace creation, workspace selection and read-only membership listing.
+When both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured, the local demo is suppressed and the authenticated portal opens. It supports email/password sign-in, registration, password recovery, workspace creation and workspace selection.
 
-If only one Supabase variable is configured, the app fails closed and shows a configuration warning instead of opening the local demo.
+The authenticated portal supports workspace-scoped cloud Leads and Content create/read/update/delete. PostgreSQL RLS is the security boundary; the UI also presents viewer accounts as read-only. Team invitations and role changes use the `manage-workspace-member` Supabase Edge Function, which validates caller JWTs and checks workspace roles. Deploy the function before using Team actions.
 
-The SQL migration creates workspace, membership, lead, content and audit tables with RLS. Authorization helper functions live in a private schema; do not add that schema to the Supabase API-exposed schema list. Audit-event writes and membership mutations are reserved for trusted server-side functions.
+The SQL migration creates workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
 
-**Important:** the authenticated portal is not yet connected to cloud Leads or Content CRUD. When Supabase is configured, users can authenticate and view workspace membership, but operational data management is not yet available in the portal. The SQL migration has not been applied or tested against a live Supabase project.
+**Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. No real authentication, invitation email or two-user/two-workspace RLS test has been run. Do not enter customer data until these release gates pass.
 
 ## Configure Supabase for a disposable test project
 
