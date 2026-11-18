@@ -1,4 +1,5 @@
 import './styles.css';
+import './auth-portal.js';
 
 const KEY = 'bkbusicare-workspace-v1';
 const defaultData = {workspace:{name:'BK-BusiCare',plan:'Internal workspace'},leads:[],content:[]};
