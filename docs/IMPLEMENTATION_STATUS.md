@@ -17,7 +17,7 @@ Last reviewed: 2026-11-18
 - Lead/content workspace identity, creator identity and creation timestamps are immutable on update; updated_at is refreshed.
 - Supabase Auth portal: sign-in, registration, password reset/recovery, sign-out, workspace creation and workspace selection.
 - Authenticated cloud CRUD for Leads and Content, scoped by active workspace and protected by PostgreSQL RLS; delete controls are limited to owner/admin roles.
-- Supabase Edge Function source for team invitations and role changes, with caller JWT validation, owner/admin checks, admin-role escalation protection, invitation rate limiting and audit-event writes.
+- Supabase Edge Function source for team invitations and role changes, with caller JWT validation, strict configured CORS origin allowlist, UUID input validation, owner/admin checks, admin-role escalation protection, atomic database-locked invitation attempt limits and checked audit writes with compensating rollback on failure.
 - Team UI supports inviting new email addresses and changing existing member roles. Invitations to already-registered addresses require a separate reviewed flow.
 - Viewer UI is read-only; database RLS remains authoritative.
 - Partial Supabase environment configuration fails closed; authenticated mode suppresses the browser-local demo.
