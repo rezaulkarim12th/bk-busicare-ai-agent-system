@@ -112,6 +112,11 @@ test('team management runs through an authenticated, role-checked Edge Function'
   assert.match(teamFunction, /\['owner', 'admin'\]/);
   assert.match(teamFunction, /Only the workspace owner may assign admin role/);
   assert.match(teamFunction, /Invitation limit reached/);
+  assert.match(teamFunction, /reserve_workspace_invitation/);
+  assert.match(teamFunction, /APP_ALLOWED_ORIGINS/);
+  assert.doesNotMatch(teamFunction, /Access-Control-Allow-Origin': '\\*'/);
+  assert.match(teamFunction, /auditError/);
+  assert.match(teamFunction, /deleteUser\\(invited\\.user\\.id\\)/);
   assert.match(teamFunction, /inviteUserByEmail/);
   assert.match(teamFunction, /audit_events/);
   assert.match(portal, /functions\.invoke\('manage-workspace-member'/);
