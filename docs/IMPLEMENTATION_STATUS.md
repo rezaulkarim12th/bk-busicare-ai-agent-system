@@ -24,7 +24,9 @@ Last reviewed: 2026-11-18
 - Secret-pattern scan of the supplied source: no matching committed credentials found.
 - Production Vite build: NOT RUN. Dependency installation did not complete in the available environment.
 - PostgreSQL migration execution: NOT RUN. No PostgreSQL/Supabase database is connected.
-- Automated migration checks: added to CI; execution result pending the GitHub Actions run.
+- Automated migration checks: PASS (5/5 static checks) on the latest verified CI run.
+- Application JavaScript syntax check: PASS in GitHub Actions.
+- Vite production build: PASS in GitHub Actions.
 - Cross-tenant RLS integration tests: NOT RUN. A live Supabase project and test users are required.
 
 ## Not yet implemented
