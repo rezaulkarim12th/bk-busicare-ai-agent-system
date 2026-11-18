@@ -34,3 +34,16 @@ test('browser clients cannot directly mutate workspace membership', () => {
   assert.doesNotMatch(normalized, /create policy[^;]*on public\.workspace_members for (insert|update|delete)/);
   assert.match(sql.toLowerCase(), /no client-side policies for membership writes/);
 });
+
+
+test('authentication portal uses public Supabase configuration and auth APIs only', async () => {
+  const portal = await readFile(new URL('../src/auth-portal.js', import.meta.url), 'utf8');
+  assert.match(portal, /VITE_SUPABASE_URL/);
+  assert.match(portal, /VITE_SUPABASE_ANON_KEY/);
+  assert.match(portal, /signInWithPassword/);
+  assert.match(portal, /signUp/);
+  assert.match(portal, /create_workspace/);
+  assert.match(portal, /workspace_members/);
+  assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
+  assert.match(portal, /local demo is blocked in authenticated mode/i);
+});
