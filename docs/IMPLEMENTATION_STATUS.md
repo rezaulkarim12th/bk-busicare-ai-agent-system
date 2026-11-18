@@ -13,14 +13,14 @@ Last reviewed: 2026-11-18
 - Atomic workspace creation RPC; browser-side membership writes intentionally blocked.
 - Supabase Auth portal with email/password sign-in, registration, password-reset email and sign-out.
 - Authenticated workspace onboarding, workspace switching and read-only membership list.
-- When Supabase is configured, the portal blocks the local demo app to prevent accidental exposure of browser-local records between signed-in users.
+- When Supabase is configured, the local demo app is not rendered; the secure auth/workspace portal is shown instead, preventing accidental exposure of browser-local records between signed-in users.
 - When Supabase is not configured, the existing local demo remains available.
 - Frontend uses only public Supabase URL and anon key; no service-role key or database password is used in browser code.
 - Team invitations and role changes remain disabled until a trusted server/Edge Function exists.
 
 ## Validation and limitations
 - Earlier CI run passed 5/5 migration static checks, JavaScript syntax validation and Vite production build for code commit 162b40ed962d1e07f9dbbddbd6abb8013eec95c6.
-- The new authentication portal still requires a fresh CI run.
+- Latest GitHub Actions run `44242778618` passed: 6/6 checks, JavaScript syntax validation and Vite production build. A further hardening change to suppress local demo rendering when Supabase is configured is now queued for CI.
 - Auth, workspace creation and membership queries have not been exercised against a live Supabase project.
 - Lead and content cloud CRUD is not implemented; the authenticated portal explicitly blocks the local demo until cloud synchronization is ready.
 - RLS integration tests with two users and two workspaces remain required.
