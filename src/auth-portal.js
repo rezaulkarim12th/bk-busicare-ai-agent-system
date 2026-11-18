@@ -2,8 +2,15 @@ import { createClient } from '@supabase/supabase-js';
 
 const url = import.meta.env.VITE_SUPABASE_URL?.trim();
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+const hasUrl = Boolean(url);
+const hasKey = Boolean(key);
 
-if (url && key) {
+if (hasUrl !== hasKey) {
+  const warning = document.createElement('section');
+  warning.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#f4f7f5;display:grid;place-items:center;padding:24px;font-family:Arial,sans-serif;color:#18372b';
+  warning.innerHTML = '<div style="max-width:520px;background:white;border:1px solid #dce8df;border-radius:16px;padding:26px"><b>BK-BusiCare · Configuration required</b><h2>Supabase setup is incomplete</h2><p>VITE_SUPABASE_URL এবং VITE_SUPABASE_ANON_KEY—দুটিই সেট করতে হবে। নিরাপত্তার জন্য Local Demo চালু করা হয়নি।</p></div>';
+  document.body.appendChild(warning);
+} else if (url && key) {
   const supabase = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
   const root = document.createElement('section');
   root.id = 'bk-secure-gate';
@@ -35,11 +42,10 @@ if (url && key) {
           const r = await supabase.auth.signInWithPassword({ email, password });
           if (r.error) throw r.error;
           session = r.data.session;
-          await portal();
         } else if (mode === 'signup') {
           const r = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: location.origin } });
           if (r.error) throw r.error;
-          if (r.data.session) { session = r.data.session; await portal(); }
+          if (r.data.session) { session = r.data.session; }
           else note('Account created. Confirm your email, then sign in.');
         } else {
           const r = await supabase.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
@@ -89,8 +95,7 @@ if (url && key) {
       const password = String(new FormData(e.currentTarget).get('password') || '');
       const result = await supabase.auth.updateUser({ password });
       if (result.error) { note(result.error.message, true); return; }
-      note('Password updated successfully. You can continue to your workspace.');
-      await portal();
+      note('Password updated successfully.');
     };
   }
   async function logout() {
@@ -98,12 +103,35 @@ if (url && key) {
     if (r.error) { note(r.error.message, true); return; }
     session = null; workspaces = []; activeId = ''; authView('login');
   }
-  supabase.auth.getSession().then(async r => {
-    session = r.data.session;
-    if (session) await portal(); else authView('login');
-  }).catch(() => authView('login'));
-  supabase.auth.onAuthStateChange((_event, next) => {
+  let initialSessionLoaded = false;
+  supabase.auth.onAuthStateChange((event, next) => {
     session = next;
-    queueMicrotask(() => { if (session) portal(); else authView('login'); });
+    if (event === 'PASSWORD_RECOVERY') {
+      passwordUpdateView();
+      return;
+    }
+    if (event === 'SIGNED_OUT') {
+      workspaces = [];
+      activeId = '';
+      authView('login');
+      return;
+    }
+    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+      queueMicrotask(() => {
+        if (session) portal().catch(err => {
+          authView('login');
+          note(err.message || 'Workspace loading failed.', true);
+        });
+      });
+    }
+  });
+  supabase.auth.getSession().then(async r => {
+    if (r.error) throw r.error;
+    session = r.data.session;
+    initialSessionLoaded = true;
+    if (session) await portal(); else authView('login');
+  }).catch(err => {
+    authView('login');
+    note(err.message || 'Unable to initialize secure session.', true);
   });
 }
