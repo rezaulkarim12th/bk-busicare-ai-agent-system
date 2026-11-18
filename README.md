@@ -43,7 +43,7 @@ Never expose a service-role key, database password, OAuth secret, access token o
 
 ## Hosting status
 
-The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. The current feature branch is not deployed. Cloudflare Pages is a possible alternative but is not connected.
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
 
 ## Not implemented yet
 
