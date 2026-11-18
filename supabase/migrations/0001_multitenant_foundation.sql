@@ -184,15 +184,18 @@ alter table public.leads enable row level security;
 alter table public.content_items enable row level security;
 alter table public.audit_events enable row level security;
 
+drop policy if exists "workspace members can view workspaces" on public.workspaces;
 create policy "workspace members can view workspaces"
 on public.workspaces for select to authenticated
 using (private.is_workspace_member(id));
 
+drop policy if exists "workspace admins can update workspaces" on public.workspaces;
 create policy "workspace admins can update workspaces"
 on public.workspaces for update to authenticated
 using (private.has_workspace_role(id, array['owner','admin']))
 with check (private.has_workspace_role(id, array['owner','admin']));
 
+drop policy if exists "members can view workspace membership" on public.workspace_members;
 create policy "members can view workspace membership"
 on public.workspace_members for select to authenticated
 using (
@@ -200,10 +203,12 @@ using (
   or private.has_workspace_role(workspace_id, array['owner','admin'])
 );
 
+drop policy if exists "members can view leads" on public.leads;
 create policy "members can view leads"
 on public.leads for select to authenticated
 using (private.is_workspace_member(workspace_id));
 
+drop policy if exists "contributors can create leads" on public.leads;
 create policy "contributors can create leads"
 on public.leads for insert to authenticated
 with check (
@@ -211,19 +216,23 @@ with check (
   and created_by = auth.uid()
 );
 
+drop policy if exists "contributors can update leads" on public.leads;
 create policy "contributors can update leads"
 on public.leads for update to authenticated
 using (private.has_workspace_role(workspace_id, array['owner','admin','member']))
 with check (private.has_workspace_role(workspace_id, array['owner','admin','member']));
 
+drop policy if exists "admins can delete leads" on public.leads;
 create policy "admins can delete leads"
 on public.leads for delete to authenticated
 using (private.has_workspace_role(workspace_id, array['owner','admin']));
 
+drop policy if exists "members can view content" on public.content_items;
 create policy "members can view content"
 on public.content_items for select to authenticated
 using (private.is_workspace_member(workspace_id));
 
+drop policy if exists "contributors can create content" on public.content_items;
 create policy "contributors can create content"
 on public.content_items for insert to authenticated
 with check (
@@ -231,18 +240,23 @@ with check (
   and created_by = auth.uid()
 );
 
+drop policy if exists "contributors can update content" on public.content_items;
 create policy "contributors can update content"
 on public.content_items for update to authenticated
 using (private.has_workspace_role(workspace_id, array['owner','admin','member']))
 with check (private.has_workspace_role(workspace_id, array['owner','admin','member']));
 
+drop policy if exists "admins can delete content" on public.content_items;
 create policy "admins can delete content"
 on public.content_items for delete to authenticated
 using (private.has_workspace_role(workspace_id, array['owner','admin']));
 
+drop policy if exists "admins can read audit events" on public.audit_events;
 create policy "admins can read audit events"
 on public.audit_events for select to authenticated
 using (private.has_workspace_role(workspace_id, array['owner','admin']));
+
+-- Policy definitions above are safely replaced on re-run, avoiding duplicate-policy SQLSTATE 42710.
 
 -- Audit writes are reserved for a trusted server/Edge Function. No browser INSERT,
 -- UPDATE or DELETE policy is granted, so clients cannot forge or rewrite audit records.
