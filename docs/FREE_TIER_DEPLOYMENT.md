@@ -33,7 +33,7 @@ Lead/content records cannot change their workspace ID, creator ID or creation ti
 
 Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as public frontend build variables. If neither is set, the local demo is shown. If both are set, the secure authentication portal is shown and the local demo is suppressed. If only one is set, the app fails closed and displays a configuration warning.
 
-The portal supports email/password sign-in, registration, password recovery, workspace creation, workspace selection, read-only membership listing, and workspace-scoped Leads and Content CRUD. RLS policies are enforced by PostgreSQL. Team invitations and role changes remain disabled until trusted server-side functions are deployed.
+The portal supports email/password sign-in, registration, password recovery, workspace creation, workspace selection, workspace-scoped Leads and Content CRUD, and Team invitation/role controls. PostgreSQL RLS remains authoritative. Team actions call the `manage-workspace-member` Edge Function and work only after it is deployed. The endpoint supports new email invitations; inviting an email already registered with Supabase is not supported by this initial version.
 
 ## Safe test sequence
 
