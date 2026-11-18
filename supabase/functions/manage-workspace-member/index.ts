@@ -63,7 +63,7 @@ Deno.serve(async (req: Request) => {
   if (action === 'invite') {
     // Reject malformed input before consuming a rate-limit reservation.
     const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254) return json(400, { error: 'A valid email address is required' }, origin);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return json(400, { error: 'A valid email address is required' }, origin);
     const { data: invitationAllowed, error: rateError } = await admin.rpc('reserve_workspace_invitation', {
       target_workspace: workspaceId,
       target_actor: authData.user.id
