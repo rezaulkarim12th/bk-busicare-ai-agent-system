@@ -44,14 +44,14 @@ Last reviewed: 2026-11-18
 - GitHub Actions run 44257206944 passed on the latest implementation: 13/13 Node tests, production dependency audit, Deno type-check for the Edge Function, JavaScript syntax checks for both app entry files and Vite production build.
 - Production-only Supabase configuration guard was skipped on the feature-branch PR as intended; Pages artifact upload and deployment were also skipped.
 - Deployment was skipped as intended because this is a feature-branch pull request.
-- Static tests do not substitute for PostgreSQL/RLS integration tests.
+- Static tests do not substitute for PostgreSQL/RLS integration tests; no live tenant isolation or invitation tests have been run.
 - Live Supabase authentication, migration application and two-user cross-tenant tests have not been performed.
 
 ## Not implemented / not connected
 - Cloud Leads and Content CRUD.
 - Trusted server/Edge Functions for team invitations, role changes and audit-event writes.
 - Two-user/two-workspace integration tests and production security review.
-- Cloudflare Pages or live Supabase provisioning.
+- Live Supabase provisioning, migration application and Edge Function deployment.
 - Social publishing, ads, messaging, marketplace, e-commerce, payment or AI provider integrations.
 - Production monitoring, backups, retention and rate limiting.
 
