@@ -103,10 +103,11 @@ if (hasUrl !== hasKey) {
     if (r.error) { note(r.error.message, true); return; }
     session = null; workspaces = []; activeId = ''; authView('login');
   }
-  let initialSessionLoaded = false;
+  let passwordRecoveryPending = false;
   supabase.auth.onAuthStateChange((event, next) => {
     session = next;
     if (event === 'PASSWORD_RECOVERY') {
+      passwordRecoveryPending = true;
       passwordUpdateView();
       return;
     }
@@ -128,8 +129,8 @@ if (hasUrl !== hasKey) {
   supabase.auth.getSession().then(async r => {
     if (r.error) throw r.error;
     session = r.data.session;
-    initialSessionLoaded = true;
-    if (session) await portal(); else authView('login');
+    if (passwordRecoveryPending) passwordUpdateView();
+    else if (session) await portal(); else authView('login');
   }).catch(err => {
     authView('login');
     note(err.message || 'Unable to initialize secure session.', true);
