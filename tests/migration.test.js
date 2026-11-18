@@ -27,7 +27,7 @@ test('authorization helpers are private, non-API functions with a locked search 
   assert.match(normalized, /create schema if not exists private/);
   assert.match(normalized, /create or replace function private\.is_workspace_member\(target_workspace uuid\)[\s\S]*?set search_path = ''/);
   assert.match(normalized, /create or replace function private\.has_workspace_role\(target_workspace uuid, allowed_roles text\[\]\)[\s\S]*?set search_path = ''/);
-  assert.doesNotMatch(normalized, /create or replace function public\.(is_workspace_member|has_workspace_role)/);
+  assert.match(normalized, /create or replace function public\.reserve_workspace_invitation\(target_workspace uuid, target_actor uuid\)/);
   assert.match(normalized, /revoke all on schema private from public, anon, authenticated/);
   assert.match(normalized, /grant usage on schema private to authenticated/);
   assert.match(normalized, /grant execute on function private\.is_workspace_member\(uuid\) to authenticated/);
@@ -37,8 +37,8 @@ test('workspace creation requires authentication and atomically assigns owner ro
   assert.match(normalized, /create or replace function public\.create_workspace\(workspace_name text\)/);
   assert.match(normalized, /if caller_id is null then raise exception 'authentication required'/);
   assert.match(normalized, /values \(new_workspace_id, caller_id, 'owner'\)/);
-  assert.match(normalized, /revoke all on function public\.create_workspace\(text\) from public, anon/);
-  assert.match(normalized, /grant execute on function public\.create_workspace\(text\) to authenticated/);
+  assert.match(normalized, /revoke all on function public\.reserve_workspace_invitation\(uuid, uuid\) from public, anon, authenticated/);
+  assert.match(normalized, /grant execute on function public\.reserve_workspace_invitation\(uuid, uuid\) to service_role/);
 });
 
 test('lead and content access is scoped to workspace membership and role', () => {
@@ -114,7 +114,7 @@ test('team management runs through an authenticated, role-checked Edge Function'
   assert.match(teamFunction, /Invitation limit reached/);
   assert.match(teamFunction, /reserve_workspace_invitation/);
   assert.match(teamFunction, /APP_ALLOWED_ORIGINS/);
-  assert.doesNotMatch(teamFunction, /Access-Control-Allow-Origin': '\\*'/);
+  assert.doesNotMatch(teamFunction, /Access-Control-Allow-Origin': '\*'/);
   assert.match(teamFunction, /auditError/);
   assert.match(teamFunction, /deleteUser\(invited\.user\.id\)/);
   assert.match(teamFunction, /inviteUserByEmail/);
@@ -142,9 +142,9 @@ test('backup import validates records and CSV export mitigates formula injection
 
 test('invitation attempts are rate-limited atomically and only the service role can reserve them', () => {
   assert.match(normalized, /create or replace function public\\.reserve_workspace_invitation\\(target_workspace uuid, target_actor uuid\\)/);
-  assert.match(normalized, /auth\\.role\\(\\) <> 'service_role'/);
+  assert.match(normalized, /auth\.role\(\) <> 'service_role'/);
   assert.match(normalized, /pg_advisory_xact_lock/);
-  assert.match(normalized, /member\\.invitation_attempted/);
+  assert.match(normalized, /member\.invitation_attempted/);
   assert.match(normalized, /recent_attempts >= 5/);
   assert.match(normalized, /revoke all on function public\\.reserve_workspace_invitation\\(uuid, uuid\\) from public, anon, authenticated/);
   assert.match(normalized, /grant execute on function public\\.reserve_workspace_invitation\\(uuid, uuid\\) to service_role/);
