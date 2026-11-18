@@ -152,3 +152,12 @@ test('invitation attempts are rate-limited atomically and only the service role 
   const rateReservation = teamFunction.indexOf("admin.rpc('reserve_workspace_invitation'");
   assert.ok(emailValidation >= 0 && rateReservation > emailValidation, 'Invalid email input must not consume an invitation rate-limit reservation');
 });
+
+
+test('invitation quota SQL function uses a valid dollar-quoted body', () => {
+  assert.match(sql, /create or replace function public\\.reserve_workspace_invitation\\(target_workspace uuid, target_actor uuid\\)[\\s\\S]*?set search_path = ''\\s+as \\\$\\$[\\s\\S]*?end;\\s+\\$\\$;/);
+});
+
+test('team invitation email validation rejects whitespace', () => {
+  assert.match(teamFunction, /\\/\\^\\[\\^\\\\s@\\]\\+@\\[\\^\\\\s@\\]\\+\\\\\\.\\[\\^\\\\s@\\]\\+\\$\\//);
+});
