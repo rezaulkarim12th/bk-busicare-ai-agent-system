@@ -32,5 +32,5 @@ test('lead and content policies scope access to workspace membership', () => {
 
 test('browser clients cannot directly mutate workspace membership', () => {
   assert.doesNotMatch(normalized, /create policy[^;]*on public\.workspace_members for (insert|update|delete)/);
-  assert.match(sql.toLowerCase(), /membership writes are intentionally not exposed to browser clients/);
+  assert.match(sql.toLowerCase(), /no client-side policies for membership writes/);
 });
