@@ -3,8 +3,8 @@
 This checklist records the remaining owner-controlled setup required before a safe live release. The application is not production-ready until every required test below passes.
 
 ## Verified in GitHub
-- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build #114.
-- [x] Disposable local Supabase stack started successfully in Local Test #15.
+- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build #115.
+- [x] Disposable local Supabase stack started successfully in Local Test #16.
 - [x] All repository migrations applied successfully to the disposable local database.
 - [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
 - [x] Local Supabase service status verified and stack cleaned up.
@@ -14,8 +14,8 @@ This checklist records the remaining owner-controlled setup required before a sa
 - [ ] Live TEST-project Auth, API-level cross-tenant RLS and Edge Function tests.
 - [ ] Merge feature PR only after external release gates pass and owner explicitly approves.
 
-Latest successful build: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376020086
-Latest successful local Supabase test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376018697
+Latest successful build: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376656025
+Latest successful local Supabase test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376656064
 Local CI workflow: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/.github/workflows/supabase-local-ci.yml
 RLS regression test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/supabase/tests/rls_isolation.test.sql
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
@@ -65,4 +65,4 @@ Each provider requires the account owner to create/authorize the app, approve sc
 Do not promise automatic publishing or ad management until each provider integration has been implemented, permission-reviewed and tested. Keep customer messaging, publishing, CRM mutations and ad spend behind explicit human approval.
 
 ## Release decision
-Current state: Build #114 passed; Local Test #15 passed with all 7 pgTAP RLS assertions; live Supabase TEST deployment and live RLS/API tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
+Current state: Build #115 passed; Local Test #16 passed with all 7 pgTAP RLS assertions; live Supabase TEST deployment and live RLS/API tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
