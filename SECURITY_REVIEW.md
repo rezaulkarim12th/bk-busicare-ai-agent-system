@@ -1,6 +1,6 @@
 # BK-BusiCare security review
 
-Review scope: repository source at the feature branch, SQL migration, Supabase Edge Function, browser auth portal, GitHub Actions workflows and repository tests. This is a static code/configuration review, not a penetration test or live Supabase verification.
+Review scope: repository source at the feature branch, SQL migration, Supabase Edge Function, browser auth portal, GitHub Actions workflows and repository tests. This is a static code/configuration review plus disposable local database regression testing, not a penetration test or live Supabase verification.
 
 ## Controls observed in source
 - RLS is enabled on workspaces, workspace_members, leads, content_items and audit_events.
@@ -14,17 +14,18 @@ Review scope: repository source at the feature branch, SQL migration, Supabase E
 - Signup and password recovery UI reject passwords shorter than 12 characters. This is a client-side guard only; configure the Supabase Auth password policy server-side as well.
 
 ## Verification performed
-- Latest feature-branch CI run 44344000245 completed successfully: production dependency audit, Deno Edge Function type-check, migration safety/regression tests, application JavaScript syntax checks and Vite production bundle build all passed.
-- The deployment job was skipped for the feature-branch PR; no production deployment occurred.
-- Regression tests include checks for SECURITY DEFINER search_path pinning, membership/audit table write restrictions, anonymous table grants and the 12-character UI guard.
-- Production dependency audit passed. The workflow audits production dependencies; it does not establish that the complete development dependency tree is vulnerability-free.
+- Build #112 passed: dependency installation, high-severity production dependency audit, Deno Edge Function type-check, migration safety checks, application JavaScript syntax checks and Vite production bundle build.
+- Local Supabase Test #13 passed: application/migration static tests, Deno type-check, disposable local Supabase startup, application of all migrations, pgTAP RLS isolation suite (7/7 assertions), local service status and cleanup.
+- The pgTAP suite verifies viewer workspace-scoped reads, denial of cross-workspace reads, denial of viewer create/update/delete, member workspace-scoped reads and member lead creation attributed to the authenticated identity.
+- The feature-branch deploy job was skipped as intended. No production deployment occurred.
+- The workflow audits production dependencies; it does not establish that the complete development dependency tree is vulnerability-free.
 - The repository currently has no package lockfile and CI uses npm install, so dependency resolution is not fully reproducible. Add and review a lockfile, then switch CI to npm ci before production release.
 - GitHub Actions dependencies and Supabase CLI are referenced by mutable major/latest tags. Pin action commits and a reviewed CLI version as a supply-chain hardening step.
 
 ## Not verified — release blockers
 - No Supabase TEST project has been provisioned from this repository workflow.
-- No migration has been applied to any database and no live PostgreSQL policy execution has been exercised.
-- No two-user/two-workspace cross-tenant RLS/API authorization test has run.
+- No migration has been applied to a real/remote Supabase database.
+- No two-user/two-workspace cross-tenant RLS/API authorization test has run against live Supabase.
 - Edge Function JWT, CORS, invitation email, quota, rollback and role-boundary behavior have not been exercised against a live Supabase project.
 - Auth SMTP, redirect allowlists, server-side password policy, backups, monitoring and recovery have not been configured/verified.
 - Production Pages deployment has not occurred.
