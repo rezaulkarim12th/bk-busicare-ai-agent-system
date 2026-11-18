@@ -47,3 +47,8 @@ test('authentication portal uses public Supabase configuration and auth APIs onl
   assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
   assert.match(portal, /local demo is blocked in authenticated mode/i);
 });
+
+test('authenticated configuration does not render the local demo application', async () => {
+  const main = await readFile(new URL('../src/main.js', import.meta.url), 'utf8');
+  assert.match(main, /if \(!import\.meta\.env\.VITE_SUPABASE_URL \|\| !import\.meta\.env\.VITE_SUPABASE_ANON_KEY\) render\(\)/);
+});
