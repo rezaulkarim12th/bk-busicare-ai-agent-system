@@ -6,6 +6,7 @@ const sql = await readFile(new URL('../supabase/migrations/0001_multitenant_foun
 const normalized = sql.replace(/--.*$/gm, '').replace(/\s+/g, ' ').toLowerCase();
 const portal = await readFile(new URL('../src/auth-portal.js', import.meta.url), 'utf8');
 const app = await readFile(new URL('../src/main.js', import.meta.url), 'utf8');
+const teamFunction = await readFile(new URL('../supabase/functions/manage-workspace-member/index.ts', import.meta.url), 'utf8');
 
 test('creates all workspace-scoped operational tables with RLS enabled', () => {
   for (const table of ['workspaces','workspace_members','leads','content_items','audit_events']) {
@@ -82,6 +83,20 @@ test('authenticated portal performs workspace-scoped cloud Leads and Content CRU
   assert.match(portal, /function loadRecords\(\)/);
   assert.match(portal, /function bindDataActions\(\)/);
   assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
+});
+
+test('team management runs through an authenticated, role-checked Edge Function', () => {
+  assert.match(teamFunction, /auth\.getUser\(token\)/);
+  assert.match(teamFunction, /workspace_members/);
+  assert.match(teamFunction, /\['owner', 'admin'\]/);
+  assert.match(teamFunction, /Only the workspace owner may assign admin role/);
+  assert.match(teamFunction, /Invitation limit reached/);
+  assert.match(teamFunction, /inviteUserByEmail/);
+  assert.match(teamFunction, /audit_events/);
+  assert.match(portal, /functions\.invoke\('manage-workspace-member'/);
+  assert.match(portal, /action:'set_role'/);
+  assert.match(portal, /action:'invite'/);
+  assert.doesNotMatch(teamFunction, /console\.log\([^)]*(secret|key|token)/i);
 });
 
 test('authenticated or partially configured mode never renders the local demo', () => {
