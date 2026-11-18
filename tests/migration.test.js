@@ -85,7 +85,7 @@ test('backup import validates records and CSV export mitigates formula injection
   assert.match(app, /Number\.isSafeInteger\(Number\(l\.id\)\)/);
   assert.match(app, /contentOk=Array\.isArray\(incoming\?\.content\)/);
   assert.match(app, /function csvCell\(value\)/);
-  assert.match(app, /rows\.map\(r => r\.map\(csvCell\)\.join\(','\)\)/);
+  assert.ok(app.includes("rows.map(r => r.map(csvCell).join(','))"));
   assert.match(app, /\[=\+@-\]/);
   assert.match(app, /data-edit-lead="\$\{esc\(l\.id\)\}"/);
 });
