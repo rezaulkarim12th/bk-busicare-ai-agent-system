@@ -16,7 +16,8 @@ test('creates all workspace-scoped operational tables with RLS enabled', () => {
 
 test('table grants are least-privilege and RLS remains the row authorization layer', () => {
   assert.match(normalized, /revoke all on table public\.workspaces, public\.workspace_members, public\.leads, public\.content_items, public\.audit_events from public, anon, authenticated/);
-  assert.match(normalized, /grant select, update on table public\.workspaces to authenticated/);
+  assert.match(normalized, /grant select on table public\.workspaces to authenticated/);
+  assert.match(normalized, /grant update \(name\) on table public\.workspaces to authenticated/);
   assert.match(normalized, /grant select on table public\.workspace_members to authenticated/);
   assert.match(normalized, /grant select on table public\.audit_events to authenticated/);
 });
@@ -84,6 +85,7 @@ test('backup import validates records and CSV export mitigates formula injection
   assert.match(app, /Number\.isSafeInteger\(Number\(l\.id\)\)/);
   assert.match(app, /contentOk=Array\.isArray\(incoming\?\.content\)/);
   assert.match(app, /function csvCell\(value\)/);
+  assert.match(app, /rows\.map\(r => r\.map\(csvCell\)\.join\(','\)\)/);
   assert.match(app, /\[=\+@-\]/);
   assert.match(app, /data-edit-lead="\$\{esc\(l\.id\)\}"/);
 });
