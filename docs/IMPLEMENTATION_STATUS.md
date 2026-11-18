@@ -14,6 +14,8 @@ Last reviewed: 2026-11-18
 - Added an atomic create-workspace RPC that assigns the creator as owner.
 - Intentionally withheld browser-side membership writes; invitations and role changes need a trusted server/Edge Function.
 - Added a free-tier deployment guide and frontend-only environment variable example.
+- Added Node's built-in test suite with static checks for tenant tables, RLS enablement, workspace-owner creation, role-scoped policies, and blocked browser-side membership mutations.
+- Updated GitHub Actions so pull requests run migration checks, JavaScript syntax validation, and a Vite production build; deployment remains restricted to `main`.
 - Preserved the existing MVP and main branch; changes are isolated in `feature/multitenant-foundation`.
 
 ## Validation performed
@@ -22,6 +24,7 @@ Last reviewed: 2026-11-18
 - Secret-pattern scan of the supplied source: no matching committed credentials found.
 - Production Vite build: NOT RUN. Dependency installation did not complete in the available environment.
 - PostgreSQL migration execution: NOT RUN. No PostgreSQL/Supabase database is connected.
+- Automated migration checks: added to CI; execution result pending the GitHub Actions run.
 - Cross-tenant RLS integration tests: NOT RUN. A live Supabase project and test users are required.
 
 ## Not yet implemented
