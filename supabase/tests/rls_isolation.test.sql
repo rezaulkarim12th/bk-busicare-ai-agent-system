@@ -66,4 +66,4 @@ select is((select count(*)::integer from public.leads
   'member can create a lead attributed to their authenticated identity');
 
 select * from finish();
-rollback();
+rollback;
