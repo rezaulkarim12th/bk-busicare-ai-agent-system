@@ -1,6 +1,6 @@
 # BK-BusiCare AI Agent System
 
-Responsive Vite web-app MVP for BK-BusiCare. The current repository contains a local operations demo and an early Supabase authentication / multi-tenant database foundation. It is **not yet a production SaaS or an integrated AI agent**.
+Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains a local operations demo and an early Supabase authentication / multi-tenant foundation. It is **not yet a production SaaS or a fully integrated AI agent**.
 
 ## Run locally
 
@@ -30,29 +30,29 @@ The SQL migration creates workspace, membership, lead, content and audit tables 
 
 **Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. No real authentication, invitation email or two-user/two-workspace RLS test has been run. Do not enter customer data until these release gates pass.
 
-## Configure Supabase for a disposable test project
+## Test deployment
 
-1. Copy `.env.example` to `.env.local`.
-2. Set the public project URL and publishable/anon key only.
-3. Apply `supabase/migrations/0001_multitenant_foundation.sql` to a new disposable project after reviewing it.
-4. Enable email authentication and set the correct site URL and allowed redirect URLs.
-5. Run `npm test` and `npm run build`.
-6. Test with two separate users and two workspaces before considering real customer data.
+A manually triggered GitHub Actions workflow is provided at `.github/workflows/supabase-test-deploy.yml`. It is intended only for a disposable TEST Supabase project. It previews pending migrations, then applies migrations and deploys the team Edge Function after explicit workflow confirmation.
 
-Never expose a service-role key, database password, OAuth secret, access token or customer data in browser variables or Git.
+Configure the GitHub Actions environment `supabase-test` and its secrets:
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
+- `SUPABASE_PROJECT_REF` — must identify the disposable TEST project, never production.
+
+The workflow has not been run. Configure required environment protection/reviewers before using it. Never send secrets in chat or commit them to Git.
 
 ## Hosting status
 
-The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main), when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
 
-## Not implemented yet
+## Not implemented / not connected
 
-- Cloud-synced Leads and Content CRUD.
-- Server-side team invitations, role changes and audit-event writes.
-- Live cross-tenant RLS integration tests and production monitoring.
+- Live Supabase provisioning, migration application and Edge Function deployment.
+- Live cross-tenant RLS integration tests and production security review.
 - Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
 - AI content generation/agent orchestration and scheduled automation.
+- Production monitoring, backups, retention and rate limiting.
 
 ## Security and release rules
 
-The GitHub repository is currently public. Do not commit secrets, private customer data, exported backups or production records. Keep all new work on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM writes and ad spend must remain behind human approval.
+The GitHub repository is public. Do not commit credentials, customer data or backups. Keep development on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM writes and ad spend must remain behind human approval.
