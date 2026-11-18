@@ -7,9 +7,9 @@ Evolve the existing browser-based MVP into a secure, multi-user operations platf
 - Responsive Vite application with local demo dashboard, CRM leads, sales pipeline, content planner, reports, CSV export and JSON backup/restore.
 - Supabase email/password authentication portal, password recovery and workspace selection.
 - Workspace-scoped Leads and Content CRUD with PostgreSQL RLS.
-- Owner/admin/member/viewer roles; trusted Edge Function path for invitations and role changes.
+- Owner/admin/member/viewer roles; trusted Edge Function path for invitations and role changes, with exact-origin CORS allowlisting, UUID validation, atomic database-locked invitation attempt quotas and audit-write compensation.
 - Migration safety tests, Deno type-check, JavaScript syntax checks and production build in GitHub Actions.
-- Manually gated Supabase TEST deployment workflow.
+- Manually gated, two-step Supabase TEST deployment workflow (read-only preview, separately confirmed apply).
 
 ## Target modules
 1. Executive dashboard: leads, sales, follow-ups, content queue, client delivery, and campaign KPIs.
