@@ -141,11 +141,11 @@ test('backup import validates records and CSV export mitigates formula injection
 });
 
 test('invitation attempts are rate-limited atomically and only the service role can reserve them', () => {
-  assert.match(normalized, /create or replace function public\\.reserve_workspace_invitation\\(target_workspace uuid, target_actor uuid\\)/);
-  assert.match(normalized, /auth\.role\(\) <> 'service_role'/);
-  assert.match(normalized, /pg_advisory_xact_lock/);
-  assert.match(normalized, /member\.invitation_attempted/);
-  assert.match(normalized, /recent_attempts >= 5/);
-  assert.match(normalized, /revoke all on function public\\.reserve_workspace_invitation\\(uuid, uuid\\) from public, anon, authenticated/);
-  assert.match(normalized, /grant execute on function public\\.reserve_workspace_invitation\\(uuid, uuid\\) to service_role/);
+  assert.ok(normalized.includes('create or replace function public.reserve_workspace_invitation(target_workspace uuid, target_actor uuid)'));
+  assert.ok(normalized.includes("auth.role() <> 'service_role'"));
+  assert.ok(normalized.includes('pg_advisory_xact_lock'));
+  assert.ok(normalized.includes("member.invitation_attempted"));
+  assert.ok(normalized.includes('recent_attempts >= 5'));
+  assert.ok(normalized.includes('revoke all on function public.reserve_workspace_invitation(uuid, uuid) from public, anon, authenticated'));
+  assert.ok(normalized.includes('grant execute on function public.reserve_workspace_invitation(uuid, uuid) to service_role'));
 });
