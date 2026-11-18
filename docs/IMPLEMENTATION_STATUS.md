@@ -15,7 +15,8 @@ Last reviewed: 2026-11-18
 - Authorization helpers moved to a non-API-exposed `private` schema with locked search path.
 - Browser clients cannot mutate memberships or write/modify audit events.
 - Lead/content workspace identity, creator identity and creation timestamps are immutable on update; updated_at is refreshed.
-- Supabase Auth portal: sign-in, registration, password reset, password recovery, sign-out, workspace creation, workspace selection and read-only membership listing.
+- Supabase Auth portal: sign-in, registration, password reset, password recovery, sign-out, workspace creation and workspace selection.
+- Authenticated portal cloud CRUD for Leads and Content, scoped by active workspace and protected by PostgreSQL RLS; delete controls are limited to owner/admin roles.
 - Partial Supabase environment configuration fails closed; authenticated mode suppresses the browser-local demo.
 - Local demo supports Leads, pipeline, content planning, reports, CSV export and JSON backup/restore.
 - JSON import validates record structure before replacing data; CSV export prefixes formula-like cells to reduce spreadsheet formula injection risk.
@@ -37,7 +38,7 @@ Last reviewed: 2026-11-18
 - Replaced stale README and deployment guide statements with current feature status.
 
 ## Validation
-- GitHub Actions run 44244022887 passed on commit 7f47f1b30a0f312b6df62271278ae1dc340ce1c9: 11/11 Node tests, syntax checks for both JavaScript entry files, and Vite production build.
+- Latest validation after cloud CRUD changes is pending in GitHub Actions; earlier baseline CI passed 11/11 Node tests, both JavaScript syntax checks and Vite production build.
 - Deployment was skipped as intended because this is a feature-branch pull request.
 - Static tests do not substitute for PostgreSQL/RLS integration tests.
 - Live Supabase authentication, migration application and two-user cross-tenant tests have not been performed.
