@@ -24,6 +24,15 @@ Responsive web-app MVP for BK-BusiCare, designed to evolve into a multi-tenant S
 - Content planner records plans only; it does not publish content.
 - This is an MVP prototype, not production-ready SaaS.
 
+## Free-first multi-tenant foundation
+
+The proposed starting stack is Cloudflare Pages for the static frontend and Supabase for authentication and PostgreSQL. Provider quotas and free-tier terms must be rechecked before production use. No hosting or database project is provisioned yet.
+
+- Database foundation: `supabase/migrations/0001_multitenant_foundation.sql`
+- Deployment guide: `docs/FREE_TIER_DEPLOYMENT.md`
+- Implementation status and test gaps: `docs/IMPLEMENTATION_STATUS.md`
+- Safe frontend environment template: `.env.example`
+
 ## SaaS architecture roadmap
 1. Replace browser storage with a secure server API and relational database.
 2. Implement tenant-scoped data access, authentication, role-based permissions and audit logs.
