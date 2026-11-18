@@ -24,6 +24,12 @@ Responsive web-app MVP for BK-BusiCare, designed to evolve into a multi-tenant S
 - Content planner records plans only; it does not publish content.
 - This is an MVP prototype, not production-ready SaaS.
 
+## Authentication portal setup
+
+For a real Supabase login portal, copy `.env.example` to `.env.local` and set only the project's public URL and anon key. Apply the reviewed migration in `supabase/migrations/0001_multitenant_foundation.sql` to a disposable Supabase project before testing. The local demo is shown only when Supabase configuration is absent. With Supabase configured, the local demo is suppressed until workspace-scoped cloud CRUD is complete.
+
+Never expose the Supabase service-role key, database password, OAuth secrets or private tokens in browser environment variables.
+
 ## Free-first multi-tenant foundation
 
 The proposed starting stack is Cloudflare Pages for the static frontend and Supabase for authentication and PostgreSQL. Provider quotas and free-tier terms must be rechecked before production use. No hosting or database project is provisioned yet.
