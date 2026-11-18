@@ -50,6 +50,7 @@ if (hasUrl !== hasKey) {
       const email = String(f.get('email')).trim();
       const password = String(f.get('password') || '');
       try {
+        if (mode === 'signup' && password.length < 12) return note('Password কমপক্ষে ১২ অক্ষরের হতে হবে।',true);
         if (mode === 'login') {
           const r = await supabase.auth.signInWithPassword({ email, password });
           if (r.error) throw r.error;
@@ -226,6 +227,7 @@ if (hasUrl !== hasKey) {
     root.querySelector('#new-password').onsubmit = async e => {
       e.preventDefault();
       const password = String(new FormData(e.currentTarget).get('password') || '');
+      if (password.length < 12) return note('Password কমপক্ষে ১২ অক্ষরের হতে হবে।',true);
       const result = await supabase.auth.updateUser({ password });
       if (result.error) { note(result.error.message,true); return; }
       note('Password updated successfully.');
