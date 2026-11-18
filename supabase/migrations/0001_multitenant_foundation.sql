@@ -71,6 +71,45 @@ create index if not exists leads_workspace_follow_up_idx on public.leads(workspa
 create index if not exists content_workspace_schedule_idx on public.content_items(workspace_id, scheduled_at);
 create index if not exists audit_workspace_created_idx on public.audit_events(workspace_id, created_at desc);
 
+-- Atomically reserve invitation attempts so concurrent requests cannot bypass
+-- the per-actor limit. Only the trusted Edge Function service role may call this.
+create or replace function public.reserve_workspace_invitation(target_workspace uuid, target_actor uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  recent_attempts integer;
+begin
+  if coalesce(auth.role(), '') <> 'service_role' then
+    raise exception 'Service role required';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(target_workspace::text || ':' || target_actor::text, 0));
+
+  select count(*)::integer into recent_attempts
+  from public.audit_events
+  where workspace_id = target_workspace
+    and actor_id = target_actor
+    and action = 'member.invitation_attempted'
+    and created_at >= now() - interval '10 minutes';
+
+  if recent_attempts >= 5 then
+    return false;
+  end if;
+
+  insert into public.audit_events(workspace_id, actor_id, action, entity_type, metadata)
+  values (target_workspace, target_actor, 'member.invitation_attempted', 'workspace_member', '{}'::jsonb);
+
+  return true;
+end;
+$;
+
+revoke all on function public.reserve_workspace_invitation(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.reserve_workspace_invitation(uuid, uuid) to service_role;
+
+
 -- Explicit table privileges complement RLS; anonymous clients receive no table access.
 revoke all on table
   public.workspaces,
