@@ -81,7 +81,8 @@ revoke all on table
 from public, anon, authenticated;
 
 grant usage on schema public to authenticated;
-grant select, update on table public.workspaces to authenticated;
+grant select on table public.workspaces to authenticated;
+grant update (name) on table public.workspaces to authenticated;
 grant select on table public.workspace_members to authenticated;
 grant select, insert, update, delete on table public.leads to authenticated;
 grant select, insert, update, delete on table public.content_items to authenticated;
