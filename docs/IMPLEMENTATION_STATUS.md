@@ -26,17 +26,17 @@ Last reviewed: 2026-11-18
 - No service-role key or database password is used in browser code.
 - Vite dev/preview servers bind to 127.0.0.1.
 - GitHub Actions checks production dependencies, Deno types, migration safety tests, JavaScript syntax and production build.
-- Manual Supabase TEST deployment workflow is present. It previews migrations, then applies them and deploys the Edge Function only when manually dispatched with confirmation. It targets the configured Supabase project ref and uses GitHub environment `supabase-test`.
+- Manual Supabase TEST deployment workflow is present. It separates a read-only `preview` run from a separately dispatched `apply` run; apply requires a confirmation checkbox, re-runs the preview, supplies the database password to the CLI, applies migrations and deploys the Edge Function. It targets the configured project ref and GitHub environment `supabase-test`.
 
 ## Latest validation
-- GitHub Actions run [44308592257](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44308592257) completed successfully on commit `7dbfa479153dbfcf708ed1ead526261d436668c2`: production dependency audit, Deno Edge Function type-check, 13/13 Node tests, JavaScript syntax checks and Vite production build passed.
+- GitHub Actions run [44309412376](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44309412376) completed successfully on commit `5142183110cc2e0ee004bfa10579af25756d4054`: production dependency audit, Deno Edge Function type-check, 13/13 Node tests, JavaScript syntax checks and Vite production build passed. The subsequent workflow-only safety change at commit `69e6df1fc55559fd10a786a970449c922e1dc30b` is awaiting its own CI result.
 - Pages deployment was skipped because this was a pull-request run on the feature branch.
 - The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration.
 - Static tests do not substitute for PostgreSQL/RLS integration tests. No live tenant-isolation or invitation tests have been run.
 
 ## Outstanding release gates
 - Create and verify a disposable Supabase TEST project; configure GitHub environment `supabase-test` and secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, and `SUPABASE_PROJECT_REF`.
-- Review the workflow's migration dry-run output, then explicitly authorize the TEST deployment.
+- Run the workflow in `preview` mode and inspect its migration dry-run output; only afterward run it in `apply` mode with explicit confirmation.
 - Configure Supabase Auth email/SMTP, site URL and redirect URLs; test sign-in, recovery and invitation delivery.
 - Run two-user/two-workspace RLS tests, including viewer/member/admin boundaries and direct API requests.
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as GitHub Actions secrets before a Pages build from `main`.
