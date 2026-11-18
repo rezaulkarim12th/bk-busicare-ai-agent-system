@@ -78,7 +78,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   recent_attempts integer;
 begin
@@ -104,7 +104,7 @@ begin
 
   return true;
 end;
-$;
+$$;
 
 revoke all on function public.reserve_workspace_invitation(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.reserve_workspace_invitation(uuid, uuid) to service_role;
