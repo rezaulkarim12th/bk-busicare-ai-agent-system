@@ -1,0 +1,61 @@
+name: Supabase local migration test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/multitenant-foundation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-local-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-database:
+    name: Apply migrations to disposable local Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install application dependencies
+        run: npm install
+
+      - name: Run application and migration static tests
+        run: npm test
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check Supabase Edge Function
+        run: deno check supabase/functions/manage-workspace-member/index.ts
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Start isolated local Supabase stack
+        run: supabase start
+
+      - name: Apply all migrations to the disposable local database
+        run: supabase db reset --local
+
+      - name: Verify local Supabase services
+        run: supabase status
+
+      - name: Stop local Supabase stack
+        if: always()
+        run: supabase stop --no-backup
