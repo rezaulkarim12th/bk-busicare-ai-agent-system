@@ -10,10 +10,15 @@ This checklist records the remaining owner-controlled setup required before a sa
 - [x] Application JavaScript syntax checks pass.
 - [x] SQL invitation quota function dollar quoting repaired.
 - [x] Team invitation email validation repaired.
-- [x] Regression coverage added for both fixes.
+- [x] Regression coverage added for invitation SQL and email validation fixes.
+- [x] Client-side 12-character minimum added for signup and password recovery.
+- [x] Additional static regression checks added for SECURITY DEFINER search_path and membership/audit table grants.
+- [x] Static security review documented in `SECURITY_REVIEW.md`.
 - [ ] Merge feature PR only after external release gates pass.
 
-Latest verified run: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44342343098
+Last verified run before the latest security-hardening commits: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44343274172
+
+The latest security-hardening commits still require a fresh CI run. The GitHub connector did not return a workflow run for the latest head.
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
 
 ## Required TEST environment setup (owner action)
