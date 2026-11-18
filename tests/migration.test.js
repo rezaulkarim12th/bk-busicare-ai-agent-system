@@ -14,6 +14,13 @@ test('creates all workspace-scoped operational tables with RLS enabled', () => {
   }
 });
 
+test('table grants are least-privilege and RLS remains the row authorization layer', () => {
+  assert.match(normalized, /revoke all on table public\.workspaces, public\.workspace_members, public\.leads, public\.content_items, public\.audit_events from public, anon, authenticated/);
+  assert.match(normalized, /grant select, update on table public\.workspaces to authenticated/);
+  assert.match(normalized, /grant select on table public\.workspace_members to authenticated/);
+  assert.match(normalized, /grant select on table public\.audit_events to authenticated/);
+});
+
 test('authorization helpers are private, non-API functions with a locked search path', () => {
   assert.match(normalized, /create schema if not exists private/);
   assert.match(normalized, /create or replace function private\.is_workspace_member\(target_workspace uuid\)[\s\S]*?set search_path = ''/);
