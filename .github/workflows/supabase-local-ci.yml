@@ -3,8 +3,6 @@ name: Supabase local migration test
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [feature/multitenant-foundation]
   workflow_dispatch:
 
 permissions:
@@ -48,6 +46,7 @@ jobs:
           version: latest
 
       - name: Start isolated local Supabase stack
+        id: start-supabase
         run: supabase start
 
       - name: Apply all migrations to the disposable local database
@@ -57,5 +56,5 @@ jobs:
         run: supabase status
 
       - name: Stop local Supabase stack
-        if: always()
+        if: always() && steps.start-supabase.outcome == 'success'
         run: supabase stop --no-backup
