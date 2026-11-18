@@ -3,33 +3,27 @@
 This checklist records the remaining owner-controlled setup required before a safe live release. The application is not production-ready until every required test below passes.
 
 ## Verified in GitHub
-- [x] Earlier feature-branch CI build and static checks passed.
-- [x] Supabase Edge Function Deno type-check passed.
-- [x] Migration safety/regression tests passed.
-- [x] Application JavaScript syntax checks passed.
-- [x] Vite production bundle build passed.
-- [x] SQL invitation quota function dollar quoting repaired.
-- [x] Team invitation email validation repaired.
-- [x] Regression coverage added for invitation SQL and email validation fixes.
-- [x] Client-side 12-character minimum added for signup and password recovery.
-- [x] Static regression checks added for SECURITY DEFINER search_path and membership/audit table grants.
-- [x] Static security review documented in SECURITY_REVIEW.md.
-- [x] Credential-free local Supabase CI workflow starts an isolated database and applies all migrations.
-- [x] Local Supabase CI run 44365673707 completed successfully: app tests, Edge Function type-check, local Supabase startup, migration reset, service status and cleanup all passed.
-- [x] pgTAP RLS isolation regression suite added for viewer read-only behavior and tenant-scoped member access; execution is pending the next CI run.
-- [ ] pgTAP RLS regression suite must pass in GitHub Actions before treating local role-isolation coverage as verified.
+- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build #112.
+- [x] Disposable local Supabase stack started successfully in Local Test #13.
+- [x] All repository migrations applied successfully to the disposable local database.
+- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
+- [x] Local Supabase service status verified and stack cleaned up.
+- [x] Deployment job correctly skipped for the feature-branch PR; no production deployment occurred.
+- [ ] Add and review a package lockfile, then switch CI from npm install to npm ci.
+- [ ] Pin GitHub Actions dependencies and Supabase CLI to reviewed immutable versions.
 - [ ] Live TEST-project Auth, API-level cross-tenant RLS and Edge Function tests.
 - [ ] Merge feature PR only after external release gates pass and owner explicitly approves.
 
-Latest successful local migration CI: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44365673707
+Latest successful build: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44367754059
+Latest successful local Supabase test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44367754039
 Local CI workflow: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/.github/workflows/supabase-local-ci.yml
 RLS regression test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/supabase/tests/rls_isolation.test.sql
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
 
-The earlier feature-branch build passed. Its deployment job was skipped, as expected for this feature-branch PR; this is not a production deployment and does not validate live Supabase behavior.
+A successful local test confirms migrations and the covered RLS cases work in a fresh disposable database. It does not validate a real Supabase project, live Auth, SMTP, Edge Function deployment or production hosting.
 
 ## Required TEST environment setup (owner action)
-1. Create a separate disposable Supabase TEST project. Do not use the production project.
+1. Create a separate disposable Supabase TEST project. Do not use the existing project unless its non-production status is independently confirmed.
 2. In GitHub repository Settings -> Environments, create `supabase-test`. Add required reviewers/protection if available.
 3. Add these environment secrets without placing them in source control or chat:
    - `SUPABASE_ACCESS_TOKEN`
@@ -71,4 +65,4 @@ Each provider requires the account owner to create/authorize the app, approve sc
 Do not promise automatic publishing or ad management until each provider integration has been implemented, permission-reviewed and tested. Keep customer messaging, publishing, CRM mutations and ad spend behind explicit human approval.
 
 ## Release decision
-Current state: latest feature-branch build passed; local Supabase migrations passed in disposable CI run 44365673707; pgTAP tests have been added but their new CI run is pending; live Supabase TEST deployment and live RLS/API tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
+Current state: Build #112 passed; Local Test #13 passed with all 7 pgTAP RLS assertions; live Supabase TEST deployment and live RLS/API tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
