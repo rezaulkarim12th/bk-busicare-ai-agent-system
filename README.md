@@ -30,7 +30,11 @@ The SQL migration creates workspace, membership, lead, content and audit tables 
 
 **Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. No real authentication, invitation email or two-user/two-workspace RLS test has been run. Do not enter customer data until these release gates pass.
 
-## Test deployment
+## Local Supabase CI (no credentials required)
+
+The GitHub Actions workflow `.github/workflows/supabase-local-ci.yml` starts a disposable Supabase stack on the GitHub-hosted runner, applies all repository migrations to that local database, and reports service status. It runs for pull requests targeting `main`, pushes to `feature/multitenant-foundation`, and manual dispatch. It does not connect to or modify your Supabase account and requires no Supabase secrets. Review its run logs in GitHub Actions; a successful run confirms the migration can be applied to a fresh local Supabase database, not that live RLS isolation or production auth has been fully tested.
+
+## Test deployment to a separate Supabase project
 
 A manually triggered GitHub Actions workflow is provided at `.github/workflows/supabase-test-deploy.yml`. It is intended only for a disposable TEST Supabase project. It has separate `preview` and `apply` operations. Run `preview` first and inspect its logs; only then run `apply` with the confirmation checkbox enabled. The apply operation re-runs the preview, applies migrations with the database password, and deploys the team Edge Function.
 
@@ -41,7 +45,7 @@ Configure the GitHub Actions environment `supabase-test` and its secrets:
 
 After the TEST Edge Function is deployed, set its server-side secret `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the app. Do not place service-role or database credentials in `VITE_` variables or browser code.
 
-The workflow has not been run. Configure required environment protection/reviewers before using it. Never send secrets in chat or commit them to Git.
+The remote workflow has not been run. Configure required environment protection/reviewers before using it. Never send secrets in chat or commit them to Git.
 
 ## Hosting status
 
