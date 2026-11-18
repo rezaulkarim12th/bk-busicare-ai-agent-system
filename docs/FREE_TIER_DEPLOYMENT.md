@@ -1,37 +1,61 @@
-# Free-first hosting and multi-tenant deployment
+# Free-first setup and deployment guide
 
-## Approved starting direction
-- Frontend: Cloudflare Pages (free tier, static Vite build).
-- Authentication and PostgreSQL: Supabase (free tier for development/pilot).
-- Source control and CI: existing GitHub repository and Actions workflow.
-- Domain: use the provided Pages subdomain initially; a custom domain is optional and may incur cost.
+## Current state
 
-Free-tier quotas, sleeping/pausing rules, and commercial terms can change. Verify the current provider dashboard and terms before relying on the free tier for a live business. No service is provisioned by this document.
+- Source control: existing GitHub repository and pull request.
+- CI: GitHub Actions builds pull requests.
+- Deployment workflow: GitHub Pages, only from `main` after Pages is configured to use GitHub Actions.
+- Proposed backend: Supabase Auth + PostgreSQL.
+- Alternative static hosting: Cloudflare Pages; not connected.
+- No Supabase or hosting project has been provisioned by this work.
 
-## Multi-tenant data model
-Every business record carries a `workspace_id`. A user belongs to one or more workspaces through `workspace_members` and has one of four roles:
-- owner: full workspace control;
-- admin: manage workspace operations and members (member invitation endpoint is a later task);
-- member: create and update operational records;
+The repository is public. Never commit API keys, service-role secrets, database passwords, OAuth secrets, customer records or exported backups.
+
+## Supabase architecture
+
+The migration creates:
+- `workspaces` and `workspace_members`;
+- workspace-scoped `leads` and `content_items`;
+- `audit_events`, readable by workspace owners/admins;
+- RLS policies for workspace membership and role-based record access.
+
+Roles:
+- owner: workspace owner;
+- admin: workspace administration;
+- member: create/update operational records;
 - viewer: read-only access.
 
-The initial SQL migration creates workspaces, memberships, leads, content items, and audit events. PostgreSQL Row Level Security (RLS) policies scope reads and writes to the authenticated user's workspace membership. Membership writes are intentionally not exposed to browser clients; implement invitations and role changes through a trusted server/Edge Function after validating the inviter's role.
+Authorization helper functions are placed in the `private` schema, with a locked function search path. Keep `private` out of the Supabase API-exposed schemas. Membership writes and audit-event writes have no browser policy; they must be performed by trusted server/Edge Functions.
 
-## Deployment sequence
-1. Create a Supabase project and keep the database password in the provider's secret manager.
-2. Review and apply `supabase/migrations/0001_multitenant_foundation.sql` in a disposable development project first.
-3. Enable email authentication and configure allowed redirect URLs for the Cloudflare Pages domain.
-4. Create a Cloudflare Pages project connected to this GitHub repository; build command `npm run build`, output directory `dist`.
-5. Add only the Supabase project URL and publishable/anon key as frontend build variables. These are public identifiers; never place service-role keys, database passwords, or provider secrets in browser variables.
-6. Add server-side authorization, invitation workflows, audit writes, backup/restore, and integration token encryption before onboarding real client workspaces.
-7. Test cross-tenant isolation with at least two users and two workspaces. Confirm a user cannot read, modify, or infer another workspace's records through direct API requests.
+Lead/content records cannot change their workspace ID, creator ID or creation timestamp after insert. Their `updated_at` timestamp is refreshed on updates.
 
-## Current state and limits
-- The current Vite application remains a localStorage-only MVP. It does not yet use this SQL schema.
-- No Supabase or Cloudflare project has been created or connected.
-- Authentication, invitations, tenant switching, server-side API, audit event generation, and production monitoring are not implemented.
-- The migration is a foundation, not a complete production SaaS security certification.
-- Do not upload real customer records until the application uses the backend and tenant-isolation tests pass.
+## Authentication portal behavior
 
-## Approval gates
-Before live integrations, require explicit review for OAuth scopes, data retention, and platform policy. Keep social publishing, customer messaging, external CRM writes, and ad spend behind a human approval step.
+Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as public frontend build variables. If neither is set, the local demo is shown. If both are set, the secure authentication portal is shown and the local demo is suppressed. If only one is set, the app fails closed and displays a configuration warning.
+
+The portal supports email/password sign-in, registration, password recovery, workspace creation and read-only membership listing. It does not yet synchronize Leads or Content to PostgreSQL.
+
+## Safe test sequence
+
+1. Create a disposable Supabase project. Do not use a live customer database.
+2. Review and apply `supabase/migrations/0001_multitenant_foundation.sql`.
+3. Enable email authentication and configure site URL plus allowed redirect URLs.
+4. Keep the database password and service-role key in the provider's secret manager. They must never be exposed to Vite/browser code.
+5. Configure only the project URL and publishable/anon key in local `.env.local` or hosting build variables.
+6. Register two test users and create separate workspaces.
+7. Verify direct REST requests cannot read or mutate another workspace's records. Verify viewers cannot write, members cannot delete, and non-admins cannot read audit events.
+8. Verify password recovery, logout, expired sessions and missing/partial environment configuration.
+9. Do not onboard real customer data until cloud CRUD, invitation authorization and cross-tenant integration tests are complete.
+
+## Release gates
+
+- All CI tests and production build pass.
+- Real Supabase tests using at least two users and two workspaces pass.
+- Security review confirms private helper schema is not API-exposed.
+- Team invitation and role-change operations use trusted server-side authorization.
+- Backups, retention, logging, rate limits and monitoring are defined.
+- Explicit owner approval is received before merge or deployment.
+
+## External actions
+
+Social publishing, customer messaging, external CRM changes and advertising spend must require explicit human approval and verified API scopes. No such platform integrations are connected in the current release.
