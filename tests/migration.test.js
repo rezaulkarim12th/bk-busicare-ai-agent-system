@@ -61,14 +61,15 @@ test('auth portal supports recovery and fails closed on partial Supabase configu
   assert.match(portal, /signUp/);
   assert.match(portal, /PASSWORD_RECOVERY/);
   assert.match(portal, /passwordUpdateView\(\)/);
+  assert.match(portal, /passwordRecoveryPending/);
   assert.match(portal, /hasUrl !== hasKey/);
   assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
 });
 
 test('authenticated or partially configured mode never renders the local demo', () => {
-  assert.match(app, /const hasSupabaseUrl=Boolean\\(import\\.meta\\.env\\.VITE_SUPABASE_URL\\?\\.trim\\(\\)\\)/);
-  assert.match(app, /const hasSupabaseKey=Boolean\\(import\\.meta\\.env\\.VITE_SUPABASE_ANON_KEY\\?\\.trim\\(\\)\\)/);
-  assert.match(app, /if \\(!hasSupabaseUrl && !hasSupabaseKey\\) render\\(\\)/);
+  assert.match(app, /const hasSupabaseUrl=Boolean\(import\.meta\.env\.VITE_SUPABASE_URL\?\.trim\(\)\)/);
+  assert.match(app, /const hasSupabaseKey=Boolean\(import\.meta\.env\.VITE_SUPABASE_ANON_KEY\?\.trim\(\)\)/);
+  assert.match(app, /if \(!hasSupabaseUrl && !hasSupabaseKey\) render\(\)/);
 });
 
 test('backup import validates records and CSV export mitigates formula injection', () => {
