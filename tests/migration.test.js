@@ -75,6 +75,15 @@ test('auth portal supports recovery and fails closed on partial Supabase configu
   assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
 });
 
+test('authenticated portal performs workspace-scoped cloud Leads and Content CRUD', () => {
+  for (const token of ["from('leads').select", "from('content_items').select", "from('leads').insert(payload)", "from('content_items').insert(payload)", "from('leads').update", "from('content_items').update", "from(table).delete()", ".eq('workspace_id',activeId)", "created_by:session.user.id"]) {
+    assert.ok(portal.includes(token), 'Missing cloud data operation: ' + token);
+  }
+  assert.match(portal, /function loadRecords\(\)/);
+  assert.match(portal, /function bindDataActions\(\)/);
+  assert.doesNotMatch(portal, /SERVICE_ROLE_KEY|service_role|SUPABASE_DB_PASSWORD/);
+});
+
 test('authenticated or partially configured mode never renders the local demo', () => {
   assert.match(app, /const hasSupabaseUrl=Boolean\(import\.meta\.env\.VITE_SUPABASE_URL\?\.trim\(\)\)/);
   assert.match(app, /const hasSupabaseKey=Boolean\(import\.meta\.env\.VITE_SUPABASE_ANON_KEY\?\.trim\(\)\)/);
