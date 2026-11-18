@@ -3,7 +3,6 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-
 select plan(7);
 
 -- Seed isolated identities and two tenants as the database owner.
@@ -36,56 +35,35 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
 
-select is(
-  (select count(*)::integer from public.leads),
-  1,
-  'viewer reads only the lead in their workspace'
-);
-select is(
-  (select count(*)::integer from public.leads where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'),
-  0,
-  'viewer cannot read another workspace'
-);
+select is((select count(*)::integer from public.leads), 1,
+  'viewer reads only the lead in their workspace');
+select is((select count(*)::integer from public.leads where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'), 0,
+  'viewer cannot read another workspace');
 select throws_ok(
   $$insert into public.leads (workspace_id, name) values ('aaaaaaaa-0000-4000-8000-000000000001', 'viewer must not create')$$,
-  '42501',
-  null,
-  'viewer cannot create leads'
-);
-select is(
-  (with changed as (
-    update public.leads set name = 'viewer changed this'
-    where id = 'aaaaaaaa-1111-4000-8000-000000000001'
-    returning id
-  ) select count(*)::integer from changed),
-  0,
-  'viewer cannot update leads'
-);
-select is(
-  (with removed as (
-    delete from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001'
-    returning id
-  ) select count(*)::integer from removed),
-  0,
-  'viewer cannot delete leads'
+  '42501', null, 'viewer cannot create leads'
 );
 
+-- RLS filters unauthorized UPDATE/DELETE rows rather than raising an error.
+update public.leads set name = 'viewer changed this'
+where id = 'aaaaaaaa-1111-4000-8000-000000000001';
+select is((select name from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001'),
+  'Tenant A lead', 'viewer cannot update leads');
+
+delete from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001';
+select is((select count(*)::integer from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001'),
+  1, 'viewer cannot delete leads');
+
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
-select is(
-  (select count(*)::integer from public.leads),
-  1,
-  'member reads only the lead in their own workspace'
-);
-select is(
-  (with created as (
-    insert into public.leads (workspace_id, name)
-    values ('bbbbbbbb-0000-4000-8000-000000000001', 'Member-created lead')
-    returning created_by
-  ) select count(*)::integer from created
-    where created_by = '20000000-0000-4000-8000-000000000001'),
-  1,
-  'member can create a lead attributed to their authenticated identity'
-);
+select is((select count(*)::integer from public.leads), 1,
+  'member reads only the lead in their own workspace');
+
+insert into public.leads (workspace_id, name)
+values ('bbbbbbbb-0000-4000-8000-000000000001', 'Member-created lead');
+select is((select count(*)::integer from public.leads
+  where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
+    and created_by = '20000000-0000-4000-8000-000000000001'), 2,
+  'member can create a lead attributed to their authenticated identity');
 
 select * from finish();
 rollback();
