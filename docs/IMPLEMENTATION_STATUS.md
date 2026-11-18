@@ -33,8 +33,8 @@ Last reviewed: 2026-11-18
 - Replaced stale README and deployment guide statements with current feature status.
 
 ## Validation
-- Before this review, GitHub Actions run 44243012520 passed the then-current tests and Vite build on commit 6e86394574c89f6e47fdfc5ac3fd255c2b5cc546.
-- The security fixes in this review are awaiting a fresh CI run.
+- GitHub Actions run 44244022887 passed on commit 7f47f1b30a0f312b6df62271278ae1dc340ce1c9: 11/11 Node tests, syntax checks for both JavaScript entry files, and Vite production build.
+- Deployment was skipped as intended because this is a feature-branch pull request.
 - Static tests do not substitute for PostgreSQL/RLS integration tests.
 - Live Supabase authentication, migration application and two-user cross-tenant tests have not been performed.
 
