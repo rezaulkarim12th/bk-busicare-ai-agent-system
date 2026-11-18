@@ -10,7 +10,7 @@ let leadStatus = 'All';
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return structuredClone(defaultData)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function money(n){return '৳'+Number(n||0).toLocaleString('en-BD')}
-function csvCell(value){const raw=String(value??'');const safe=/^[\\u0000-\\u0020]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
+function csvCell(value){const raw=String(value??'');const safe=/^[\u0000-\u0020]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const nav=[['Dashboard','▦'],['Leads','◉'],['Sales Pipeline','⇢'],['Content Planner','▤'],['Reports','▥'],['Settings','⚙']];
 function shell(){document.querySelector('#app').innerHTML=`
@@ -46,4 +46,6 @@ const bi=document.querySelector('#backup-import');if(bi)bi.onchange=async()=>{co
 const ex=document.querySelector('#export');if(ex)ex.onclick=()=>{const rows=[['Name','Company','Service','Status','Value BDT'],...data.leads.map(l=>[l.name,l.company,l.service,l.status,l.value])];const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='bk-busicare-leads.csv';a.click();URL.revokeObjectURL(a.href)};
 }
 function render(){shell();bind()}
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) render();
+const hasSupabaseUrl=Boolean(import.meta.env.VITE_SUPABASE_URL?.trim());
+const hasSupabaseKey=Boolean(import.meta.env.VITE_SUPABASE_ANON_KEY?.trim());
+if (!hasSupabaseUrl && !hasSupabaseKey) render();
