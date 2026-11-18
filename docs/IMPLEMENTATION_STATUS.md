@@ -29,7 +29,8 @@ Last reviewed: 2026-11-18
 - Removed browser-side audit event insert policy; trusted server-side writes are required.
 - Added immutable tenant/creator identity trigger and updated_at maintenance.
 - Validated imported backup record fields and escaped imported IDs in HTML attributes.
-- Added CSV formula-injection mitigation.
+- Applied CSV formula-injection mitigation in the actual CSV export path, with a regression assertion.
+- Restricted authenticated workspace updates to the `name` column; primary key and timestamps are no longer writable through the table grant.
 - Replaced stale README and deployment guide statements with current feature status.
 
 ## Validation
