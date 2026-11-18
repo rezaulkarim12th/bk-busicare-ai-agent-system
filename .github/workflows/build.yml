@@ -28,6 +28,12 @@ jobs:
         run: npm install
       - name: Audit dependencies for high-severity vulnerabilities
         run: npm audit --omit=dev --audit-level=high
+      - name: Set up Deno for Supabase Edge Functions
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check workspace member Edge Function
+        run: deno check supabase/functions/manage-workspace-member/index.ts
       - name: Run migration safety checks
         run: npm test
       - name: Check application JavaScript syntax
