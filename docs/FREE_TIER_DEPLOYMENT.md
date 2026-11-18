@@ -1,23 +1,20 @@
 # Free-first setup and deployment guide
 
 ## Current state
-
-- Source control: existing GitHub repository and pull request.
-- CI: GitHub Actions builds pull requests.
-- Deployment workflow: GitHub Pages, only from `main` after Pages is configured to use GitHub Actions.
-- Proposed backend: Supabase Auth + PostgreSQL.
-- Alternative static hosting: Cloudflare Pages; not connected.
-- No Supabase or hosting project has been provisioned by this work.
+- Source control: GitHub repository and draft pull request #1.
+- CI: GitHub Actions builds pull requests; the latest recorded run passed the automated checks and production build.
+- Hosting workflow: GitHub Pages deployment is restricted to `main), after Pages is configured for GitHub Actions.
+- Backend: Supabase Auth + PostgreSQL foundation is implemented in code but not yet deployed to a live project.
+- No live Supabase or production hosting project has been verified by this work.
 
 The repository is public. Never commit API keys, service-role secrets, database passwords, OAuth secrets, customer records or exported backups.
 
 ## Supabase architecture
-
 The migration creates:
 - `workspaces` and `workspace_members`;
 - workspace-scoped `leads` and `content_items`;
 - `audit_events`, readable by workspace owners/admins;
-- RLS policies for workspace membership and role-based record access.
+- RLS policies for membership and role-based record access.
 
 Roles:
 - owner: workspace owner;
@@ -25,47 +22,44 @@ Roles:
 - member: create/update operational records;
 - viewer: read-only access.
 
-Authorization helper functions are placed in the `private` schema, with a locked function search path. Keep `private` out of the Supabase API-exposed schemas. Membership writes and audit-event writes have no browser policy; they must be performed by trusted server/Edge Functions.
+Authorization helper functions are in the `private` schema, with a locked function search path. Keep `private` out of the Supabase API-exposed schemas. Membership writes and audit-event writes have no browser policy; they must be performed by trusted server/Edge Functions.
 
 Lead/content records cannot change their workspace ID, creator ID or creation timestamp after insert. Their `updated_at` timestamp is refreshed on updates.
 
-## Authentication portal behavior
+## Authentication portal
+Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as public frontend build variables. If neither is set, the local demo is shown. If both are set, the authentication portal is shown and the local demo is suppressed. If only one is set, the app fails closed and displays a configuration warning.
 
-Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as public frontend build variables. If neither is set, the local demo is shown. If both are set, the secure authentication portal is shown and the local demo is suppressed. If only one is set, the app fails closed and displays a configuration warning.
+The portal supports email/password sign-in, registration, password recovery, workspace creation, workspace selection, workspace-scoped Leads and Content CRUD, and Team invitation/role controls. PostgreSQL RLS remains authoritative. Team actions call the `manage-workspace-member` Edge Function and work only after it is deployed. Inviting an email already registered with Supabase is not supported by this initial endpoint.
 
-The portal supports email/password sign-in, registration, password recovery, workspace creation, workspace selection, workspace-scoped Leads and Content CRUD, and Team invitation/role controls. PostgreSQL RLS remains authoritative. Team actions call the `manage-workspace-member` Edge Function and work only after it is deployed. The endpoint supports new email invitations; inviting an email already registered with Supabase is not supported by this initial version.
+## Disposable TEST deployment workflow
+The repository includes `.github/workflows/supabase-test-deploy.yml`. It is manually triggered, requires the `confirm_deploy` checkbox, uses the GitHub Actions environment `supabase-test`, previews pending migrations, applies them to the configured project and deploys the `manage-workspace-member` function.
 
-## Safe test sequence
+Before using it:
+1. Create a separate disposable Supabase TEST project. Do not use production or a project containing customer data.
+2. In GitHub Settings → Environments, create `supabase-test`. Configure required reviewers/protection rules where available.
+3. Add environment secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` and `SUPABASE_PROJECT_REF`. Confirm the project ref belongs to the disposable TEST project.
+4. Review the migration SQL and dry-run output before approving the workflow run.
+5. Configure Supabase Auth email provider/SMTP, site URL and allowed redirect URLs after deployment.
+6. Register two test users, create separate workspaces and verify direct API requests cannot read or mutate another workspace's records. Verify viewers cannot write, members cannot delete and non-admins cannot read audit events.
+7. Verify password recovery, logout, expired sessions, invitation authorization and email delivery.
+8. Do not onboard real customer data until the live migration, invitation authorization, two-user/two-workspace RLS tests and security review are complete.
 
-1. Create a disposable Supabase project. Do not use a live customer database.
-2. Review and apply `supabase/migrations/0001_multitenant_foundation.sql`.
-3. Enable email authentication and configure site URL plus allowed redirect URLs.
-4. Keep the database password and service-role key in the provider's secret manager. They must never be exposed to Vite/browser code.
-5. Configure only the project URL and publishable/anon key in local `.env.local` or hosting build variables.
-6. From a trusted development environment, link the Supabase CLI to the disposable project and deploy the team function with `supabase functions deploy manage-workspace-member`. The function validates the caller JWT itself and uses the platform-injected secret key only server-side. Invitations to already-registered email addresses are not supported by this initial endpoint and should be handled through a separately reviewed flow.
-7. Configure the Auth email provider and SMTP/invite redirect settings before testing invitations. Never put the secret key in Vite variables or the browser.
-6. Register two test users and create separate workspaces.
-7. Verify direct REST requests cannot read or mutate another workspace's records. Verify viewers cannot write, members cannot delete, and non-admins cannot read audit events.
-8. Verify password recovery, logout, expired sessions and missing/partial environment configuration.
-9. Do not onboard real customer data until a live migration, invitation authorization, two-user/two-workspace RLS tests and a production security review are complete.
+The workflow has not been executed. Its required GitHub environment and secrets must be configured by the repository owner. Never send secrets in chat.
 
 ## GitHub Pages production build configuration
+Before enabling a `main` deployment, add these repository Actions secrets under Settings → Secrets and variables → Actions:
+- `VITE_SUPABASE_URL` — Supabase project URL.
+- `VITE_SUPABASE_ANON_KEY` — browser-safe publishable/anon key; database RLS must be enabled.
 
-Before enabling the `main` deployment workflow, add these repository Actions secrets under Settings → Secrets and variables → Actions:
-- `VITE_SUPABASE_URL` — the Supabase project URL.
-- `VITE_SUPABASE_ANON_KEY` — the browser-safe publishable/anon key; database RLS must be enabled.
-
-The workflow now fails closed on a `main` deployment if either value is missing and passes them only as public Vite build variables. Never add a service-role/secret key as a `VITE_` variable. Keep the PR build separate from production deployment.
+The workflow fails closed on a `main` deployment if either value is missing. Never add a service-role/secret key as a `VITE_` variable. Keep pull-request builds separate from production deployment.
 
 ## Release gates
-
-- All CI tests and production build pass.
+- Automated CI tests and production build pass.
 - Real Supabase tests using at least two users and two workspaces pass.
-- Security review confirms private helper schema is not API-exposed.
+- Security review confirms the private helper schema is not API-exposed.
 - Team invitation and role-change operations use trusted server-side authorization.
 - Backups, retention, logging, rate limits and monitoring are defined.
-- Explicit owner approval is received before merge or deployment.
+- Explicit owner approval is received before merge or production deployment.
 
 ## External actions
-
 Social publishing, customer messaging, external CRM changes and advertising spend must require explicit human approval and verified API scopes. No such platform integrations are connected in the current release.
