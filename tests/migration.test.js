@@ -156,8 +156,8 @@ test('invitation attempts are rate-limited atomically and only the service role 
 
 test('invitation quota SQL function uses a valid dollar-quoted body', () => {
   const functionSql = sql.slice(sql.indexOf('create or replace function public.reserve_workspace_invitation'), sql.indexOf('revoke all on function public.reserve_workspace_invitation'));
-  assert.ok(functionSql.includes("as $$\\ndeclare"));
-  assert.ok(functionSql.includes("end;\\n$$;"));
+  assert.match(functionSql, /as \\$\\$\\s+declare/);
+  assert.match(functionSql, /end;\\s+\\$\\$;/);
 });
 
 test('team invitation email validation rejects whitespace', () => {
