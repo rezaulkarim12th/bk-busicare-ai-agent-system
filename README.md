@@ -32,7 +32,7 @@ The SQL migration creates workspace, membership, lead, content and audit tables 
 
 ## Test deployment
 
-A manually triggered GitHub Actions workflow is provided at `.github/workflows/supabase-test-deploy.yml`. It is intended only for a disposable TEST Supabase project. It previews pending migrations, then applies migrations and deploys the team Edge Function after explicit workflow confirmation.
+A manually triggered GitHub Actions workflow is provided at `.github/workflows/supabase-test-deploy.yml`. It is intended only for a disposable TEST Supabase project. It has separate `preview` and `apply` operations. Run `preview` first and inspect its logs; only then run `apply` with the confirmation checkbox enabled. The apply operation re-runs the preview, applies migrations with the database password, and deploys the team Edge Function.
 
 Configure the GitHub Actions environment `supabase-test` and its secrets:
 - `SUPABASE_ACCESS_TOKEN`
@@ -43,7 +43,7 @@ The workflow has not been run. Configure required environment protection/reviewe
 
 ## Hosting status
 
-The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main), when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
 
 ## Not implemented / not connected
 
