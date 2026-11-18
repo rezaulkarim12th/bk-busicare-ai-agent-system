@@ -71,6 +71,22 @@ create index if not exists leads_workspace_follow_up_idx on public.leads(workspa
 create index if not exists content_workspace_schedule_idx on public.content_items(workspace_id, scheduled_at);
 create index if not exists audit_workspace_created_idx on public.audit_events(workspace_id, created_at desc);
 
+-- Explicit table privileges complement RLS; anonymous clients receive no table access.
+revoke all on table
+  public.workspaces,
+  public.workspace_members,
+  public.leads,
+  public.content_items,
+  public.audit_events
+from public, anon, authenticated;
+
+grant usage on schema public to authenticated;
+grant select, update on table public.workspaces to authenticated;
+grant select on table public.workspace_members to authenticated;
+grant select, insert, update, delete on table public.leads to authenticated;
+grant select, insert, update, delete on table public.content_items to authenticated;
+grant select on table public.audit_events to authenticated;
+
 -- SECURITY DEFINER helpers live in a non-API-exposed schema.
 create or replace function private.is_workspace_member(target_workspace uuid)
 returns boolean
