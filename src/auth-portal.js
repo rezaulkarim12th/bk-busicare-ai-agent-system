@@ -118,7 +118,15 @@ if (hasUrl !== hasKey) {
     const host = root.querySelector('#members');
     if (!host) return;
     if (r.error) { host.textContent = r.error.message; return; }
-    host.innerHTML = (r.data || []).map(m => '<p style="border-bottom:1px solid #eee;padding:8px 0;overflow-wrap:anywhere">' + safe(m.user_id) + ' — <b>' + safe(m.role) + '</b></p>').join('') || 'No members found.';
+    host.innerHTML = '<table style="width:100%;border-collapse:collapse"><tbody>' + (r.data || []).map(m => '<tr><td style="padding:8px;overflow-wrap:anywhere">' + safe(m.user_id) + '</td><td><b>' + safe(m.role) + '</b></td><td>' + ((activeRole==='owner'||activeRole==='admin')&&m.role!=='owner'&&m.user_id!==session.user.id?'<select data-member-role="' + safe(m.user_id) + '">' + (activeRole==='owner'?'<option value="admin"' + (m.role==='admin'?' selected':'') + '>Admin</option>':'') + '<option value="member"' + (m.role==='member'?' selected':'') + '>Member</option><option value="viewer"' + (m.role==='viewer'?' selected':'') + '>Viewer</option></select> <button type="button" data-set-role="' + safe(m.user_id) + '">Save role</button>':'') + '</td></tr>').join('') + '</tbody></table>' || 'No members found.';
+    host.querySelectorAll('[data-set-role]').forEach(b => b.onclick = async () => {
+      const select = host.querySelector('[data-member-role="' + b.dataset.setRole + '"]');
+      if (!select) return;
+      const result = await supabase.functions.invoke('manage-workspace-member',{body:{action:'set_role',workspace_id:activeId,user_id:b.dataset.setRole,role:select.value}});
+      if (result.error || result.data?.error) { note(result.data?.error || result.error?.message || 'Role update failed.',true); return; }
+      await loadMembers();
+      note('Workspace role updated.');
+    });
   }
   async function refresh() {
     if (busy) return;
@@ -128,6 +136,16 @@ if (hasUrl !== hasKey) {
     finally { busy = false; }
   }
   function bindDataActions() {
+    const inviteForm = root.querySelector('#invite-form');
+    if (inviteForm) inviteForm.onsubmit = async e => {
+      e.preventDefault();
+      const values = new FormData(inviteForm);
+      const result = await supabase.functions.invoke('manage-workspace-member',{body:{action:'invite',workspace_id:activeId,email:String(values.get('email')).trim(),role:String(values.get('role'))}});
+      if (result.error || result.data?.error) { note(result.data?.error || result.error?.message || 'Invitation failed.',true); return; }
+      inviteForm.reset();
+      await loadMembers();
+      note('Invitation email sent.');
+    };
     const lf = root.querySelector('#lead-form');
     if (lf) lf.onsubmit = async e => {
       e.preventDefault();
