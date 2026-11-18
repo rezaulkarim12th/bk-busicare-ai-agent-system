@@ -61,13 +61,12 @@ Deno.serve(async (req: Request) => {
   if (actor.role === 'admin' && role === 'admin') return json(403, { error: 'Only the workspace owner may assign admin role' }, origin);
 
   if (action === 'invite') {
-    const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-    const { count: recentInvites, error: rateError } = await admin.from('audit_events')
-      .select('id', { count: 'exact', head: true })
-      .eq('workspace_id', workspaceId).eq('actor_id', authData.user.id)
-      .eq('action', 'member.invited').gte('created_at', since);
+    const { data: invitationAllowed, error: rateError } = await admin.rpc('reserve_workspace_invitation', {
+      target_workspace: workspaceId,
+      target_actor: authData.user.id
+    });
     if (rateError) return json(500, { error: 'Unable to verify invitation rate limit' }, origin);
-    if ((recentInvites || 0) >= 5) return json(429, { error: 'Invitation limit reached. Try again later.' }, origin);
+    if (invitationAllowed !== true) return json(429, { error: 'Invitation limit reached. Try again later.' }, origin);
     const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return json(400, { error: 'A valid email address is required' }, origin);
     const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
