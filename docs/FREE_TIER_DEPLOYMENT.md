@@ -42,12 +42,20 @@ The portal supports email/password sign-in, registration, password recovery, wor
 3. Enable email authentication and configure site URL plus allowed redirect URLs.
 4. Keep the database password and service-role key in the provider's secret manager. They must never be exposed to Vite/browser code.
 5. Configure only the project URL and publishable/anon key in local `.env.local` or hosting build variables.
-6. From a trusted development environment, link the Supabase CLI to the disposable project and deploy the team function with `supabase functions deploy manage-workspace-member`. The function validates the caller JWT itself and uses the platform-injected secret key only server-side.
+6. From a trusted development environment, link the Supabase CLI to the disposable project and deploy the team function with `supabase functions deploy manage-workspace-member`. The function validates the caller JWT itself and uses the platform-injected secret key only server-side. Invitations to already-registered email addresses are not supported by this initial endpoint and should be handled through a separately reviewed flow.
 7. Configure the Auth email provider and SMTP/invite redirect settings before testing invitations. Never put the secret key in Vite variables or the browser.
 6. Register two test users and create separate workspaces.
 7. Verify direct REST requests cannot read or mutate another workspace's records. Verify viewers cannot write, members cannot delete, and non-admins cannot read audit events.
 8. Verify password recovery, logout, expired sessions and missing/partial environment configuration.
 9. Do not onboard real customer data until a live migration, invitation authorization, two-user/two-workspace RLS tests and a production security review are complete.
+
+## GitHub Pages production build configuration
+
+Before enabling the `main` deployment workflow, add these repository Actions secrets under Settings → Secrets and variables → Actions:
+- `VITE_SUPABASE_URL` — the Supabase project URL.
+- `VITE_SUPABASE_ANON_KEY` — the browser-safe publishable/anon key; database RLS must be enabled.
+
+The workflow now fails closed on a `main` deployment if either value is missing and passes them only as public Vite build variables. Never add a service-role/secret key as a `VITE_` variable. Keep the PR build separate from production deployment.
 
 ## Release gates
 
