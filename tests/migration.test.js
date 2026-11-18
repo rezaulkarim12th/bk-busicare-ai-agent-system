@@ -142,7 +142,7 @@ test('backup import validates records and CSV export mitigates formula injection
 
 test('invitation attempts are rate-limited atomically and only the service role can reserve them', () => {
   assert.ok(normalized.includes('create or replace function public.reserve_workspace_invitation(target_workspace uuid, target_actor uuid)'));
-  assert.ok(normalized.includes("auth.role() <> 'service_role'"));
+  assert.ok(normalized.includes("coalesce(auth.role(), '') <> 'service_role'"));
   assert.ok(normalized.includes('pg_advisory_xact_lock'));
   assert.ok(normalized.includes("member.invitation_attempted"));
   assert.ok(normalized.includes('recent_attempts >= 5'));
