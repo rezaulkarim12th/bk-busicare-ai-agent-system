@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   local-database:
-    name: Apply migrations to disposable local Supabase
+    name: Apply migrations and test RLS in disposable local Supabase
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -51,6 +51,9 @@ jobs:
 
       - name: Apply all migrations to the disposable local database
         run: supabase db reset --local
+
+      - name: Run pgTAP RLS isolation tests
+        run: supabase test db
 
       - name: Verify local Supabase services
         run: supabase status
