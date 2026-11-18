@@ -3,23 +3,24 @@
 This checklist records the remaining owner-controlled setup required before a safe live release. The application is not production-ready until every required test below passes.
 
 ## Verified in GitHub
-- [x] Feature-branch build and production bundle pass.
-- [x] Production dependency audit passes.
-- [x] Supabase Edge Function Deno type-check passes.
-- [x] Migration regression/safety tests pass.
-- [x] Application JavaScript syntax checks pass.
+- [x] Latest feature-branch CI run 44344000245 completed successfully on the latest reviewed feature-branch commit.
+- [x] Build job passed dependency installation and production dependency audit.
+- [x] Supabase Edge Function Deno type-check passed.
+- [x] Migration safety/regression tests passed.
+- [x] Application JavaScript syntax checks passed.
+- [x] Vite production bundle build passed.
 - [x] SQL invitation quota function dollar quoting repaired.
 - [x] Team invitation email validation repaired.
 - [x] Regression coverage added for invitation SQL and email validation fixes.
 - [x] Client-side 12-character minimum added for signup and password recovery.
-- [x] Additional static regression checks added for SECURITY DEFINER search_path and membership/audit table grants.
-- [x] Static security review documented in `SECURITY_REVIEW.md`.
+- [x] Static regression checks added for SECURITY DEFINER search_path and membership/audit table grants.
+- [x] Static security review documented in SECURITY_REVIEW.md.
 - [ ] Merge feature PR only after external release gates pass.
 
-Last verified run before the latest security-hardening commits: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44343274172
-
-The latest security-hardening commits still require a fresh CI run. The GitHub connector did not return a workflow run for the latest head.
+Latest verified CI: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44344000245
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
+
+The CI build passed. The deployment job was skipped, as expected for this feature-branch PR; this is not a production deployment and does not validate live Supabase behavior.
 
 ## Required TEST environment setup (owner action)
 1. Create a separate disposable Supabase TEST project. Do not use the production project.
@@ -64,4 +65,4 @@ Each provider requires the account owner to create/authorize the app, approve sc
 Do not promise automatic publishing or ad management until each provider integration has been implemented, permission-reviewed and tested. Keep customer messaging, publishing, CRM mutations and ad spend behind explicit human approval.
 
 ## Release decision
-Current state: feature-branch CI passed; PR remains Draft; Supabase TEST workflow and live RLS tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
+Current state: latest feature-branch CI build passed; PR remains Draft; Supabase TEST workflow and live RLS tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
