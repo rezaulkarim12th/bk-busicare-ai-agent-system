@@ -20,6 +20,7 @@ Last reviewed: 2026-11-18
 - Local demo supports Leads, pipeline, content planning, reports, CSV export and JSON backup/restore.
 - JSON import validates record structure before replacing data; CSV export prefixes formula-like cells to reduce spreadsheet formula injection risk.
 - No service-role key or database password is used in browser code.
+- Vite upgraded to 8.3.8; CI now runs `npm audit --audit-level=high` before tests/build.
 
 ## Audit fixes applied in this review
 - Fixed password-recovery event handling so the password update form is displayed even when the recovery event arrives before initial session loading finishes.
