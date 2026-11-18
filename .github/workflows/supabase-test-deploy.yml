@@ -1,10 +1,18 @@
-name: Deploy Supabase test environment
+name: Supabase TEST deployment
 
 on:
   workflow_dispatch:
     inputs:
-      confirm_deploy:
-        description: "Confirm migration and Edge Function deployment to the disposable TEST Supabase project"
+      operation:
+        description: "First run preview and inspect the migration log. Run apply only after review."
+        required: true
+        type: choice
+        options:
+          - preview
+          - apply
+        default: preview
+      confirm_apply:
+        description: "I reviewed the preview and confirm applying migrations to the disposable TEST project"
         required: true
         type: boolean
         default: false
@@ -17,8 +25,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    if: inputs.confirm_deploy == true
+  preview:
+    if: inputs.operation == 'preview'
     runs-on: ubuntu-latest
     environment: supabase-test
     env:
@@ -36,7 +44,7 @@ jobs:
         with:
           version: latest
 
-      - name: Validate required deployment secrets
+      - name: Validate TEST project secrets
         shell: bash
         run: |
           set -euo pipefail
@@ -48,11 +56,45 @@ jobs:
             exit 1
           fi
 
-      - name: Preview pending database migrations
-        run: supabase db push --dry-run --remote="$SUPABASE_PROJECT_REF"
+      - name: Preview migrations only (no database changes)
+        run: supabase db push --dry-run --remote="$SUPABASE_PROJECT_REF" --password="$SUPABASE_DB_PASSWORD"
 
-      - name: Apply reviewed database migrations
-        run: supabase db push --remote="$SUPABASE_PROJECT_REF" --yes
+  apply:
+    if: inputs.operation == 'apply' && inputs.confirm_apply == true
+    runs-on: ubuntu-latest
+    environment: supabase-test
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/multitenant-foundation
 
-      - name: Deploy workspace member function
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Validate TEST project secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "Missing SUPABASE_ACCESS_TOKEN"; exit 1; }
+          test -n "$SUPABASE_DB_PASSWORD" || { echo "Missing SUPABASE_DB_PASSWORD"; exit 1; }
+          test -n "$SUPABASE_PROJECT_REF" || { echo "Missing SUPABASE_PROJECT_REF"; exit 1; }
+          if [[ ! "$SUPABASE_PROJECT_REF" =~ ^[a-z0-9]{20}$ ]]; then
+            echo "SUPABASE_PROJECT_REF must be a valid 20-character Supabase project ref."
+            exit 1
+          fi
+
+      - name: Re-check migration plan
+        run: supabase db push --dry-run --remote="$SUPABASE_PROJECT_REF" --password="$SUPABASE_DB_PASSWORD"
+
+      - name: Apply migrations to TEST project
+        run: supabase db push --remote="$SUPABASE_PROJECT_REF" --password="$SUPABASE_DB_PASSWORD" --yes
+
+      - name: Deploy workspace member Edge Function
         run: supabase functions deploy manage-workspace-member --remote="$SUPABASE_PROJECT_REF" --yes
