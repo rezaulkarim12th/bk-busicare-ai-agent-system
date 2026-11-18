@@ -28,11 +28,11 @@ The authenticated portal supports workspace-scoped cloud Leads and Content creat
 
 The SQL migration creates workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
 
-**Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. No real authentication, invitation email or two-user/two-workspace RLS test has been run. Do not enter customer data until these release gates pass.
+**Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. The new pgTAP suite exercises viewer and member workspace isolation against a disposable local database; it does not replace live two-user/two-workspace API, Auth, invitation or penetration testing. Do not enter customer data until all release gates pass.
 
 ## Local Supabase CI (no credentials required)
 
-The GitHub Actions workflow `.github/workflows/supabase-local-ci.yml` starts a disposable Supabase stack on the GitHub-hosted runner, applies all repository migrations to that local database, and reports service status. It runs for pull requests targeting `main`, pushes to `feature/multitenant-foundation`, and manual dispatch. It does not connect to or modify your Supabase account and requires no Supabase secrets. Review its run logs in GitHub Actions; a successful run confirms the migration can be applied to a fresh local Supabase database, not that live RLS isolation or production auth has been fully tested.
+The GitHub Actions workflow `.github/workflows/supabase-local-ci.yml` starts a disposable Supabase stack on the GitHub-hosted runner, applies all repository migrations to that local database, runs the pgTAP RLS regression suite in `supabase/tests/rls_isolation.test.sql`, and reports service status. It runs for pull requests targeting `main` and manual dispatch. It does not connect to or modify your Supabase account and requires no Supabase secrets. A successful run confirms migrations and the covered role-isolation cases work in a fresh local database; it does not prove live Supabase configuration, auth delivery, or production security.
 
 ## Test deployment to a separate Supabase project
 
@@ -54,11 +54,11 @@ The GitHub Actions workflow builds pull requests and deploys to GitHub Pages onl
 ## Not implemented / not connected
 
 - Live Supabase provisioning, migration application and Edge Function deployment.
-- Live cross-tenant RLS integration tests and production security review.
+- Live cross-tenant RLS integration tests through the Supabase API and production security review.
 - Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
 - AI content generation/agent orchestration and scheduled automation.
 - Production monitoring, backups, retention and rate limiting.
 
 ## Security and release rules
 
-The GitHub repository is public. Do not commit credentials, customer data or backups. Keep development on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM writes and ad spend must remain behind human approval.
+The GitHub repository is public. Do not commit credentials, customer data or backups. Keep development on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM mutations and ad spend must remain behind human approval.
