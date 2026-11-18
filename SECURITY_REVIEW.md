@@ -11,13 +11,14 @@ Review scope: repository source at the feature branch, SQL migration, Supabase E
 - Invitation attempts are rate-limited using a transaction advisory lock; invalid email input is rejected before consuming a reservation.
 - CORS uses an exact configured origin allowlist; no wildcard origin is emitted.
 - Browser source does not contain a service-role key; local demo data remains browser-local.
-- Signup and password recovery UI now reject passwords shorter than 12 characters. This is a client-side guard only; configure the Supabase Auth password policy server-side as well.
+- Signup and password recovery UI reject passwords shorter than 12 characters. This is a client-side guard only; configure the Supabase Auth password policy server-side as well.
 
 ## Verification performed
-- GitHub Actions feature-branch CI passed at commit `9799086874c78820d5c10891057da8a168eea648` before the latest password-guard/test commits.
-- Regression tests were extended to check SECURITY DEFINER search_path pinning, membership/audit table write restrictions, anonymous table grants and the 12-character UI guard. CI must pass again on the latest commit before accepting this change.
-- Production dependency audit has passed in the prior CI run. The prior review identified a high-severity advisory in the development dependency tree; the workflow currently audits production dependencies only.
-- The repository currently has no package lockfile and CI uses `npm install`, so dependency resolution is not fully reproducible. Add and review a lockfile, then switch CI to `npm ci` before production release.
+- Latest feature-branch CI run 44344000245 completed successfully: production dependency audit, Deno Edge Function type-check, migration safety/regression tests, application JavaScript syntax checks and Vite production bundle build all passed.
+- The deployment job was skipped for the feature-branch PR; no production deployment occurred.
+- Regression tests include checks for SECURITY DEFINER search_path pinning, membership/audit table write restrictions, anonymous table grants and the 12-character UI guard.
+- Production dependency audit passed. The workflow audits production dependencies; it does not establish that the complete development dependency tree is vulnerability-free.
+- The repository currently has no package lockfile and CI uses npm install, so dependency resolution is not fully reproducible. Add and review a lockfile, then switch CI to npm ci before production release.
 - GitHub Actions dependencies and Supabase CLI are referenced by mutable major/latest tags. Pin action commits and a reviewed CLI version as a supply-chain hardening step.
 
 ## Not verified — release blockers
@@ -30,4 +31,4 @@ Review scope: repository source at the feature branch, SQL migration, Supabase E
 - Meta, Instagram, TikTok, LinkedIn, Google, YouTube, e-commerce, payment, AI provider and scheduler integrations are not implemented/connected.
 
 ## Release decision
-**Do not merge or deploy to production yet.** Keep the PR Draft until the latest CI passes, a disposable TEST project has been used for migration preview/apply, live RLS and Edge Function security tests pass, hosting secrets are verified, and the owner explicitly approves release. Never place service-role keys, DB passwords or access tokens in chat, browser code, repository files or `VITE_` variables.
+**Do not merge or deploy to production yet.** Keep the PR Draft until a disposable TEST project has been used for migration preview/apply, live RLS and Edge Function security tests pass, hosting secrets are verified, and the owner explicitly approves release. Never place service-role keys, DB passwords or access tokens in chat, browser code, repository files or `VITE_` variables.
