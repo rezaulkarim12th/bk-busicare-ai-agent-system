@@ -1,8 +1,13 @@
 -- BK-BusiCare multi-tenant foundation (Supabase PostgreSQL)
--- Apply only to a new Supabase project after reviewing the deployment guide.
--- No production data is included in this migration.
+-- Apply only to a new disposable Supabase project after reviewing this migration.
+-- Do not apply to a production database without a reviewed migration plan.
 
 create extension if not exists pgcrypto;
+
+-- Keep authorization helpers outside the PostgREST-exposed public schema.
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
 
 create table if not exists public.workspaces (
   id uuid primary key default gen_random_uuid(),
@@ -66,11 +71,11 @@ create index if not exists leads_workspace_follow_up_idx on public.leads(workspa
 create index if not exists content_workspace_schedule_idx on public.content_items(workspace_id, scheduled_at);
 create index if not exists audit_workspace_created_idx on public.audit_events(workspace_id, created_at desc);
 
--- SECURITY DEFINER helpers avoid recursive RLS checks on workspace_members.
-create or replace function public.is_workspace_member(target_workspace uuid)
+-- SECURITY DEFINER helpers live in a non-API-exposed schema.
+create or replace function private.is_workspace_member(target_workspace uuid)
 returns boolean
 language sql stable security definer
-set search_path = public
+set search_path = ''
 as $$
   select exists (
     select 1 from public.workspace_members m
@@ -78,10 +83,10 @@ as $$
   );
 $$;
 
-create or replace function public.has_workspace_role(target_workspace uuid, allowed_roles text[])
+create or replace function private.has_workspace_role(target_workspace uuid, allowed_roles text[])
 returns boolean
 language sql stable security definer
-set search_path = public
+set search_path = ''
 as $$
   select exists (
     select 1 from public.workspace_members m
@@ -91,16 +96,45 @@ as $$
   );
 $$;
 
-revoke all on function public.is_workspace_member(uuid) from public;
-revoke all on function public.has_workspace_role(uuid, text[]) from public;
-grant execute on function public.is_workspace_member(uuid) to authenticated;
-grant execute on function public.has_workspace_role(uuid, text[]) to authenticated;
+revoke all on function private.is_workspace_member(uuid) from public, anon;
+revoke all on function private.has_workspace_role(uuid, text[]) from public, anon;
+grant execute on function private.is_workspace_member(uuid) to authenticated;
+grant execute on function private.has_workspace_role(uuid, text[]) to authenticated;
 
--- Atomic workspace creation: caller becomes its owner.
+-- Prevent tenant identity fields being rewritten through ordinary record updates.
+create or replace function private.guard_tenant_record_identity()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.workspace_id is distinct from old.workspace_id
+     or new.created_by is distinct from old.created_by
+     or new.created_at is distinct from old.created_at then
+    raise exception 'Workspace and creator identity fields are immutable';
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+revoke all on function private.guard_tenant_record_identity() from public, anon, authenticated;
+
+drop trigger if exists leads_guard_identity on public.leads;
+create trigger leads_guard_identity
+before update on public.leads
+for each row execute function private.guard_tenant_record_identity();
+
+drop trigger if exists content_guard_identity on public.content_items;
+create trigger content_guard_identity
+before update on public.content_items
+for each row execute function private.guard_tenant_record_identity();
+
+-- Atomic workspace creation: authenticated caller becomes its owner.
 create or replace function public.create_workspace(workspace_name text)
 returns uuid
 language plpgsql security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   new_workspace_id uuid;
@@ -124,7 +158,7 @@ begin
 end;
 $$;
 
-revoke all on function public.create_workspace(text) from public;
+revoke all on function public.create_workspace(text) from public, anon;
 grant execute on function public.create_workspace(text) to authenticated;
 
 alter table public.workspaces enable row level security;
@@ -135,70 +169,63 @@ alter table public.audit_events enable row level security;
 
 create policy "workspace members can view workspaces"
 on public.workspaces for select to authenticated
-using (public.is_workspace_member(id));
+using (private.is_workspace_member(id));
 
 create policy "workspace admins can update workspaces"
 on public.workspaces for update to authenticated
-using (public.has_workspace_role(id, array['owner','admin']))
-with check (public.has_workspace_role(id, array['owner','admin']));
+using (private.has_workspace_role(id, array['owner','admin']))
+with check (private.has_workspace_role(id, array['owner','admin']));
 
 create policy "members can view workspace membership"
 on public.workspace_members for select to authenticated
 using (
   user_id = auth.uid()
-  or public.has_workspace_role(workspace_id, array['owner','admin'])
+  or private.has_workspace_role(workspace_id, array['owner','admin'])
 );
 
 create policy "members can view leads"
 on public.leads for select to authenticated
-using (public.is_workspace_member(workspace_id));
+using (private.is_workspace_member(workspace_id));
 
 create policy "contributors can create leads"
 on public.leads for insert to authenticated
 with check (
-  public.has_workspace_role(workspace_id, array['owner','admin','member'])
+  private.has_workspace_role(workspace_id, array['owner','admin','member'])
   and created_by = auth.uid()
 );
 
 create policy "contributors can update leads"
 on public.leads for update to authenticated
-using (public.has_workspace_role(workspace_id, array['owner','admin','member']))
-with check (public.has_workspace_role(workspace_id, array['owner','admin','member']));
+using (private.has_workspace_role(workspace_id, array['owner','admin','member']))
+with check (private.has_workspace_role(workspace_id, array['owner','admin','member']));
 
 create policy "admins can delete leads"
 on public.leads for delete to authenticated
-using (public.has_workspace_role(workspace_id, array['owner','admin']));
+using (private.has_workspace_role(workspace_id, array['owner','admin']));
 
 create policy "members can view content"
 on public.content_items for select to authenticated
-using (public.is_workspace_member(workspace_id));
+using (private.is_workspace_member(workspace_id));
 
 create policy "contributors can create content"
 on public.content_items for insert to authenticated
 with check (
-  public.has_workspace_role(workspace_id, array['owner','admin','member'])
+  private.has_workspace_role(workspace_id, array['owner','admin','member'])
   and created_by = auth.uid()
 );
 
 create policy "contributors can update content"
 on public.content_items for update to authenticated
-using (public.has_workspace_role(workspace_id, array['owner','admin','member']))
-with check (public.has_workspace_role(workspace_id, array['owner','admin','member']));
+using (private.has_workspace_role(workspace_id, array['owner','admin','member']))
+with check (private.has_workspace_role(workspace_id, array['owner','admin','member']));
 
 create policy "admins can delete content"
 on public.content_items for delete to authenticated
-using (public.has_workspace_role(workspace_id, array['owner','admin']));
+using (private.has_workspace_role(workspace_id, array['owner','admin']));
 
 create policy "admins can read audit events"
 on public.audit_events for select to authenticated
-using (public.has_workspace_role(workspace_id, array['owner','admin']));
+using (private.has_workspace_role(workspace_id, array['owner','admin']));
 
-create policy "members can append audit events"
-on public.audit_events for insert to authenticated
-with check (
-  public.has_workspace_role(workspace_id, array['owner','admin','member'])
-  and actor_id = auth.uid()
-);
-
--- Deliberately no client-side policies for membership writes. Invitations and
--- role changes must be implemented by a trusted server/Edge Function.
+-- Audit writes are reserved for a trusted server/Edge Function. No browser INSERT,
+-- UPDATE or DELETE policy is granted, so clients cannot forge or rewrite audit records.
