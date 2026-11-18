@@ -61,14 +61,15 @@ Deno.serve(async (req: Request) => {
   if (actor.role === 'admin' && role === 'admin') return json(403, { error: 'Only the workspace owner may assign admin role' }, origin);
 
   if (action === 'invite') {
+    // Reject malformed input before consuming a rate-limit reservation.
+    const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254) return json(400, { error: 'A valid email address is required' }, origin);
     const { data: invitationAllowed, error: rateError } = await admin.rpc('reserve_workspace_invitation', {
       target_workspace: workspaceId,
       target_actor: authData.user.id
     });
     if (rateError) return json(500, { error: 'Unable to verify invitation rate limit' }, origin);
     if (invitationAllowed !== true) return json(429, { error: 'Invitation limit reached. Try again later.' }, origin);
-    const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return json(400, { error: 'A valid email address is required' }, origin);
     const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
     if (inviteError || !invited.user) {
       return json(400, { error: 'Unable to create invitation. The email may already be registered.' }, origin);
