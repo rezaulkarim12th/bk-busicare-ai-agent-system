@@ -6,30 +6,45 @@ Last reviewed: 2026-11-18
 - Hosting strategy: free-first.
 - Product scope: multiple client workspaces and team roles.
 - Initial budget: ৳0.
-- Security rule: keep changes on a feature branch; do not merge or deploy without explicit approval.
+- Keep development on a feature branch; do not merge or deploy without explicit approval.
 
-## Work completed in this development branch
-- Supabase/PostgreSQL tenant schema with workspace roles and row-level security.
-- Atomic workspace creation RPC; browser-side membership writes intentionally blocked.
-- Supabase Auth portal with email/password sign-in, registration, password-reset email and sign-out.
-- Authenticated workspace onboarding, workspace switching and read-only membership list.
-- When Supabase is configured, the local demo app is not rendered; the secure auth/workspace portal is shown instead, preventing accidental exposure of browser-local records between signed-in users.
-- When Supabase is not configured, the existing local demo remains available.
-- Frontend uses only public Supabase URL and anon key; no service-role key or database password is used in browser code.
-- Team invitations and role changes remain disabled until a trusted server/Edge Function exists.
+## Current feature-branch delivery
+- Supabase/PostgreSQL schema for workspaces, memberships, leads, content and audit events.
+- Row Level Security policies for workspace isolation and owner/admin/member/viewer roles.
+- Atomic authenticated workspace creation.
+- Authorization helpers moved to a non-API-exposed `private` schema with locked search path.
+- Browser clients cannot mutate memberships or write/modify audit events.
+- Lead/content workspace identity, creator identity and creation timestamps are immutable on update; updated_at is refreshed.
+- Supabase Auth portal: sign-in, registration, password reset, password recovery, sign-out, workspace creation, workspace selection and read-only membership listing.
+- Partial Supabase environment configuration fails closed; authenticated mode suppresses the browser-local demo.
+- Local demo supports Leads, pipeline, content planning, reports, CSV export and JSON backup/restore.
+- JSON import validates record structure before replacing data; CSV export prefixes formula-like cells to reduce spreadsheet formula injection risk.
+- No service-role key or database password is used in browser code.
 
-## Validation and limitations
-- Earlier CI run passed 5/5 migration static checks, JavaScript syntax validation and Vite production build for code commit 162b40ed962d1e07f9dbbddbd6abb8013eec95c6.
-- Latest GitHub Actions run `44242778618` passed: 6/6 checks, JavaScript syntax validation and Vite production build. A further hardening change to suppress local demo rendering when Supabase is configured is now queued for CI.
-- Auth, workspace creation and membership queries have not been exercised against a live Supabase project.
-- Lead and content cloud CRUD is not implemented; the authenticated portal explicitly blocks the local demo until cloud synchronization is ready.
-- RLS integration tests with two users and two workspaces remain required.
-- No Supabase or Cloudflare project has been provisioned; no production deployment or social/ads API connection has occurred.
+## Audit fixes applied in this review
+- Fixed password-recovery event handling so the password update form is displayed even when the recovery event arrives before initial session loading finishes.
+- Prevented local demo fallback when only one Supabase environment variable is set.
+- Moved SECURITY DEFINER membership helper functions out of public API schema.
+- Locked SECURITY DEFINER function search paths.
+- Removed browser-side audit event insert policy; trusted server-side writes are required.
+- Added immutable tenant/creator identity trigger and updated_at maintenance.
+- Validated imported backup record fields and escaped imported IDs in HTML attributes.
+- Added CSV formula-injection mitigation.
+- Replaced stale README and deployment guide statements with current feature status.
 
-## Next steps
-1. Run CI and resolve any build or test failures.
-2. Validate auth and workspace flows against a disposable Supabase project.
-3. Add workspace-scoped cloud CRUD for leads and content.
-4. Implement secure server-side team invitations and role changes.
-5. Add two-user cross-tenant RLS integration tests.
-6. Connect hosting only after validation and user review.
+## Validation
+- Before this review, GitHub Actions run 44243012520 passed the then-current tests and Vite build on commit 6e86394574c89f6e47fdfc5ac3fd255c2b5cc546.
+- The security fixes in this review are awaiting a fresh CI run.
+- Static tests do not substitute for PostgreSQL/RLS integration tests.
+- Live Supabase authentication, migration application and two-user cross-tenant tests have not been performed.
+
+## Not implemented / not connected
+- Cloud Leads and Content CRUD.
+- Trusted server/Edge Functions for team invitations, role changes and audit-event writes.
+- Two-user/two-workspace integration tests and production security review.
+- Cloudflare Pages or live Supabase provisioning.
+- Social publishing, ads, messaging, marketplace, e-commerce, payment or AI provider integrations.
+- Production monitoring, backups, retention and rate limiting.
+
+## Release status
+This is a development foundation and local demo, not a production-ready AI Agent SaaS. The PR remains draft and open. The SQL migration has not been applied to a live project. No production deployment has occurred.
