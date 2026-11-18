@@ -19,7 +19,8 @@ test('authorization helpers are private, non-API functions with a locked search 
   assert.match(normalized, /create or replace function private\.is_workspace_member\(target_workspace uuid\)[\s\S]*?set search_path = ''/);
   assert.match(normalized, /create or replace function private\.has_workspace_role\(target_workspace uuid, allowed_roles text\[\]\)[\s\S]*?set search_path = ''/);
   assert.doesNotMatch(normalized, /create or replace function public\.(is_workspace_member|has_workspace_role)/);
-  assert.match(normalized, /revoke all on schema private from public, anon, authenticated/);\n  assert.match(normalized, /grant usage on schema private to authenticated/);
+  assert.match(normalized, /revoke all on schema private from public, anon, authenticated/);
+  assert.match(normalized, /grant usage on schema private to authenticated/);
   assert.match(normalized, /grant execute on function private\.is_workspace_member\(uuid\) to authenticated/);
 });
 
