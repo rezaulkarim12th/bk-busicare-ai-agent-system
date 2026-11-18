@@ -29,9 +29,9 @@ Last reviewed: 2026-11-18
 - Manual Supabase TEST deployment workflow is present. It separates a read-only `preview` run from a separately dispatched `apply` run; apply requires a confirmation checkbox, re-runs the preview, supplies the database password to the CLI, applies migrations and deploys the Edge Function. It targets the configured project ref and GitHub environment `supabase-test`.
 
 ## Latest validation
-- GitHub Actions run [44309412376](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44309412376) completed successfully on commit `5142183110cc2e0ee004bfa10579af25756d4054`: production dependency audit, Deno Edge Function type-check, 13/13 Node tests, JavaScript syntax checks and Vite production build passed. The subsequent workflow-only safety change at commit `69e6df1fc55559fd10a786a970449c922e1dc30b` is awaiting its own CI result.
+- GitHub Actions run [44312129663](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44312129663) completed successfully on commit `e68a083c7179b19f74289b5aa8f3af50a43ba8f0`: production dependency audit, Deno Edge Function type-check, 15/15 Node regression tests, JavaScript syntax checks and Vite production build passed. Pages deployment was correctly skipped on the PR branch.
 - Pages deployment was skipped because this was a pull-request run on the feature branch.
-- The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration.
+- The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration. The feature branch is synchronized with `main`; PR #1 is mergeable but remains Draft and unmerged.
 - Static tests do not substitute for PostgreSQL/RLS integration tests. No live tenant-isolation or invitation tests have been run.
 
 ## Outstanding release gates
