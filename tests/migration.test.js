@@ -163,3 +163,24 @@ test('invitation quota SQL function uses a valid dollar-quoted body', () => {
 test('team invitation email validation rejects whitespace', () => {
   assert.ok(teamFunction.includes("/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"));
 });
+
+test('signup and password recovery enforce a 12-character minimum in the client', () => {
+  assert.match(portal, /mode === 'signup' && password\.length < 12/);
+  assert.match(portal, /password\.length < 12/);
+});
+
+test('all SECURITY DEFINER functions pin an empty search_path', () => {
+  const definitions = [...normalized.matchAll(/create or replace function ([a-z0-9_.]+)\([^)]*\)[\s\S]*?\$\$/g)];
+  for (const match of definitions) {
+    const declaration = match[0];
+    if (/security definer/.test(declaration)) {
+      assert.match(declaration, /set search_path = ''/, 'SECURITY DEFINER function must pin search_path: ' + match[1]);
+    }
+  }
+});
+
+test('browser roles cannot write membership or audit tables and anonymous table access is revoked', () => {
+  assert.match(normalized, /from public, anon, authenticated/);
+  assert.doesNotMatch(normalized, /grant (insert|update|delete|all) on table public\.workspace_members to authenticated/);
+  assert.doesNotMatch(normalized, /grant (insert|update|delete|all) on table public\.audit_events to authenticated/);
+});
