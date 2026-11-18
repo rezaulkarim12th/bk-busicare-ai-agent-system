@@ -82,6 +82,17 @@ if (url && key) {
     if (members.error) host.textContent = members.error.message;
     else host.innerHTML = members.data.map(m => '<p style="border-bottom:1px solid #eee;padding:8px 0;overflow-wrap:anywhere">' + safe(m.user_id) + ' — <b>' + safe(m.role) + '</b></p>').join('') || 'No members found.';
   }
+  function passwordUpdateView() {
+    card('<b>BK-BusiCare · Password recovery</b><h2>Set a new password</h2><form id="new-password"><label>New password<input name="password" type="password" minlength="12" required style="display:block;width:100%;padding:12px;margin:8px 0"></label><button>Update password</button></form><p data-note></p>');
+    root.querySelector('#new-password').onsubmit = async e => {
+      e.preventDefault();
+      const password = String(new FormData(e.currentTarget).get('password') || '');
+      const result = await supabase.auth.updateUser({ password });
+      if (result.error) { note(result.error.message, true); return; }
+      note('Password updated successfully. You can continue to your workspace.');
+      await portal();
+    };
+  }
   async function logout() {
     const r = await supabase.auth.signOut();
     if (r.error) { note(r.error.message, true); return; }
