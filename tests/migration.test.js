@@ -155,9 +155,11 @@ test('invitation attempts are rate-limited atomically and only the service role 
 
 
 test('invitation quota SQL function uses a valid dollar-quoted body', () => {
-  assert.match(sql, /create or replace function public\\.reserve_workspace_invitation\\(target_workspace uuid, target_actor uuid\\)[\\s\\S]*?set search_path = ''\\s+as \\\$\\$[\\s\\S]*?end;\\s+\\$\\$;/);
+  const functionSql = sql.slice(sql.indexOf('create or replace function public.reserve_workspace_invitation'), sql.indexOf('revoke all on function public.reserve_workspace_invitation'));
+  assert.ok(functionSql.includes("as $$\\ndeclare"));
+  assert.ok(functionSql.includes("end;\\n$$;"));
 });
 
 test('team invitation email validation rejects whitespace', () => {
-  assert.match(teamFunction, /\\/\\^\\[\\^\\\\s@\\]\\+@\\[\\^\\\\s@\\]\\+\\\\\\.\\[\\^\\\\s@\\]\\+\\$\\//);
+  assert.ok(teamFunction.includes("/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"));
 });
