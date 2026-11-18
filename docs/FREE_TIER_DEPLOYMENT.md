@@ -32,7 +32,7 @@ Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as public frontend bui
 The portal supports email/password sign-in, registration, password recovery, workspace creation, workspace selection, workspace-scoped Leads and Content CRUD, and Team invitation/role controls. PostgreSQL RLS remains authoritative. Team actions call the `manage-workspace-member` Edge Function and work only after it is deployed. Inviting an email already registered with Supabase is not supported by this initial endpoint.
 
 ## Disposable TEST deployment workflow
-The repository includes `.github/workflows/supabase-test-deploy.yml`. It is manually triggered, requires the `confirm_deploy` checkbox, uses the GitHub Actions environment `supabase-test`, previews pending migrations, applies them to the configured project and deploys the `manage-workspace-member` function.
+The repository includes `.github/workflows/supabase-test-deploy.yml`. It is manually triggered with an `operation` choice. `preview` performs a read-only migration dry-run. `apply` requires the separate `confirm_apply` checkbox, repeats the dry-run, applies migrations to the configured TEST project and deploys the `manage-workspace-member` function. Both operations use the GitHub Actions environment `supabase-test`.
 
 Before using it:
 1. Create a separate disposable Supabase TEST project. Do not use production or a project containing customer data.
