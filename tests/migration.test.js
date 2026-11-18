@@ -66,7 +66,9 @@ test('auth portal supports recovery and fails closed on partial Supabase configu
 });
 
 test('authenticated or partially configured mode never renders the local demo', () => {
-  assert.match(app, /if \(!import\.meta\.env\.VITE_SUPABASE_URL && !import\.meta\.env\.VITE_SUPABASE_ANON_KEY\) render\(\)/);
+  assert.match(app, /const hasSupabaseUrl=Boolean\\(import\\.meta\\.env\\.VITE_SUPABASE_URL\\?\\.trim\\(\\)\\)/);
+  assert.match(app, /const hasSupabaseKey=Boolean\\(import\\.meta\\.env\\.VITE_SUPABASE_ANON_KEY\\?\\.trim\\(\\)\\)/);
+  assert.match(app, /if \\(!hasSupabaseUrl && !hasSupabaseKey\\) render\\(\\)/);
 });
 
 test('backup import validates records and CSV export mitigates formula injection', () => {
