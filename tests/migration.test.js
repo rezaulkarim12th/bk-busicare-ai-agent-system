@@ -55,6 +55,28 @@ test('record tenant identity is immutable and updated_at is refreshed', () => {
   assert.match(normalized, /create trigger content_guard_identity before update on public\.content_items/);
 });
 
+test('RLS policy migration is re-runnable when policies already exist', () => {
+  const policyPairs = [
+    ['workspace members can view workspaces', 'public.workspaces'],
+    ['workspace admins can update workspaces', 'public.workspaces'],
+    ['members can view workspace membership', 'public.workspace_members'],
+    ['members can view leads', 'public.leads'],
+    ['contributors can create leads', 'public.leads'],
+    ['contributors can update leads', 'public.leads'],
+    ['admins can delete leads', 'public.leads'],
+    ['members can view content', 'public.content_items'],
+    ['contributors can create content', 'public.content_items'],
+    ['contributors can update content', 'public.content_items'],
+    ['admins can delete content', 'public.content_items'],
+    ['admins can read audit events', 'public.audit_events']
+  ];
+  for (const [name, table] of policyPairs) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\test('audit events are read-only to browser clients', () => {');
+    const pattern = new RegExp('drop policy if exists "' + escaped + '" on ' + table.replaceAll('.', '\\.') + '; create policy "' + escaped + '"');
+    assert.match(normalized, pattern, 'Policy must be safely replaced: ' + name);
+  }
+});
+
 test('audit events are read-only to browser clients', () => {
   assert.match(normalized, /create policy "admins can read audit events" on public\.audit_events for select/);
   assert.doesNotMatch(normalized, /create policy[^;]*on public\.audit_events for (insert|update|delete)/);
