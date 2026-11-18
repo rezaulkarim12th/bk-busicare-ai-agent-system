@@ -148,4 +148,7 @@ test('invitation attempts are rate-limited atomically and only the service role 
   assert.ok(normalized.includes('recent_attempts >= 5'));
   assert.ok(normalized.includes('revoke all on function public.reserve_workspace_invitation(uuid, uuid) from public, anon, authenticated'));
   assert.ok(normalized.includes('grant execute on function public.reserve_workspace_invitation(uuid, uuid) to service_role'));
+  const emailValidation = teamFunction.indexOf('A valid email address is required');
+  const rateReservation = teamFunction.indexOf("admin.rpc('reserve_workspace_invitation'");
+  assert.ok(emailValidation >= 0 && rateReservation > emailValidation, 'Invalid email input must not consume an invitation rate-limit reservation');
 });
