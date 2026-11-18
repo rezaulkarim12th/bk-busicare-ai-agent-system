@@ -3,44 +3,33 @@
 Last reviewed: 2026-11-18
 
 ## User decisions
-- Hosting strategy: recommend a free-first setup.
-- Product scope: multi-tenant, multiple client workspaces and team roles.
+- Hosting strategy: free-first.
+- Product scope: multiple client workspaces and team roles.
 - Initial budget: ৳0.
+- Security rule: keep changes on a feature branch; do not merge or deploy without explicit approval.
 
 ## Work completed in this development branch
-- Added a Supabase/PostgreSQL multi-tenant foundation migration.
-- Added workspace membership roles: owner, admin, member, viewer.
-- Added workspace-scoped RLS policies for leads, content items, and audit events.
-- Added an atomic create-workspace RPC that assigns the creator as owner.
-- Intentionally withheld browser-side membership writes; invitations and role changes need a trusted server/Edge Function.
-- Added a free-tier deployment guide and frontend-only environment variable example.
-- Added Node's built-in test suite with static checks for tenant tables, RLS enablement, workspace-owner creation, role-scoped policies, and blocked browser-side membership mutations.
-- Updated GitHub Actions so pull requests run migration checks, JavaScript syntax validation, and a Vite production build; deployment remains restricted to `main`.
-- Preserved the existing MVP and main branch; changes are isolated in `feature/multitenant-foundation`.
+- Supabase/PostgreSQL tenant schema with workspace roles and row-level security.
+- Atomic workspace creation RPC; browser-side membership writes intentionally blocked.
+- Supabase Auth portal with email/password sign-in, registration, password-reset email and sign-out.
+- Authenticated workspace onboarding, workspace switching and read-only membership list.
+- When Supabase is configured, the portal blocks the local demo app to prevent accidental exposure of browser-local records between signed-in users.
+- When Supabase is not configured, the existing local demo remains available.
+- Frontend uses only public Supabase URL and anon key; no service-role key or database password is used in browser code.
+- Team invitations and role changes remain disabled until a trusted server/Edge Function exists.
 
-## Validation performed
-- `node --check src/main.js`: PASS.
-- `node --check vite.config.js`: PASS.
-- Secret-pattern scan of the supplied source: no matching committed credentials found.
-- Production Vite build: NOT RUN. Dependency installation did not complete in the available environment.
-- PostgreSQL migration execution: NOT RUN. No PostgreSQL/Supabase database is connected.
-- Automated migration checks: PASS (5/5 static checks) on the latest verified CI run.
-- Application JavaScript syntax check: PASS in GitHub Actions.
-- Vite production build: PASS in GitHub Actions.
-- Cross-tenant RLS integration tests: NOT RUN. A live Supabase project and test users are required.
+## Validation and limitations
+- Earlier CI run passed 5/5 migration static checks, JavaScript syntax validation and Vite production build for code commit 162b40ed962d1e07f9dbbddbd6abb8013eec95c6.
+- The new authentication portal still requires a fresh CI run.
+- Auth, workspace creation and membership queries have not been exercised against a live Supabase project.
+- Lead and content cloud CRUD is not implemented; the authenticated portal explicitly blocks the local demo until cloud synchronization is ready.
+- RLS integration tests with two users and two workspaces remain required.
+- No Supabase or Cloudflare project has been provisioned; no production deployment or social/ads API connection has occurred.
 
-## Not yet implemented
-- Frontend Supabase client and authentication screens.
-- Workspace creation/switching UI.
-- Server-side invitation and role-management workflow.
-- Migration execution and automated database tests.
-- Cloudflare Pages project connection and production deployment.
-- AI provider and external platform integrations.
-
-## Next implementation order
-1. Add Supabase client configuration and authentication UI without breaking demo mode.
-2. Add authenticated workspace onboarding and workspace switcher.
-3. Replace local-only leads/content persistence with workspace-scoped database access.
-4. Add invitation workflow through a trusted server function.
-5. Add RLS integration tests for two users across two workspaces.
-6. Connect Cloudflare Pages only after build and security checks pass.
+## Next steps
+1. Run CI and resolve any build or test failures.
+2. Validate auth and workspace flows against a disposable Supabase project.
+3. Add workspace-scoped cloud CRUD for leads and content.
+4. Implement secure server-side team invitations and role changes.
+5. Add two-user cross-tenant RLS integration tests.
+6. Connect hosting only after validation and user review.
