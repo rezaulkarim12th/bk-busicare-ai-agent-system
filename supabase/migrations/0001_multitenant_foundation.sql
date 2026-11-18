@@ -6,7 +6,7 @@ create extension if not exists pgcrypto;
 
 -- Keep authorization helpers outside the PostgREST-exposed public schema.
 create schema if not exists private;
-revoke all on schema private from public, anon;
+revoke all on schema private from public, anon, authenticated;
 grant usage on schema private to authenticated;
 
 create table if not exists public.workspaces (
@@ -96,8 +96,8 @@ as $$
   );
 $$;
 
-revoke all on function private.is_workspace_member(uuid) from public, anon;
-revoke all on function private.has_workspace_role(uuid, text[]) from public, anon;
+revoke all on function private.is_workspace_member(uuid) from public, anon, authenticated;
+revoke all on function private.has_workspace_role(uuid, text[]) from public, anon, authenticated;
 grant execute on function private.is_workspace_member(uuid) to authenticated;
 grant execute on function private.has_workspace_role(uuid, text[]) to authenticated;
 
@@ -158,7 +158,7 @@ begin
 end;
 $$;
 
-revoke all on function public.create_workspace(text) from public, anon;
+revoke all on function public.create_workspace(text) from public, anon, authenticated;
 grant execute on function public.create_workspace(text) to authenticated;
 
 alter table public.workspaces enable row level security;
