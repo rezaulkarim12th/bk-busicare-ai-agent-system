@@ -38,7 +38,7 @@ Before using it:
 1. Create a separate disposable Supabase TEST project. Do not use production or a project containing customer data.
 2. In GitHub Settings → Environments, create `supabase-test`. Configure required reviewers/protection rules where available.
 3. Add environment secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` and `SUPABASE_PROJECT_REF`. Confirm the project ref belongs to the disposable TEST project.
-4. Review the migration SQL and dry-run output before approving the workflow run.
+4. Run `preview` first and inspect the migration plan in the Actions log. If it is correct, run `apply` separately and enable the confirmation checkbox. The apply run repeats the dry-run before applying.
 5. Configure Supabase Auth email provider/SMTP, site URL and allowed redirect URLs after deployment.
 6. Register two test users, create separate workspaces and verify direct API requests cannot read or mutate another workspace's records. Verify viewers cannot write, members cannot delete and non-admins cannot read audit events.
 7. Verify password recovery, logout, expired sessions, invitation authorization and email delivery.
