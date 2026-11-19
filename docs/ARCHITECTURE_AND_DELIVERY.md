@@ -7,8 +7,9 @@ Evolve the existing browser-based MVP into a secure, multi-user operations platf
 - Responsive Vite application with local demo dashboard, CRM leads, sales pipeline, content planner, reports, CSV export and JSON backup/restore.
 - Supabase email/password authentication portal, password recovery and workspace selection.
 - Workspace-scoped Leads and Content CRUD with PostgreSQL RLS.
-- Owner/admin/member/viewer roles; trusted Edge Function path for invitations and role changes, with exact-origin CORS allowlisting, UUID validation, atomic database-locked invitation attempt quotas and audit-write compensation.
-- Migration safety tests, Deno type-check, JavaScript syntax checks and production build in GitHub Actions.
+- Owner/admin/member/viewer roles; trusted Edge Function path for invitations and role changes, with exact-origin CORS allowlisting, JWT and input validation, database-locked invitation quotas, atomic membership/role plus audit transactions, and best-effort Auth-account cleanup if invitation setup fails.
+- Migration safety tests, expanded 16-assertion local pgTAP RLS suite, Deno type-check, JavaScript syntax checks, full npm dependency audit and production build in GitHub Actions.
+- Focused internal security review recorded in `SECURITY_AUDIT.md`, covering output encoding, input bounds, persistence rollback, CSV formula injection, RLS grants/policies and atomic team authorization/audit operations.
 - Manually gated, two-step Supabase TEST deployment workflow (read-only preview, separately confirmed apply).
 
 ## Target modules
@@ -63,4 +64,4 @@ Evolve the existing browser-based MVP into a secure, multi-user operations platf
 For each provider record: account owner, app/client registration, business verification status, approved scopes, redirect URLs, webhook endpoints, rate limits, review status, token storage, data retention and revocation procedure. Do not collect passwords or paste access tokens into chat or source control.
 
 ## Release blockers
-The live Supabase project, migration application, Auth SMTP setup, two-user RLS tests, production hosting secrets, external provider integrations and production operations controls remain outstanding. The feature branch is not production-ready.
+A remote disposable Supabase TEST project, live Auth/SMTP and invitation email tests, two-user/two-workspace API tests, production hosting secrets, external provider integrations and production operations controls remain outstanding. Local pgTAP tests do not certify live Supabase configuration. The feature branch is not production-ready.
