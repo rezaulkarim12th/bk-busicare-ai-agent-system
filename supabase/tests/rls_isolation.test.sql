@@ -3,7 +3,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(7);
+select plan(14);
 
 -- Seed isolated identities and two tenants as the database owner.
 insert into auth.users (id, aud, role, email, encrypted_password)
@@ -31,6 +31,11 @@ values
   ('aaaaaaaa-1111-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000001', 'Tenant A lead', '10000000-0000-4000-8000-000000000001'),
   ('bbbbbbbb-1111-4000-8000-000000000001', 'bbbbbbbb-0000-4000-8000-000000000001', 'Tenant B lead', '20000000-0000-4000-8000-000000000001');
 
+insert into public.content_items (id, workspace_id, title, platform, created_by)
+values
+  ('aaaaaaaa-2222-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000001', 'Tenant A content', 'Facebook', '10000000-0000-4000-8000-000000000001'),
+  ('bbbbbbbb-2222-4000-8000-000000000001', 'bbbbbbbb-0000-4000-8000-000000000001', 'Tenant B content', 'Instagram', '20000000-0000-4000-8000-000000000001');
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
@@ -54,6 +59,22 @@ delete from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001';
 select is((select count(*)::integer from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001'),
   1, 'viewer cannot delete leads');
 
+select is((select count(*)::integer from public.content_items), 1,
+  'viewer reads only content in their workspace');
+select is((select count(*)::integer from public.content_items where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'), 0,
+  'viewer cannot read another workspace content');
+select throws_ok(
+  $insert into public.content_items (workspace_id, title, platform) values ('aaaaaaaa-0000-4000-8000-000000000001', 'viewer must not create', 'Facebook')$,
+  '42501', null, 'viewer cannot create content'
+);
+update public.content_items set title = 'viewer changed this'
+where id = 'aaaaaaaa-2222-4000-8000-000000000001';
+select is((select title from public.content_items where id = 'aaaaaaaa-2222-4000-8000-000000000001'),
+  'Tenant A content', 'viewer cannot update content');
+delete from public.content_items where id = 'aaaaaaaa-2222-4000-8000-000000000001';
+select is((select count(*)::integer from public.content_items where id = 'aaaaaaaa-2222-4000-8000-000000000001'),
+  1, 'viewer cannot delete content');
+
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
 select is((select count(*)::integer from public.leads), 1,
   'member reads only the lead in their own workspace');
@@ -64,6 +85,14 @@ select is((select count(*)::integer from public.leads
   where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
     and created_by = '20000000-0000-4000-8000-000000000001'), 2,
   'member can create a lead attributed to their authenticated identity');
+select is((select count(*)::integer from public.content_items), 1,
+  'member reads only content in their own workspace');
+insert into public.content_items (workspace_id, title, platform)
+values ('bbbbbbbb-0000-4000-8000-000000000001', 'Member-created content', 'LinkedIn');
+select is((select count(*)::integer from public.content_items
+  where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
+    and created_by = '20000000-0000-4000-8000-000000000001'), 2,
+  'member can create content attributed to their authenticated identity');
 
 select * from finish();
 rollback;
