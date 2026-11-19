@@ -56,3 +56,34 @@ test('TEST workflow explicitly refuses the known existing BK-BusiCare project re
   assert.equal(productionRefGuards.length, 2, 'both preview and apply must reject the existing project');
   assert.equal((workflow.match(/ekznyijmghrjtovbbgun/g) ?? []).length, 2);
 });
+
+
+test('all GitHub Actions dependencies are pinned to immutable commit SHAs', async () => {
+  const paths = [
+    '../.github/workflows/build.yml',
+    '../.github/workflows/supabase-local-ci.yml',
+    '../.github/workflows/supabase-test-deploy.yml'
+  ];
+  for (const path of paths) {
+    const source = await readFile(new URL(path, import.meta.url), 'utf8');
+    const uses = source.match(/^\s+uses:\s+[^\s]+/gm) ?? [];
+    assert.ok(uses.length > 0, `${path} must contain pinned actions`);
+    for (const line of uses) {
+      assert.match(line, /@[a-f0-9]{40}(?:\s+#.*)?$/, `Action is not pinned: ${line}`);
+    }
+  }
+});
+
+test('CI toolchain versions are explicit rather than latest or floating major tags', async () => {
+  const build = await readFile(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  const local = await readFile(new URL('../.github/workflows/supabase-local-ci.yml', import.meta.url), 'utf8');
+  const deploy = await readFile(new URL('../.github/workflows/supabase-test-deploy.yml', import.meta.url), 'utf8');
+  assert.match(build, /node-version: 24/);
+  assert.match(local, /node-version: 24/);
+  assert.match(build, /deno-version: 2\.9\.8/);
+  assert.match(local, /deno-version: 2\.9\.8/);
+  for (const source of [local, deploy]) {
+    assert.match(source, /version: 3\.2\.0/);
+    assert.doesNotMatch(source, /version: latest/);
+  }
+});
