@@ -64,7 +64,7 @@ select is((select count(*)::integer from public.content_items), 1,
 select is((select count(*)::integer from public.content_items where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'), 0,
   'viewer cannot read another workspace content');
 select throws_ok(
-  $insert into public.content_items (workspace_id, title, platform) values ('aaaaaaaa-0000-4000-8000-000000000001', 'viewer must not create', 'Facebook')$,
+  $$insert into public.content_items (workspace_id, title, platform) values ('aaaaaaaa-0000-4000-8000-000000000001', 'viewer must not create', 'Facebook')$$,
   '42501', null, 'viewer cannot create content'
 );
 update public.content_items set title = 'viewer changed this'
