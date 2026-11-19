@@ -28,14 +28,14 @@ create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 160),
-  company text not null default '',
-  service text not null default '',
-  phone text not null default '',
-  email text not null default '',
+  company text not null default '' check (char_length(company) <= 160),
+  service text not null default '' check (char_length(service) <= 120),
+  phone text not null default '' check (char_length(phone) <= 40),
+  email text not null default '' check (char_length(email) <= 254),
   status text not null default 'New' check (status in ('New','Contacted','Proposal','Won','Lost')),
   value numeric(14,2) not null default 0 check (value >= 0),
   follow_up date,
-  notes text not null default '',
+  notes text not null default '' check (char_length(notes) <= 4000),
   created_by uuid not null default auth.uid() references auth.users(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -45,8 +45,8 @@ create table if not exists public.content_items (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id) on delete cascade,
   title text not null check (char_length(trim(title)) between 1 and 200),
-  platform text not null,
-  body text not null default '',
+  platform text not null check (platform in ('Facebook','Instagram','TikTok','LinkedIn','YouTube')),
+  body text not null default '' check (char_length(body) <= 10000),
   scheduled_at timestamptz,
   status text not null default 'Draft' check (status in ('Draft','Needs approval','Approved','Scheduled','Published','Failed')),
   created_by uuid not null default auth.uid() references auth.users(id),
@@ -81,12 +81,22 @@ set search_path = ''
 as $$
 declare
   recent_attempts integer;
+  actor_role text;
 begin
   if coalesce(auth.role(), '') <> 'service_role' then
     raise exception 'Service role required';
   end if;
 
-  perform pg_advisory_xact_lock(hashtextextended(target_workspace::text || ':' || target_actor::text, 0));
+  -- Serialize all membership operations in this workspace and re-check the
+  -- actor's authority inside the same transaction as the reservation.
+  perform pg_advisory_xact_lock(hashtextextended(target_workspace::text, 0));
+  select role into actor_role
+  from public.workspace_members
+  where workspace_id = target_workspace and user_id = target_actor
+  for update;
+  if actor_role is null or actor_role not in ('owner','admin') then
+    raise exception 'Workspace owner/admin permission required';
+  end if;
 
   select count(*)::integer into recent_attempts
   from public.audit_events
@@ -108,6 +118,61 @@ $$;
 
 revoke all on function public.reserve_workspace_invitation(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.reserve_workspace_invitation(uuid, uuid) to service_role;
+
+-- Atomically authorize, change a member role and write its audit event.
+-- The Edge Function uses this RPC so a failed audit insert rolls back the role change.
+create or replace function public.set_workspace_member_role(
+  target_workspace uuid,
+  target_actor uuid,
+  target_user uuid,
+  target_role text
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  actor_role text;
+  previous_role text;
+begin
+  if coalesce(auth.role(), '') <> 'service_role' then
+    raise exception 'Service role required';
+  end if;
+  if target_actor = target_user or target_role not in ('admin','member','viewer') then
+    raise exception 'Invalid role change request';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(target_workspace::text, 0));
+  select role into actor_role from public.workspace_members
+  where workspace_id = target_workspace and user_id = target_actor for update;
+  select role into previous_role from public.workspace_members
+  where workspace_id = target_workspace and user_id = target_user for update;
+
+  if actor_role is null or actor_role not in ('owner','admin') then
+    raise exception 'Workspace owner/admin permission required';
+  end if;
+  if previous_role is null or previous_role = 'owner' then
+    raise exception 'Target is not an editable workspace member';
+  end if;
+  if actor_role = 'admin' and (previous_role = 'admin' or target_role = 'admin') then
+    raise exception 'Only the workspace owner may manage admin roles';
+  end if;
+
+  update public.workspace_members
+  set role = target_role
+  where workspace_id = target_workspace and user_id = target_user;
+
+  insert into public.audit_events(workspace_id, actor_id, action, entity_type, entity_id, metadata)
+  values (target_workspace, target_actor, 'member.role_changed', 'workspace_member', target_user::text,
+    jsonb_build_object('from', previous_role, 'to', target_role));
+
+  return true;
+end;
+$;
+
+revoke all on function public.set_workspace_member_role(uuid, uuid, uuid, text) from public, anon, authenticated;
+grant execute on function public.set_workspace_member_role(uuid, uuid, uuid, text) to service_role;
 
 
 -- Explicit table privileges complement RLS; anonymous clients receive no table access.
