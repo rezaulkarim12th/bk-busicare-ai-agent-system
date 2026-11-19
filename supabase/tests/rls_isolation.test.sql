@@ -3,7 +3,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(25);
+select plan(32);
 
 -- Seed isolated identities and two tenants as the database owner.
 insert into auth.users (id, aud, role, email, encrypted_password)
@@ -108,6 +108,43 @@ select is((select count(*)::integer from public.content_items
     and created_by = '20000000-0000-4000-8000-000000000001'), 2,
   'member can create content attributed to their authenticated identity');
 
+-- Verify immutable tenant/creator identity and privileged-table write boundaries.
+select throws_ok(
+  $update public.leads set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$,
+  'P0001', null, 'member cannot move a lead to another workspace'
+);
+select throws_ok(
+  $update public.leads set created_by = '10000000-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$,
+  'P0001', null, 'member cannot rewrite lead creator identity'
+);
+select throws_ok(
+  $update public.content_items set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$,
+  'P0001', null, 'member cannot move content to another workspace'
+);
+select throws_ok(
+  $update public.content_items set created_by = '10000000-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$,
+  'P0001', null, 'member cannot rewrite content creator identity'
+);
+select throws_ok(
+  $update public.workspace_members set role = 'owner'
+    where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
+      and user_id = '20000000-0000-4000-8000-000000000001'$,
+  '42501', null, 'member cannot self-promote through membership table'
+);
+select throws_ok(
+  $update public.audit_events set action = 'forged.update'
+    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$,
+  '42501', null, 'member cannot rewrite audit events'
+);
+select throws_ok(
+  $delete from public.audit_events
+    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$,
+  '42501', null, 'member cannot delete audit events'
+);
 
 -- Owner/admin authorization and audit-log isolation.
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
