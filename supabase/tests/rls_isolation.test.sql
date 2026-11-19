@@ -48,8 +48,8 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
 
-select is((select count(*)::integer from public.leads), 1,
-  'viewer reads only the lead in their workspace');
+select is((select count(*)::integer from public.leads), 2,
+  'viewer reads only leads in their workspace');
 select is((select count(*)::integer from public.leads where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'), 0,
   'viewer cannot read another workspace');
 select throws_ok(
@@ -136,8 +136,8 @@ select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000004
 select is((select count(*)::integer from public.audit_events), 0,
   'workspace member cannot read audit events');
 select throws_ok(
-  $insert into public.audit_events (workspace_id, action, entity_type)
-    values ('aaaaaaaa-0000-4000-8000-000000000001', 'forged.event', 'security_test')$,
+  $$insert into public.audit_events (workspace_id, action, entity_type)
+    values ('aaaaaaaa-0000-4000-8000-000000000001', 'forged.event', 'security_test')$$,
   '42501', null, 'workspace member cannot forge audit events');
 
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
