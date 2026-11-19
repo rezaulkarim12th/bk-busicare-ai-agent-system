@@ -55,6 +55,10 @@ jobs:
             echo "SUPABASE_PROJECT_REF must be a valid 20-character Supabase project ref."
             exit 1
           fi
+          if [[ "$SUPABASE_PROJECT_REF" == "ekznyijmghrjtovbbgun" ]]; then
+            echo "Refusing to target the existing BK-BusiCare project; this workflow is TEST-only."
+            exit 1
+          fi
 
       - name: Preview migrations only (no database changes)
         run: supabase db push --dry-run --remote="$SUPABASE_PROJECT_REF" --password="$SUPABASE_DB_PASSWORD"
@@ -87,6 +91,10 @@ jobs:
           test -n "$SUPABASE_PROJECT_REF" || { echo "Missing SUPABASE_PROJECT_REF"; exit 1; }
           if [[ ! "$SUPABASE_PROJECT_REF" =~ ^[a-z0-9]{20}$ ]]; then
             echo "SUPABASE_PROJECT_REF must be a valid 20-character Supabase project ref."
+            exit 1
+          fi
+          if [[ "$SUPABASE_PROJECT_REF" == "ekznyijmghrjtovbbgun" ]]; then
+            echo "Refusing to target the existing BK-BusiCare project; this workflow is TEST-only."
             exit 1
           fi
 
