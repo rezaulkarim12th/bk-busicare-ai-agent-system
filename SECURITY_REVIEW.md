@@ -23,7 +23,7 @@ Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
 - The feature-branch deploy job was skipped as intended. No production deployment occurred.
 - The workflow audits production dependencies; it does not establish that the complete development dependency tree is vulnerability-free.
 - The repository currently has no package lockfile and CI uses npm install, so dependency resolution is not fully reproducible. Add and review a lockfile, then switch CI to npm ci before production release.
-- GitHub Actions dependencies and Supabase CLI are referenced by mutable major/latest tags. Pin action commits and a reviewed CLI version as a supply-chain hardening step.
+- GitHub Actions are now pinned to reviewed immutable commit SHAs. Node.js 24, Deno 2.9.8 and Supabase CLI 3.2.0 are explicitly selected; automated tests guard against floating action refs and latest CLI tags.
 
 ## Not verified — release blockers
 - No separate Supabase TEST project has been provisioned/configured.
