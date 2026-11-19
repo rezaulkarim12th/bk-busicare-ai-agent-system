@@ -115,10 +115,11 @@ test('team management runs through an authenticated, role-checked Edge Function'
   assert.match(teamFunction, /reserve_workspace_invitation/);
   assert.match(teamFunction, /APP_ALLOWED_ORIGINS/);
   assert.doesNotMatch(teamFunction, /Access-Control-Allow-Origin': '\*'/);
-  assert.match(teamFunction, /auditError/);
+  assert.match(teamFunction, /admin\.rpc\('add_workspace_member_invitation'/);
+  assert.match(teamFunction, /admin\.rpc\('set_workspace_member_role'/);
   assert.match(teamFunction, /deleteUser\(invited\.user\.id\)/);
   assert.match(teamFunction, /inviteUserByEmail/);
-  assert.match(teamFunction, /audit_events/);
+  assert.match(normalized, /insert into public\.audit_events/);
   assert.match(portal, /functions\.invoke\('manage-workspace-member'/);
   assert.match(portal, /action:'set_role'/);
   assert.match(portal, /action:'invite'/);
