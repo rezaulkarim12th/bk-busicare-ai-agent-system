@@ -96,3 +96,17 @@ test('local Supabase CI does not print ephemeral generated credentials', async (
   assert.match(localWorkflow, /generated local credentials were not written to CI logs/);
   assert.doesNotMatch(localWorkflow, /^\s+run: supabase (?:start|status)\s*$/m);
 });
+
+
+test('committed npm lockfile matches package manifest and CI uses clean installs', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  const lock = JSON.parse(await readFile(new URL('../package-lock.json', import.meta.url), 'utf8'));
+  assert.equal(lock.lockfileVersion, 3);
+  assert.deepEqual(lock.packages[''].dependencies, manifest.dependencies);
+  assert.deepEqual(lock.packages[''].devDependencies, manifest.devDependencies);
+  const build = await readFile(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  const local = await readFile(new URL('../.github/workflows/supabase-local-ci.yml', import.meta.url), 'utf8');
+  assert.match(build, /run: npm ci/);
+  assert.match(local, /run: npm ci/);
+  assert.doesNotMatch(build + local, /run: npm install\b/);
+});
