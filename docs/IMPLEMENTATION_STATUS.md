@@ -17,12 +17,14 @@ Last reviewed: 2026-11-19
 - Lead/content workspace identity, creator identity and creation timestamps are immutable on update; updated_at is refreshed.
 - Supabase Auth portal: sign-in, registration, password reset/recovery, sign-out, workspace creation and workspace selection.
 - Authenticated cloud CRUD for Leads and Content, scoped by active workspace and protected by PostgreSQL RLS; delete controls are limited to owner/admin roles.
-- Supabase Edge Function source for team invitations and role changes, with caller JWT validation, strict configured CORS origin allowlist, UUID input validation, owner/admin checks, admin-role escalation protection, atomic database-locked invitation attempt limits and checked audit writes with compensating rollback on failure.
+- Supabase Edge Function for team invitations and role changes, with caller JWT validation, exact-origin CORS allowlist, UUID/email/role validation and owner/admin checks. Database RPCs re-check authority under a workspace lock and atomically commit membership/role changes with audit events; failed invitation setup triggers best-effort cleanup of the unused Auth account.
 - Team UI supports inviting new email addresses and changing existing member roles. Invitations to already-registered addresses require a separate reviewed flow.
 - Viewer UI is read-only; database RLS remains authoritative.
 - Partial Supabase environment configuration fails closed; authenticated mode suppresses the browser-local demo.
 - Local demo supports Leads, pipeline, content planning, reports, CSV export and JSON backup/restore.
-- JSON import validates record structure; CSV export mitigates formula injection.
+- JSON import validates record structure, enforces a 2 MB limit and restores prior data on persistence failure; CSV export mitigates formula injection, including BOM/zero-width prefixes.
+- Local demo validates bounded record fields and restores the last persisted state when Local Storage writes fail.
+- Database constraints independently enforce lead/content field lengths and supported content platforms.
 - No service-role key or database password is used in browser code.
 - Vite dev/preview servers bind to 127.0.0.1.
 - Follow-up queue uses the browser's local calendar date (not UTC) to avoid off-by-one-day reminders.
@@ -35,7 +37,7 @@ Last reviewed: 2026-11-19
 - GitHub Actions run [44312129663](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44312129663) completed successfully on commit `e68a083c7179b19f74289b5aa8f3af50a43ba8f0`: production dependency audit, Deno Edge Function type-check, 15/15 Node regression tests, JavaScript syntax checks and Vite production build passed. Pages deployment was correctly skipped on the PR branch.
 - Pages deployment was skipped because this was a pull-request run on the feature branch.
 - The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration. The feature branch is synchronized with `main`; PR #1 is mergeable but remains Draft and unmerged.
-- Static tests do not substitute for PostgreSQL/RLS integration tests. No live tenant-isolation or invitation tests have been run.
+- Disposable local Supabase migration and pgTAP RLS tests have been run; latest expanded suite contains 16 assertions. CI must pass on the current commit before release.
 
 ## Outstanding release gates
 - Create and verify a disposable Supabase TEST project; configure GitHub environment `supabase-test` and secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, and `SUPABASE_PROJECT_REF`.
@@ -46,8 +48,8 @@ Last reviewed: 2026-11-19
 - Complete security, privacy, backup/restore, monitoring, rate-limit and operational reviews before production use.
 - Social publishing, Meta/Google ads, messaging, marketplaces, e-commerce, payments and AI-provider integrations remain unconnected and require provider accounts, approved scopes, secrets and owner authorization.
 
-## Known residual risk
-The full development dependency tree has a documented high-severity `picomatch` ReDoS advisory in the Vite development-tool dependency chain. The production dependency audit passes; the development-only advisory is not claimed as fixed.
+## Security review
+A focused internal code review and findings log are maintained in [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md). This review covers HTML output encoding, local input validation and persistence rollback, CSV formula injection, database field constraints, RLS grants/policies, and atomic team authorization/audit RPCs. It is not an independent penetration test.
 
 ## Release status
 This is a development foundation and local demo, not a production-ready AI Agent SaaS. PR #1 remains draft and open. No live Supabase migration or production deployment has occurred. Do not enter real customer data until all release gates pass.
