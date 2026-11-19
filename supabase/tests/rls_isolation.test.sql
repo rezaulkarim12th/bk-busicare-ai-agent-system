@@ -3,14 +3,16 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(25);
 
 -- Seed isolated identities and two tenants as the database owner.
 insert into auth.users (id, aud, role, email, encrypted_password)
 values
   ('10000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'rls-owner-a@example.invalid', ''),
   ('10000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'rls-viewer-a@example.invalid', ''),
-  ('20000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'rls-member-b@example.invalid', '')
+  ('20000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'rls-member-b@example.invalid', ''),
+  ('10000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 'rls-admin-a@example.invalid', ''),
+  ('10000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated', 'rls-member-a@example.invalid', '')
 on conflict (id) do nothing;
 
 insert into public.workspaces (id, name)
@@ -23,13 +25,19 @@ insert into public.workspace_members (workspace_id, user_id, role)
 values
   ('aaaaaaaa-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'owner'),
   ('aaaaaaaa-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'viewer'),
-  ('bbbbbbbb-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'member')
+  ('bbbbbbbb-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'member'),
+  ('aaaaaaaa-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000003', 'admin'),
+  ('aaaaaaaa-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000004', 'member')
 on conflict (workspace_id, user_id) do nothing;
 
 insert into public.leads (id, workspace_id, name, created_by)
 values
   ('aaaaaaaa-1111-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000001', 'Tenant A lead', '10000000-0000-4000-8000-000000000001'),
-  ('bbbbbbbb-1111-4000-8000-000000000001', 'bbbbbbbb-0000-4000-8000-000000000001', 'Tenant B lead', '20000000-0000-4000-8000-000000000001');
+  ('bbbbbbbb-1111-4000-8000-000000000001', 'bbbbbbbb-0000-4000-8000-000000000001', 'Tenant B lead', '20000000-0000-4000-8000-000000000001'),
+  ('aaaaaaaa-1111-4000-8000-000000000002', 'aaaaaaaa-0000-4000-8000-000000000001', 'Admin delete test lead', '10000000-0000-4000-8000-000000000001');
+
+insert into public.audit_events (workspace_id, actor_id, action, entity_type)
+values ('aaaaaaaa-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'test.seeded', 'security_test');
 
 insert into public.content_items (id, workspace_id, title, platform, created_by)
 values
@@ -99,6 +107,42 @@ select is((select count(*)::integer from public.content_items
   where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
     and created_by = '20000000-0000-4000-8000-000000000001'), 2,
   'member can create content attributed to their authenticated identity');
+
+
+-- Owner/admin authorization and audit-log isolation.
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true);
+select is((select count(*)::integer from public.audit_events), 1,
+  'workspace owner can read audit events');
+update public.workspaces set name = 'RLS Tenant A Owner Updated'
+where id = 'aaaaaaaa-0000-4000-8000-000000000001';
+select is((select name from public.workspaces where id = 'aaaaaaaa-0000-4000-8000-000000000001'),
+  'RLS Tenant A Owner Updated', 'workspace owner can update workspace settings');
+delete from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001';
+select is((select count(*)::integer from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000001'),
+  0, 'workspace owner can delete leads');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000003', true);
+select is((select count(*)::integer from public.audit_events), 1,
+  'workspace admin can read audit events');
+update public.workspaces set name = 'RLS Tenant A Admin Updated'
+where id = 'aaaaaaaa-0000-4000-8000-000000000001';
+select is((select name from public.workspaces where id = 'aaaaaaaa-0000-4000-8000-000000000001'),
+  'RLS Tenant A Admin Updated', 'workspace admin can update workspace settings');
+delete from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000002';
+select is((select count(*)::integer from public.leads where id = 'aaaaaaaa-1111-4000-8000-000000000002'),
+  0, 'workspace admin can delete leads');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000004', true);
+select is((select count(*)::integer from public.audit_events), 0,
+  'workspace member cannot read audit events');
+select throws_ok(
+  $insert into public.audit_events (workspace_id, action, entity_type)
+    values ('aaaaaaaa-0000-4000-8000-000000000001', 'forged.event', 'security_test')$,
+  '42501', null, 'workspace member cannot forge audit events');
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select is((select count(*)::integer from public.audit_events), 0,
+  'workspace viewer cannot read audit events');
 
 select * from finish();
 rollback;
