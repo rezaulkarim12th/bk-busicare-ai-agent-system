@@ -110,39 +110,39 @@ select is((select count(*)::integer from public.content_items
 
 -- Verify immutable tenant/creator identity and privileged-table write boundaries.
 select throws_ok(
-  $update public.leads set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
-    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$,
+  $$update public.leads set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$$,
   'P0001', null, 'member cannot move a lead to another workspace'
 );
 select throws_ok(
-  $update public.leads set created_by = '10000000-0000-4000-8000-000000000001'
-    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$,
+  $$update public.leads set created_by = '10000000-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-1111-4000-8000-000000000001'$$,
   'P0001', null, 'member cannot rewrite lead creator identity'
 );
 select throws_ok(
-  $update public.content_items set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
-    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$,
+  $$update public.content_items set workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$$,
   'P0001', null, 'member cannot move content to another workspace'
 );
 select throws_ok(
-  $update public.content_items set created_by = '10000000-0000-4000-8000-000000000001'
-    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$,
+  $$update public.content_items set created_by = '10000000-0000-4000-8000-000000000001'
+    where id = 'bbbbbbbb-2222-4000-8000-000000000001'$$,
   'P0001', null, 'member cannot rewrite content creator identity'
 );
 select throws_ok(
-  $update public.workspace_members set role = 'owner'
+  $$update public.workspace_members set role = 'owner'
     where workspace_id = 'bbbbbbbb-0000-4000-8000-000000000001'
-      and user_id = '20000000-0000-4000-8000-000000000001'$,
+      and user_id = '20000000-0000-4000-8000-000000000001'$$,
   '42501', null, 'member cannot self-promote through membership table'
 );
 select throws_ok(
-  $update public.audit_events set action = 'forged.update'
-    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$,
+  $$update public.audit_events set action = 'forged.update'
+    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$$,
   '42501', null, 'member cannot rewrite audit events'
 );
 select throws_ok(
-  $delete from public.audit_events
-    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$,
+  $$delete from public.audit_events
+    where workspace_id = 'aaaaaaaa-0000-4000-8000-000000000001'$$,
   '42501', null, 'member cannot delete audit events'
 );
 
