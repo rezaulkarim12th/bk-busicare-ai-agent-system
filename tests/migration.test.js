@@ -202,3 +202,33 @@ test('backup import enforces a size cap and rolls back when browser storage cann
   assert.match(app, /if\(!save\(\)\)\{data=previousData;return;\}/);
   assert.match(app, /Backup file exceeds 2 MB limit/);
 });
+
+
+test('database enforces bounded lead/content inputs independently of browser validation', () => {
+  assert.match(normalized, /char_length\(company\) <= 160/);
+  assert.match(normalized, /char_length\(service\) <= 120/);
+  assert.match(normalized, /char_length\(phone\) <= 40/);
+  assert.match(normalized, /char_length\(email\) <= 254/);
+  assert.match(normalized, /char_length\(notes\) <= 4000/);
+  assert.match(normalized, /platform in \('facebook','instagram','tiktok','linkedin','youtube'\)/);
+  assert.match(normalized, /char_length\(body\) <= 10000/);
+});
+
+test('invitation reservation rechecks actor authority under the workspace membership lock', () => {
+  const reservation = sql.slice(sql.indexOf('create or replace function public.reserve_workspace_invitation'), sql.indexOf('revoke all on function public.reserve_workspace_invitation'));
+  assert.match(reservation, /pg_advisory_xact_lock\(hashtextextended\(target_workspace::text, 0\)\)/);
+  assert.match(reservation, /from public\.workspace_members[\s\S]*?for update/);
+  assert.match(reservation, /actor_role not in \('owner','admin'\)/);
+});
+
+test('role changes and audit insertion are atomic and restricted to the service role', () => {
+  const roleFunction = sql.slice(sql.indexOf('create or replace function public.set_workspace_member_role'), sql.indexOf('revoke all on function public.set_workspace_member_role'));
+  assert.match(roleFunction, /coalesce\(auth\.role\(\), ''\) <> 'service_role'/);
+  assert.match(roleFunction, /pg_advisory_xact_lock\(hashtextextended\(target_workspace::text, 0\)\)/);
+  assert.match(roleFunction, /actor_role not in \('owner','admin'\)/);
+  assert.match(roleFunction, /actor_role = 'admin'[\s\S]*?target_role = 'admin'/);
+  assert.match(roleFunction, /update public\.workspace_members[\s\S]*?insert into public\.audit_events/);
+  assert.match(normalized, /grant execute on function public\.set_workspace_member_role\(uuid, uuid, uuid, text\) to service_role/);
+  assert.match(teamFunction, /admin\.rpc\('set_workspace_member_role'/);
+  assert.doesNotMatch(teamFunction, /from\('workspace_members'\)[\s\S]*?\.update\(\{ role \}\)/);
+});
