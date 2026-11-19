@@ -184,3 +184,13 @@ test('browser roles cannot write membership or audit tables and anonymous table 
   assert.doesNotMatch(normalized, /grant (insert|update|delete|all) on table public\.workspace_members to authenticated/);
   assert.doesNotMatch(normalized, /grant (insert|update|delete|all) on table public\.audit_events to authenticated/);
 });
+
+
+test('local demo safely recovers from malformed browser storage and rejects invalid records', () => {
+  assert.match(app, /JSON\.parse\(localStorage\.getItem\(KEY\) \|\| 'null'\)/);
+  assert.match(app, /Array\.isArray\(stored\.leads\)/);
+  assert.match(app, /Array\.isArray\(stored\.content\)/);
+  assert.match(app, /Number\.isSafeInteger\(Number\(l\.id\)\)/);
+  assert.match(app, /localStorage\.setItem\(KEY, JSON\.stringify\(data\)\)/);
+  assert.match(app, /ডেটা সংরক্ষণ করা যায়নি/);
+});
