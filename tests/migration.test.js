@@ -232,3 +232,25 @@ test('role changes and audit insertion are atomic and restricted to the service 
   assert.match(teamFunction, /admin\.rpc\('set_workspace_member_role'/);
   assert.doesNotMatch(teamFunction, /from\('workspace_members'\)[\s\S]*?\.update\(\{ role \}\)/);
 });
+
+
+test('invitation membership and audit writes are atomic and re-authorized after Auth invite', () => {
+  const invitationFunction = sql.slice(sql.indexOf('create or replace function public.add_workspace_member_invitation'), sql.indexOf('revoke all on function public.add_workspace_member_invitation'));
+  assert.match(invitationFunction, /coalesce\(auth\.role\(\), ''\) <> 'service_role'/);
+  assert.match(invitationFunction, /pg_advisory_xact_lock\(hashtextextended\(target_workspace::text, 0\)\)/);
+  assert.match(invitationFunction, /actor_role not in \('owner','admin'\)/);
+  assert.match(invitationFunction, /actor_role = 'admin' and target_role = 'admin'/);
+  assert.match(invitationFunction, /insert into public\.workspace_members[\s\S]*?insert into public\.audit_events/);
+  assert.match(normalized, /grant execute on function public\.add_workspace_member_invitation\(uuid, uuid, uuid, text\) to service_role/);
+  assert.match(teamFunction, /admin\.rpc\('add_workspace_member_invitation'/);
+  assert.match(teamFunction, /deleteUser\(invited\.user\.id\)/);
+  assert.doesNotMatch(teamFunction, /from\('workspace_members'\)\.insert/);
+});
+
+test('local demo restores persisted state after failed saves and bounds record inputs', () => {
+  assert.match(app, /data = load\(\);[\s\S]*?আগের সংরক্ষিত ডেটা ফিরিয়ে আনা হয়েছে/);
+  assert.match(app, /l\.name\.length <= 160/);
+  assert.match(app, /l\.notes\.length <= 4000/);
+  assert.match(app, /c\.title\.length <= 200/);
+  assert.match(app, /Number\.isFinite\(value\)\|\|value<0/);
+});
