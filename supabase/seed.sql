@@ -1,0 +1,1 @@
+-- Intentionally empty: CI and local development use isolated test fixtures.
