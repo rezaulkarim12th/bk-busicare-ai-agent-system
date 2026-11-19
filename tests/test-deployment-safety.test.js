@@ -110,3 +110,10 @@ test('committed npm lockfile matches package manifest and CI uses clean installs
   assert.match(local, /run: npm ci/);
   assert.doesNotMatch(build + local, /run: npm install\b/);
 });
+
+
+test('Build CI fails on vulnerabilities of any npm audit severity', async () => {
+  const build = await readFile(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
+  assert.match(build, /npm audit --audit-level=low/);
+  assert.doesNotMatch(build, /npm audit --audit-level=high/);
+});
