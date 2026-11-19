@@ -174,6 +174,53 @@ $;
 revoke all on function public.set_workspace_member_role(uuid, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.set_workspace_member_role(uuid, uuid, uuid, text) to service_role;
 
+-- Insert an invited member and its audit record atomically after Auth creates the invite.
+create or replace function public.add_workspace_member_invitation(
+  target_workspace uuid,
+  target_actor uuid,
+  target_user uuid,
+  target_role text
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  actor_role text;
+begin
+  if coalesce(auth.role(), '') <> 'service_role' then
+    raise exception 'Service role required';
+  end if;
+  if target_role not in ('admin','member','viewer') then
+    raise exception 'Invalid invitation role';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(target_workspace::text, 0));
+  select role into actor_role from public.workspace_members
+  where workspace_id = target_workspace and user_id = target_actor for update;
+
+  if actor_role is null or actor_role not in ('owner','admin') then
+    raise exception 'Workspace owner/admin permission required';
+  end if;
+  if actor_role = 'admin' and target_role = 'admin' then
+    raise exception 'Only the workspace owner may invite admins';
+  end if;
+
+  insert into public.workspace_members(workspace_id, user_id, role)
+  values (target_workspace, target_user, target_role);
+
+  insert into public.audit_events(workspace_id, actor_id, action, entity_type, entity_id, metadata)
+  values (target_workspace, target_actor, 'member.invited', 'workspace_member', target_user::text,
+    jsonb_build_object('role', target_role));
+
+  return true;
+end;
+$;
+
+revoke all on function public.add_workspace_member_invitation(uuid, uuid, uuid, text) from public, anon, authenticated;
+grant execute on function public.add_workspace_member_invitation(uuid, uuid, uuid, text) to service_role;
+
 
 -- Explicit table privileges complement RLS; anonymous clients receive no table access.
 revoke all on table
