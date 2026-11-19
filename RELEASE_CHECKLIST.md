@@ -4,7 +4,7 @@ This checklist records verified feature-branch work and the remaining release ga
 
 ## Verified in GitHub on latest feature commit
 Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
-- [x] Production dependency audit, Deno Edge Function type-check, migration safety tests, JavaScript syntax checks and Vite production build passed: [Build run 44445257715](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445257715).
+- [x] Deno Edge Function type-check, migration safety tests, JavaScript syntax checks and Vite production build passed: [Build run 44445257715](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445257715).
 - [x] Disposable local Supabase stack started successfully: [Local Test run 44445258020](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445258020).
 - [x] All repository migrations applied to the disposable local database.
 - [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
@@ -13,9 +13,11 @@ Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
 - [x] AI Copilot prompt builder integrated into Content Planner with input validation and explicit disclosure that live provider is not connected.
 - [x] TEST deployment workflow has manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref.
 - [x] Deploy job correctly skipped for the feature-branch PR; no production deployment occurred.
-- [ ] Add and review a package lockfile, then switch CI from npm install to npm ci.
+- [x] Commit CI-generated npm lockfile (lockfileVersion 3); verify clean npm ci install; switch both Build and Local Supabase CI to npm ci.
 - [x] Pin GitHub Actions dependencies to reviewed immutable commit SHAs; set Node.js 24, Deno 2.9.8 and Supabase CLI 3.2.0 explicitly, with regression tests against floating versions.
-- [ ] Complete remaining internal code review and regression coverage before beginning external integrations.
+- [x] Fix local-calendar follow-up date calculation, cap JSON backup imports at 2 MB, and restore previous in-memory data if browser storage cannot save an imported backup.
+- [x] Prevent ephemeral local Supabase keys from appearing in public CI logs; add an explicit empty seed file to avoid ambiguous seed warnings.
+- [ ] Confirm latest full dependency audit and both CI workflows pass after these final hardening changes.
 
 ## Required TEST environment setup (external release gate)
 1. Create a separate disposable Supabase TEST project. Do not use the existing BK-BusiCare project unless its non-production status is independently confirmed.
