@@ -24,8 +24,18 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - name: Install dependencies
-        run: npm install
+      - name: Resolve dependencies and generate a reproducible lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Verify clean installation from the generated lockfile
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Preserve generated lockfile for repository review
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: generated-npm-lockfile
+          path: package-lock.json
+          retention-days: 1
       - name: Audit dependencies for high-severity vulnerabilities
         run: npm audit --omit=dev --audit-level=high
       - name: Set up Deno for Supabase Edge Functions
