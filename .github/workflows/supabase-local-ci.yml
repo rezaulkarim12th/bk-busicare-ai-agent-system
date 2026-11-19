@@ -27,7 +27,7 @@ jobs:
           node-version: 24
 
       - name: Install application dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run application and migration static tests
         run: npm test
