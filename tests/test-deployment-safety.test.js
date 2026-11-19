@@ -50,3 +50,9 @@ test('deployment workflow checks out only the isolated feature branch', () => {
   assert.equal(checkoutRefs.length, 2, 'both jobs must use the reviewed feature branch');
   assert.doesNotMatch(workflow, /ref:\s*main\b/);
 });
+
+test('TEST workflow explicitly refuses the known existing BK-BusiCare project ref', () => {
+  const productionRefGuards = workflow.match(/Refusing to target the existing BK-BusiCare project/g) ?? [];
+  assert.equal(productionRefGuards.length, 2, 'both preview and apply must reject the existing project');
+  assert.equal((workflow.match(/ekznyijmghrjtovbbgun/g) ?? []).length, 2);
+});
