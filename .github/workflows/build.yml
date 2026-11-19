@@ -26,8 +26,8 @@ jobs:
           node-version: 24
       - name: Install locked dependencies
         run: npm ci
-      - name: Audit dependencies for high-severity vulnerabilities
-        run: npm audit --audit-level=high
+      - name: Audit all dependencies for known vulnerabilities
+        run: npm audit --audit-level=low
       - name: Set up Deno for Supabase Edge Functions
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
