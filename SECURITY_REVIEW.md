@@ -14,8 +14,8 @@ Review scope: repository source at the feature branch, SQL migration, Supabase E
 - Signup and password recovery UI reject passwords shorter than 12 characters. This is a client-side guard only; configure the Supabase Auth password policy server-side as well.
 
 ## Verification performed
-- Build #115 passed ([run](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376656025)): dependency installation, high-severity production dependency audit, Deno Edge Function type-check, migration safety checks, application JavaScript syntax checks and Vite production bundle build.
-- Local Supabase Test #16 passed ([run](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44376656064)): application/migration static tests, Deno type-check, disposable local Supabase startup, application of all migrations, pgTAP RLS isolation suite (7/7 assertions), local service status and cleanup.
+- Build #117 passed ([run](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44377913408)): dependency installation, high-severity production dependency audit, Deno Edge Function type-check, migration safety checks, application JavaScript syntax checks and Vite production bundle build.
+- Local Supabase Test #16 passed ([run](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44377913434)): application/migration static tests, Deno type-check, disposable local Supabase startup, application of all migrations, pgTAP RLS isolation suite (7/7 assertions), local service status and cleanup.
 - The pgTAP suite verifies viewer workspace-scoped reads, denial of cross-workspace reads, denial of viewer create/update/delete, member workspace-scoped reads and member lead creation attributed to the authenticated identity.
 - The feature-branch deploy job was skipped as intended. No production deployment occurred.
 - The workflow audits production dependencies; it does not establish that the complete development dependency tree is vulnerability-free.
