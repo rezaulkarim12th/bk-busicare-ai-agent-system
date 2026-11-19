@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -24,20 +24,10 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - name: Resolve dependencies and generate a reproducible lockfile
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
-      - name: Verify clean installation from the generated lockfile
-        run: npm ci --ignore-scripts --no-audit --no-fund
-
-      - name: Preserve generated lockfile for repository review
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: generated-npm-lockfile
-          path: package-lock.json
-          retention-days: 1
+      - name: Install locked dependencies
+        run: npm ci
       - name: Audit dependencies for high-severity vulnerabilities
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --audit-level=high
       - name: Set up Deno for Supabase Edge Functions
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
@@ -63,27 +53,6 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
-
-      - name: Commit verified lockfile to the same-repository feature branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feature/multitenant-foundation'
-        env:
-          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp package-lock.json "$RUNNER_TEMP/package-lock.json"
-          git fetch origin "$TARGET_BRANCH"
-          git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
-          cp "$RUNNER_TEMP/package-lock.json" package-lock.json
-          git add package-lock.json
-          if git diff --cached --quiet; then
-            echo "The verified package lockfile is already committed."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "build: add verified npm lockfile"
-            git push origin "HEAD:refs/heads/$TARGET_BRANCH"
-          fi
 
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
