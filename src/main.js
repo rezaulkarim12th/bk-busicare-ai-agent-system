@@ -7,8 +7,37 @@ let data = load();
 let page = 'Dashboard';
 let leadQuery = '';
 let leadStatus = 'All';
-function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return structuredClone(defaultData)}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function load(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return structuredClone(defaultData);
+    const workspace = stored.workspace && typeof stored.workspace === 'object' && !Array.isArray(stored.workspace)
+      ? {...defaultData.workspace, name: typeof stored.workspace.name === 'string' && stored.workspace.name.trim() ? stored.workspace.name.trim().slice(0,120) : defaultData.workspace.name}
+      : structuredClone(defaultData.workspace);
+    const leads = Array.isArray(stored.leads) ? stored.leads.filter(l =>
+      l && typeof l === 'object' && Number.isSafeInteger(Number(l.id)) && Number(l.id) > 0 &&
+      typeof l.name === 'string' && l.name.trim() && Number.isFinite(Number(l.value ?? 0)) &&
+      Number(l.value ?? 0) >= 0 && ['New','Contacted','Proposal','Won','Lost'].includes(l.status)
+    ).map(l => ({...l, id:Number(l.id), name:l.name.trim(), value:Number(l.value ?? 0)})) : [];
+    const content = Array.isArray(stored.content) ? stored.content.filter(c =>
+      c && typeof c === 'object' && typeof c.title === 'string' && c.title.trim() &&
+      ['Facebook','Instagram','TikTok','LinkedIn','YouTube'].includes(c.platform) &&
+      ['Idea','Draft','Ready for review'].includes(c.status)
+    ) : [];
+    return {workspace, leads, content};
+  } catch {
+    return structuredClone(defaultData);
+  }
+}
+function save(){
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+    return true;
+  } catch {
+    alert('ডেটা সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পূর্ণ বা অনুপলব্ধ হতে পারে। আগে JSON Backup Export করুন।');
+    return false;
+  }
+}
 function money(n){return '৳'+Number(n||0).toLocaleString('en-BD')}
 function csvCell(value){const raw=String(value??'');const safe=/^[\u0000-\u0020]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
