@@ -74,21 +74,20 @@ Deno.serve(async (req: Request) => {
     if (inviteError || !invited.user) {
       return json(400, { error: 'Unable to create invitation. The email may already be registered.' }, origin);
     }
-    const { error: memberError } = await admin.from('workspace_members').insert({
-      workspace_id: workspaceId, user_id: invited.user.id, role
+    // Membership authorization and audit insertion are one database transaction.
+    const { data: membershipCreated, error: membershipError } = await admin.rpc('add_workspace_member_invitation', {
+      target_workspace: workspaceId,
+      target_actor: authData.user.id,
+      target_user: invited.user.id,
+      target_role: role
     });
-    if (memberError) {
-      await admin.auth.admin.deleteUser(invited.user.id);
-      return json(500, { error: 'Invitation could not be completed. Contact an administrator.' }, origin);
-    }
-    const { error: auditError } = await admin.from('audit_events').insert({
-      workspace_id: workspaceId, actor_id: authData.user.id, action: 'member.invited',
-      entity_type: 'workspace_member', entity_id: invited.user.id, metadata: { role }
-    });
-    if (auditError) {
-      await admin.from('workspace_members').delete().eq('workspace_id', workspaceId).eq('user_id', invited.user.id);
-      await admin.auth.admin.deleteUser(invited.user.id);
-      return json(500, { error: 'Invitation audit could not be recorded; the operation was rolled back where possible.' }, origin);
+    if (membershipError || membershipCreated !== true) {
+      const { error: cleanupError } = await admin.auth.admin.deleteUser(invited.user.id);
+      return json(500, {
+        error: cleanupError
+          ? 'Invitation setup failed; an unused Auth account may require administrator cleanup.'
+          : 'Invitation could not be completed; the unused Auth account was removed.'
+      }, origin);
     }
     return json(200, { success: true, message: 'Invitation sent' }, origin);
   }
