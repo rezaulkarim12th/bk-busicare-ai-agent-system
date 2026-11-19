@@ -101,17 +101,16 @@ Deno.serve(async (req: Request) => {
   if (!target || target.role === 'owner') return json(403, { error: 'Target is not an editable workspace member' }, origin);
   if (actor.role === 'admin' && target.role === 'admin') return json(403, { error: 'Admins cannot change another admin role' }, origin);
 
-  const { error: updateError } = await admin.from('workspace_members')
-    .update({ role }).eq('workspace_id', workspaceId).eq('user_id', targetUserId);
-  if (updateError) return json(500, { error: 'Unable to update workspace role' }, origin);
-  const { error: auditError } = await admin.from('audit_events').insert({
-    workspace_id: workspaceId, actor_id: authData.user.id, action: 'member.role_changed',
-    entity_type: 'workspace_member', entity_id: targetUserId, metadata: { from: target.role, to: role }
+  // Re-check authorization and write the role + audit event in one database transaction.
+  // This closes the race between the earlier UI-friendly checks and the privileged write.
+  const { data: changed, error: changeError } = await admin.rpc('set_workspace_member_role', {
+    target_workspace: workspaceId,
+    target_actor: authData.user.id,
+    target_user: targetUserId,
+    target_role: role
   });
-  if (auditError) {
-    await admin.from('workspace_members').update({ role: target.role })
-      .eq('workspace_id', workspaceId).eq('user_id', targetUserId);
-    return json(500, { error: 'Role change audit could not be recorded; the previous role was restored where possible.' }, origin);
+  if (changeError || changed !== true) {
+    return json(403, { error: 'Role change is not permitted or could not be recorded' }, origin);
   }
   return json(200, { success: true, message: 'Workspace role updated' }, origin);
 });
