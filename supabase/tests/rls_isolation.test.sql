@@ -3,7 +3,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(16);
 
 -- Seed isolated identities and two tenants as the database owner.
 insert into auth.users (id, aud, role, email, encrypted_password)
@@ -78,6 +78,9 @@ select is((select count(*)::integer from public.content_items where id = 'aaaaaa
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
 select is((select count(*)::integer from public.leads), 1,
   'member reads only the lead in their own workspace');
+delete from public.leads where id = 'bbbbbbbb-1111-4000-8000-000000000001';
+select is((select count(*)::integer from public.leads where id = 'bbbbbbbb-1111-4000-8000-000000000001'), 1,
+  'member cannot delete leads');
 
 insert into public.leads (workspace_id, name)
 values ('bbbbbbbb-0000-4000-8000-000000000001', 'Member-created lead');
@@ -87,6 +90,9 @@ select is((select count(*)::integer from public.leads
   'member can create a lead attributed to their authenticated identity');
 select is((select count(*)::integer from public.content_items), 1,
   'member reads only content in their own workspace');
+delete from public.content_items where id = 'bbbbbbbb-2222-4000-8000-000000000001';
+select is((select count(*)::integer from public.content_items where id = 'bbbbbbbb-2222-4000-8000-000000000001'), 1,
+  'member cannot delete content');
 insert into public.content_items (workspace_id, title, platform)
 values ('bbbbbbbb-0000-4000-8000-000000000001', 'Member-created content', 'LinkedIn');
 select is((select count(*)::integer from public.content_items
