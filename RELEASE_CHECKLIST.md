@@ -15,9 +15,9 @@ This checklist records the remaining owner-controlled setup required before a sa
 - [ ] Live TEST-project Auth, API-level cross-tenant RLS and Edge Function tests.
 - [ ] Merge feature PR only after external release gates pass and owner explicitly approves.
 
-Latest previously successful build: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44441050170
-Latest previously successful local Supabase test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44441050179
-Latest validation after TEST workflow guard tests: Build run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442289362 (build passed; deploy skipped). Local Test run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442289358 was still running at last check; later commits trigger a fresh run.
+Latest verified feature-branch build (commit `28026dd`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534807 — success; deployment skipped.
+Latest verified local Supabase test (commit `28026dd`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534770 — success; all migrations applied to disposable local Supabase, pgTAP suite passed, services verified and stack stopped.
+Latest validation after production-project hard-block safeguard: Build run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534807 passed; Local Test run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534770 passed.
 Local CI workflow: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/.github/workflows/supabase-local-ci.yml
 RLS regression test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/supabase/tests/rls_isolation.test.sql
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
