@@ -2,7 +2,6 @@
 
 Last reviewed: 2026-11-19
 Reviewed branch: `feature/multitenant-foundation`
-Reviewed commit at the time of this report: `c2f6d4b91ba644a1986febd9f4d8f907127f384b`
 
 ## Scope reviewed
 
@@ -37,7 +36,7 @@ Reviewed commit at the time of this report: `c2f6d4b91ba644a1986febd9f4d8f907127
 
 The CI workflows run dependency audit, Edge Function type-check, Node regression tests, JavaScript syntax checks, production build, migration safety checks, a disposable local Supabase migration, pgTAP RLS tests and local service verification.
 
-The 16-test pgTAP suite and the expanded static security tests must pass on the latest reviewed commit before this audit can be marked internally complete. CI status is tracked in the pull request and Actions runs.
+The expanded static security tests, Deno type-check, JavaScript syntax checks and production build passed in [Build run 44451816131](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44451816131). The disposable local Supabase stack started, the migration applied, all 16 pgTAP RLS assertions passed, local services verified, and the stack shut down successfully in [Local Supabase run 44451815663](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44451815663). The dependency audit also passed. These results apply to the reviewed feature-branch revision recorded in the linked Actions runs.
 
 ## Limitations and release blockers
 
