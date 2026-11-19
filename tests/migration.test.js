@@ -194,3 +194,11 @@ test('local demo safely recovers from malformed browser storage and rejects inva
   assert.match(app, /localStorage\.setItem\(KEY, JSON\.stringify\(data\)\)/);
   assert.match(app, /ডেটা সংরক্ষণ করা যায়নি/);
 });
+
+
+test('backup import enforces a size cap and rolls back when browser storage cannot save', () => {
+  assert.match(app, /file\.size>2\*1024\*1024/);
+  assert.match(app, /const previousData=data/);
+  assert.match(app, /if\(!save\(\)\)\{data=previousData;return;\}/);
+  assert.match(app, /Backup file exceeds 2 MB limit/);
+});
