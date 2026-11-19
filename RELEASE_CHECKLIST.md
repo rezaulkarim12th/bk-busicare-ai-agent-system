@@ -1,31 +1,24 @@
 # BK-BusiCare release checklist
 
-This checklist records the remaining owner-controlled setup required before a safe live release. The application is not production-ready until every required test below passes.
+This checklist records verified feature-branch work and the remaining release gates. The application is not production-ready until every required live test and deployment check passes.
 
-## Verified in GitHub
-- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build run [44442878391](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878391).
-- [x] Disposable local Supabase stack started successfully in Local Test run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
-- [x] All repository migrations applied successfully to the disposable local database in run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
-- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions in run [44442878378](https://github.com/rezaul12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
-- [x] Local Supabase service status verified and stack cleaned up in run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
-- [x] Added automated safeguards for TEST deployment workflow: manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref. Latest safeguard commits: `55292bd` and `60e649c`.
-- [x] Deployment job correctly skipped for the feature-branch PR; no production deployment occurred.
+## Verified in GitHub on latest feature commit
+Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
+- [x] Production dependency audit, Deno Edge Function type-check, migration safety tests, JavaScript syntax checks and Vite production build passed: [Build run 44445257715](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445257715).
+- [x] Disposable local Supabase stack started successfully: [Local Test run 44445258020](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445258020).
+- [x] All repository migrations applied to the disposable local database.
+- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
+- [x] Local Supabase service status verified and stack cleaned up.
+- [x] Dashboard Operations Core integrated: pipeline metrics, won revenue, win rate and follow-up queue.
+- [x] AI Copilot prompt builder integrated into Content Planner with input validation and explicit disclosure that live provider is not connected.
+- [x] TEST deployment workflow has manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref.
+- [x] Deploy job correctly skipped for the feature-branch PR; no production deployment occurred.
 - [ ] Add and review a package lockfile, then switch CI from npm install to npm ci.
 - [ ] Pin GitHub Actions dependencies and Supabase CLI to reviewed immutable versions.
-- [ ] Live TEST-project Auth, API-level cross-tenant RLS and Edge Function tests.
-- [ ] Merge feature PR only after external release gates pass and owner explicitly approves.
+- [ ] Complete remaining internal code review and regression coverage before beginning external integrations.
 
-Latest verified feature-branch build (commit `13fe59ba3fc069858f05a0754a676bebc8fcb001`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878391 — success; production deployment did not run because this is not `main`.
-Latest verified local Supabase test (same commit): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378 — success; all migrations applied to disposable local Supabase, pgTAP RLS suite passed, services verified and stack stopped.
-Both latest CI workflows passed after the production-project hard-block safeguard.
-Local CI workflow: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/.github/workflows/supabase-local-ci.yml
-RLS regression test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/supabase/tests/rls_isolation.test.sql
-Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
-
-A successful local test confirms migrations and the covered RLS cases work in a fresh disposable database. It does not validate a real Supabase project, live Auth, SMTP, Edge Function deployment or production hosting.
-
-## Required TEST environment setup (owner action)
-1. Create a separate disposable Supabase TEST project. Do not use the existing project unless its non-production status is independently confirmed.
+## Required TEST environment setup (external release gate)
+1. Create a separate disposable Supabase TEST project. Do not use the existing BK-BusiCare project unless its non-production status is independently confirmed.
 2. In GitHub repository Settings -> Environments, create `supabase-test`. Add required reviewers/protection if available.
 3. Add these environment secrets without placing them in source control or chat:
    - `SUPABASE_ACCESS_TOKEN`
@@ -61,10 +54,10 @@ Each provider requires the account owner to create/authorize the app, approve sc
 - Google OAuth, Ads, Analytics and Search Console.
 - YouTube Data API.
 - Shopify / WooCommerce, payment provider and order webhooks.
-- AI provider for content/agent orchestration.
+- Live AI provider for content/agent orchestration.
 - Scheduler/queue, publishing approvals, retries, logs, rate limits and monitoring.
 
 Do not promise automatic publishing or ad management until each provider integration has been implemented, permission-reviewed and tested. Keep customer messaging, publishing, CRM mutations and ad spend behind explicit human approval.
 
 ## Release decision
-Current state: Build #117 passed; Local Test #18 passed with all 7 pgTAP RLS assertions; live Supabase TEST deployment and live RLS/API tests are not verified; Pages production deployment has not occurred; external platform integrations are not connected. This is a code-tested MVP foundation, not a completed live automation service.
+Current state: feature-branch Build and disposable Local Supabase Test both pass on commit `6b6203660db0b6b472ae35e645f28e0e9ca8409c`. This confirms the tested local code and migration path only. Live Supabase TEST deployment, live RLS/API tests, production hosting and external provider integrations remain unverified/unconnected. This is a code-tested MVP foundation, not a completed live automation service.
