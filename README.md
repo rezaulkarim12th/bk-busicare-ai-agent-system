@@ -5,7 +5,7 @@ Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains a local
 ## Run locally
 
 1. Install Node.js 20 or later.
-2. Run `npm install`.
+2. Run `npm ci`.
 3. Run `npm run dev`.
 4. Open the local URL printed by Vite.
 
