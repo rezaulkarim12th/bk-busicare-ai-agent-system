@@ -50,7 +50,7 @@ function save(){
   }
 }
 function money(n){return '৳'+Number(n||0).toLocaleString('en-BD')}
-function csvCell(value){const raw=String(value??'');const safe=/^[\u0000-\u0020]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
+function csvCell(value){const raw=String(value??'');const safe=/^[\u0000-\u0020\uFEFF\u200B-\u200D\u2060]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const nav=[['Dashboard','▦'],['Leads','◉'],['Sales Pipeline','⇢'],['Content Planner','▤'],['Reports','▥'],['Settings','⚙']];
 function shell(){document.querySelector('#app').innerHTML=`
