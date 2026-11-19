@@ -3,11 +3,11 @@
 This checklist records the remaining owner-controlled setup required before a safe live release. The application is not production-ready until every required test below passes.
 
 ## Verified in GitHub
-- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build #118.
-- [x] Disposable local Supabase stack started successfully in Local Test #19.
-- [x] All repository migrations applied successfully to the disposable local database.
-- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
-- [x] Local Supabase service status verified and stack cleaned up (previous successful run).
+- [x] Feature-branch production dependency audit, Deno Edge Function type-check, migration safety checks, JavaScript syntax checks and Vite production build passed in Build run [44442878391](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878391).
+- [x] Disposable local Supabase stack started successfully in Local Test run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
+- [x] All repository migrations applied successfully to the disposable local database in run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
+- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions in run [44442878378](https://github.com/rezaul12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
+- [x] Local Supabase service status verified and stack cleaned up in run [44442878378](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378).
 - [x] Added automated safeguards for TEST deployment workflow: manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref. Latest safeguard commits: `55292bd` and `60e649c`.
 - [x] Deployment job correctly skipped for the feature-branch PR; no production deployment occurred.
 - [ ] Add and review a package lockfile, then switch CI from npm install to npm ci.
@@ -15,9 +15,9 @@ This checklist records the remaining owner-controlled setup required before a sa
 - [ ] Live TEST-project Auth, API-level cross-tenant RLS and Edge Function tests.
 - [ ] Merge feature PR only after external release gates pass and owner explicitly approves.
 
-Latest verified feature-branch build (commit `28026dd`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534807 — success; deployment skipped.
-Latest verified local Supabase test (commit `28026dd`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534770 — success; all migrations applied to disposable local Supabase, pgTAP suite passed, services verified and stack stopped.
-Latest validation after production-project hard-block safeguard: Build run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534807 passed; Local Test run https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442534770 passed.
+Latest verified feature-branch build (commit `13fe59ba3fc069858f05a0754a676bebc8fcb001`): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878391 — success; production deployment did not run because this is not `main`.
+Latest verified local Supabase test (same commit): https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44442878378 — success; all migrations applied to disposable local Supabase, pgTAP RLS suite passed, services verified and stack stopped.
+Both latest CI workflows passed after the production-project hard-block safeguard.
 Local CI workflow: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/.github/workflows/supabase-local-ci.yml
 RLS regression test: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/feature/multitenant-foundation/supabase/tests/rls_isolation.test.sql
 Draft PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/1
