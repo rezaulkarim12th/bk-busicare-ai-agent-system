@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getFollowUpQueue, getSalesMetrics, recommendNextAction } from '../src/operations.js';
+import { getFollowUpQueue, getLocalDateString, getSalesMetrics, recommendNextAction } from '../src/operations.js';
 
 test('follow-up queue includes due open leads and sorts oldest first', () => {
   const result = getFollowUpQueue([
@@ -40,4 +40,10 @@ test('next-action guidance covers every supported sales stage', () => {
   assert.match(recommendNextAction({ status: 'Won' }), /অনবোর্ডিং/);
   assert.match(recommendNextAction({ status: 'Lost' }), /কারণ/);
   assert.match(recommendNextAction({ status: 'unknown' }), /যাচাই/);
+});
+
+
+test('local date formatting follows the browser calendar date, not UTC', () => {
+  const earlyMorning = new Date(2026, 10, 19, 1, 15, 0);
+  assert.equal(getLocalDateString(earlyMorning), '2026-11-19');
 });
