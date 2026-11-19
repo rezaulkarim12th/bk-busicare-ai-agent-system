@@ -1,6 +1,6 @@
 # Implementation status
 
-Last reviewed: 2026-11-18
+Last reviewed: 2026-11-19
 
 ## User decisions
 - Hosting strategy: free-first.
@@ -25,7 +25,10 @@ Last reviewed: 2026-11-18
 - JSON import validates record structure; CSV export mitigates formula injection.
 - No service-role key or database password is used in browser code.
 - Vite dev/preview servers bind to 127.0.0.1.
-- GitHub Actions checks production dependencies, Deno types, migration safety tests, JavaScript syntax and production build.
+- Follow-up queue uses the browser's local calendar date (not UTC) to avoid off-by-one-day reminders.
+- JSON backup import is capped at 2 MB and restores the previous in-memory data if Local Storage cannot save the imported backup.
+- Local Supabase CI captures startup/status output and suppresses ephemeral generated API credentials from public logs; an explicit empty seed file is present.
+- GitHub Actions pins third-party actions to immutable commit SHAs, selects explicit Node/Deno/Supabase CLI versions, installs from a committed lockfile with npm ci, audits the full dependency tree, checks Deno types, migration safety tests, JavaScript syntax and production build.
 - Manual Supabase TEST deployment workflow is present. It separates a read-only `preview` run from a separately dispatched `apply` run; apply requires a confirmation checkbox, re-runs the preview, supplies the database password to the CLI, applies migrations and deploys the Edge Function. It targets the configured project ref and GitHub environment `supabase-test`.
 
 ## Latest validation
