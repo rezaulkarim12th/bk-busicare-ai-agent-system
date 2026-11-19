@@ -131,7 +131,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   actor_role text;
   previous_role text;
@@ -169,7 +169,7 @@ begin
 
   return true;
 end;
-$;
+$$;
 
 revoke all on function public.set_workspace_member_role(uuid, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.set_workspace_member_role(uuid, uuid, uuid, text) to service_role;
@@ -185,7 +185,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   actor_role text;
 begin
@@ -216,7 +216,7 @@ begin
 
   return true;
 end;
-$;
+$$;
 
 revoke all on function public.add_workspace_member_invitation(uuid, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.add_workspace_member_invitation(uuid, uuid, uuid, text) to service_role;
