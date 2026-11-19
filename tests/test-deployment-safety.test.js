@@ -87,3 +87,12 @@ test('CI toolchain versions are explicit rather than latest or floating major ta
     assert.doesNotMatch(source, /version: latest/);
   }
 });
+
+
+test('local Supabase CI does not print ephemeral generated credentials', async () => {
+  const localWorkflow = await readFile(new URL('../.github/workflows/supabase-local-ci.yml', import.meta.url), 'utf8');
+  assert.match(localWorkflow, /supabase start >"\$log_file" 2>&1/);
+  assert.match(localWorkflow, /supabase status >"\$log_file" 2>&1/);
+  assert.match(localWorkflow, /generated local credentials were not written to CI logs/);
+  assert.doesNotMatch(localWorkflow, /^\s+run: supabase (?:start|status)\s*$/m);
+});
