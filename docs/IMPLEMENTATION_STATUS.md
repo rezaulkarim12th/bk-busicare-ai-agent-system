@@ -35,8 +35,9 @@ Last reviewed: 2026-11-19
 
 ## Latest validation
 - GitHub Actions run [44312129663](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44312129663) completed successfully on commit `e68a083c7179b19f74289b5aa8f3af50a43ba8f0`: production dependency audit, Deno Edge Function type-check, 15/15 Node regression tests, JavaScript syntax checks and Vite production build passed. Pages deployment was correctly skipped on the PR branch.
+- Latest security validation: [Build run 44451816131](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44451816131) passed dependency audit, Deno type-check, migration/static security tests, JavaScript syntax and production build. [Local Supabase run 44451815663](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44451815663) successfully started an isolated stack, applied the migration, passed all 16 pgTAP RLS assertions, verified local services and stopped the stack.
 - Pages deployment was skipped because this was a pull-request run on the feature branch.
-- The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration. The feature branch is synchronized with `main`; PR #1 is mergeable but remains Draft and unmerged.
+- The Supabase TEST deployment workflow has not been run; its secrets and GitHub environment still need configuration. The feature branch contains the security-review changes; PR #1 remains Draft and unmerged.
 - Disposable local Supabase migration and pgTAP RLS tests have been run; latest expanded suite contains 16 assertions. CI must pass on the current commit before release.
 
 ## Outstanding release gates
