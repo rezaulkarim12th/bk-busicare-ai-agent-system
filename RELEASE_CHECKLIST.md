@@ -14,7 +14,7 @@ Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
 - [x] TEST deployment workflow has manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref.
 - [x] Deploy job correctly skipped for the feature-branch PR; no production deployment occurred.
 - [ ] Add and review a package lockfile, then switch CI from npm install to npm ci.
-- [ ] Pin GitHub Actions dependencies and Supabase CLI to reviewed immutable versions.
+- [x] Pin GitHub Actions dependencies to reviewed immutable commit SHAs; set Node.js 24, Deno 2.9.8 and Supabase CLI 3.2.0 explicitly, with regression tests against floating versions.
 - [ ] Complete remaining internal code review and regression coverage before beginning external integrations.
 
 ## Required TEST environment setup (external release gate)
