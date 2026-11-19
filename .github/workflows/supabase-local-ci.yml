@@ -47,7 +47,15 @@ jobs:
 
       - name: Start isolated local Supabase stack
         id: start-supabase
-        run: supabase start
+        shell: bash
+        run: |
+          log_file="$RUNNER_TEMP/supabase-start.log"
+          if ! supabase start >"$log_file" 2>&1; then
+            echo "Supabase local stack failed to start. Sanitized diagnostic tail:"
+            tail -n 60 "$log_file" | sed -E 's/(Publishable|Secret|Access Key|Secret Key)(.*)/\1 [REDACTED]/'
+            exit 1
+          fi
+          echo "Disposable local Supabase stack started successfully."
 
       - name: Apply all migrations to the disposable local database
         run: supabase db reset --local
@@ -56,7 +64,16 @@ jobs:
         run: supabase test db
 
       - name: Verify local Supabase services
-        run: supabase status
+        shell: bash
+        run: |
+          log_file="$RUNNER_TEMP/supabase-status.log"
+          if ! supabase status >"$log_file" 2>&1; then
+            echo "Supabase local service verification failed. Sanitized diagnostic tail:"
+            tail -n 60 "$log_file" | sed -E 's/(Publishable|Secret|Access Key|Secret Key)(.*)/\1 [REDACTED]/'
+            exit 1
+          fi
+          grep -qi "supabase local development setup is running" "$log_file"
+          echo "Disposable local Supabase services are running; generated local credentials were not written to CI logs."
 
       - name: Stop local Supabase stack
         if: always() && steps.start-supabase.outcome == 'success'
