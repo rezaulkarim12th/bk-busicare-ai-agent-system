@@ -30,3 +30,12 @@ Status: implementation preparation only. No third-party media account is connect
 
 ## Current boundary
 This repository change does not connect external accounts, publish content, send messages, create campaigns, or incur provider API usage. The selected providers are recorded as requirements only.
+
+
+## OpenAI Edge Function activation checklist
+- Required server secrets: OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, APP_ALLOWED_ORIGINS.
+- OPENAI_MODEL must be selected and validated by the account administrator against the models enabled for their API project; the function intentionally has no guessed default model.
+- Per-user quota reservation is atomic and fail-closed: maximum 5 requests per rolling minute and 50 per rolling 24 hours. Usage rows older than 24 hours are pruned during reservation.
+- Request bodies are streamed and capped at 12 KB; the function requires a valid Supabase user session and an exact configured Origin.
+- Deploy only after the quota migration has been applied to TEST, required secrets are set by an authorized administrator, and authenticated/unauthenticated, quota, CORS, timeout, and provider error tests pass.
+- This preparation does not create an OpenAI account, configure billing, set provider secrets, or deploy the function.
