@@ -8,9 +8,8 @@ Last verified: 2026-11-21 (UTC)
 - Application release commit: `b3416b1406f7ed8995ee44d1e2bcf2e2aaeb073e`.
 - PR #9 (Content Planner modules) and PR #8 (secure AI content-function foundation) merged.
 - PR #7 closed as superseded by PR #8.
-- GitHub Pages deployment: [workflow 44804954156](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44804954156).
-- Main-branch build and Pages deployment: [workflow 44805713631](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713631).
-- Android debug APK workflow: [workflow 44805713702](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713702).
+- Latest successful Pages build/deploy after security documentation: [workflow 44807705069](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44807705069).
+- Earlier verified Android debug APK workflow: [workflow 44805713702](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713702).
 
 ## Implemented and published
 
@@ -21,20 +20,23 @@ Last verified: 2026-11-21 (UTC)
 - Atomic per-user AI generation quota: 5 requests per rolling minute and 50 per rolling 24 hours.
 - TEST RLS lockdown migration for `private.ai_content_usage`: explicit service_role policy, anon/authenticated table grants revoked.
 - Dedicated AI usage RLS regression test added to `supabase/tests/ai_content_usage_rls.test.sql`.
+- Server-only first-workspace RPC and `create-workspace` Edge Function deployed to TEST with JWT verification enabled.
 - CI checks for dependency audit, Deno type-check, migration/static tests, JavaScript syntax and production build; Android debug APK workflow.
 
 ## Verified environments and limits
 
 - GitHub Pages hosts the browser MVP; it does not itself provide backend integrations.
 - Supabase TEST project `BK-BusiCare-TEST` (`rmnoiwzkhjwmgxwkfdzb`) is `ACTIVE_HEALTHY`.
-- Seven migrations are recorded in TEST, including `ai_content_usage_quota` and `ai_content_usage_rls_lockdown`.
+- Eight migrations are recorded in TEST, including `ai_content_usage_rls_lockdown` and `secure_workspace_creation_for_user`; both migration files are committed in `main`.
 - Five public application tables have RLS enabled.
 - `private.ai_content_usage`: RLS is enabled; one policy exists for `service_role` (ALL, USING true, WITH CHECK true). Table grants remain limited to postgres and service_role; anon/authenticated have no table privileges. The private schema is not available to anon.
-- Access checks passed: 32 multi-tenant RLS regression assertions, 3 AI quota RPC assertions, and 6 AI usage RLS catalog/grant assertions. A separate transaction test also confirmed anon/authenticated row reads and inserts are blocked even when temporary test-only schema/table grants are applied, while service_role can insert/read. All test transactions were rolled back; no test usage row or test auth user was retained.
-- Supabase Security Advisor returned no lints after the migration.
+- Access checks passed: 32 multi-tenant RLS regression assertions, 3 AI quota RPC assertions, and 6 AI usage RLS catalog/grant assertions. A separate transaction test confirmed anon/authenticated row reads and inserts are blocked even when temporary test-only schema/table grants are applied, while service_role can insert/read. Test transactions were rolled back; no test usage row or test auth user was retained.
+- The first-workspace creation function is now present in TEST and callable only by service_role. The `create-workspace` Edge Function is ACTIVE, version 1, with `verify_jwt=true`. The frontend calls this function for initial workspace setup.
+- `manage-workspace-member` remains ACTIVE, version 2; its handler validates caller JWT itself.
+- Supabase Security Advisor returned no lints after the latest schema changes.
 - Performance Advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
-- TEST has the active `manage-workspace-member` Edge Function (version 2, `verify_jwt=false`); the function performs its own caller-token validation.
 - AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required provider secrets/model configuration are not present/verified.
+- Auth SMTP, redirect URLs and real email delivery have not been verified.
 - Local/demo mode uses browser Local Storage and does not sync across devices.
 - Storefront, checkout, payment processing and live order acceptance are not implemented. The current WordPress.com Simple plan does not support plugin installation/WooCommerce on this site.
 - No Meta, Google Ads, TikTok, LinkedIn, YouTube or Microsoft account integration is active.
@@ -43,7 +45,7 @@ Last verified: 2026-11-21 (UTC)
 
 ### Supabase and authentication
 - Verify Auth SMTP, site URL and redirect URLs; test sign-in, password recovery and invitation delivery.
-- Run authenticated two-user/two-workspace API tests for owner/admin/member/viewer access and cross-tenant isolation.
+- Run authenticated API-level signup and first-workspace creation tests using a real authorized test account, then two-user/two-workspace isolation tests.
 - Review SECURITY DEFINER functions and run fresh advisor checks after subsequent schema changes.
 - Verify backups, restore, monitoring, retention and operational rate limits.
 
@@ -62,7 +64,7 @@ Last verified: 2026-11-21 (UTC)
 
 **Status: Published MVP + TEST backend foundation; not a production-ready, fully integrated AI SaaS.**
 
-Pages deployment and Android build were verified successful on the earlier release. New RLS migration and regression-test commits have been pushed; their latest CI run is pending verification. External account setup, provider secrets, OAuth approvals, live API tests, Store implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
+Pages deployment and Android build are verified successful. Workspace creation backend is now deployed to TEST, but a real signed-in user end-to-end test, email delivery, AI provider activation, commerce implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
 
 ## References
 
