@@ -1,6 +1,6 @@
 # BK-BusiCare AI Agent System
 
-Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains the local operations demo, Supabase authentication portal source, and a TEST-deployed multi-tenant foundation. It is **not yet a production SaaS or a fully integrated AI agent**.
+Responsive Vite web-app MVP for BK-BusiCare. The repository contains a local operations demo, a Supabase authentication portal, and a multi-tenant workspace foundation. It is **not yet a complete production SaaS or a fully integrated AI agent**.
 
 ## Run locally
 
@@ -24,11 +24,29 @@ Demo records stay in the current browser's Local Storage. They do not sync acros
 
 When both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured, the local demo is suppressed and the authenticated portal opens. It supports email/password sign-in, registration, password recovery, workspace creation and workspace selection.
 
-The authenticated portal supports workspace-scoped cloud Leads and Content create/read/update/delete. PostgreSQL RLS is the security boundary; the UI also presents viewer accounts as read-only. Team invitations and role changes use the `manage-workspace-member` Supabase Edge Function, which validates caller JWTs and checks workspace roles. Deploy the function before using Team actions. Configure the Supabase Edge Function secret `APP_ALLOWED_ORIGINS` with a comma-separated exact allowlist of trusted app origins (for example, the deployed HTTPS app origin); wildcard origins are not supported. The function uses a database-locked invitation quota of five attempts per actor per workspace per ten minutes and records invitation attempts in the audit log.
+The authenticated portal supports workspace-scoped cloud Leads and Content create/read/update/delete. PostgreSQL RLS is the security boundary; the UI also presents viewer accounts as read-only. Team invitations and role changes use the `manage-workspace-member` Supabase Edge Function, which validates caller JWTs and checks workspace roles. Configure the Edge Function secret `APP_ALLOWED_ORIGINS` with a comma-separated exact allowlist of trusted app origins; wildcard origins are not supported. The function uses a database-locked invitation quota of five attempts per actor per workspace per ten minutes and records invitation attempts in the audit log.
 
 The SQL migrations create workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
 
-**TEST deployment status (2026-11-20):** both versioned migrations (`20261120044848`, `20261120044911`) have been applied to the separate `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`), and `manage-workspace-member` is deployed there as an active Edge Function (version 1). The five application tables have RLS enabled and currently contain zero rows. Production project was not modified. The function still requires `APP_ALLOWED_ORIGINS` to be configured with the deployed app's exact HTTPS origin before browser invocation. Live two-user/two-workspace API, Auth, invitation, CORS and penetration testing remain release gates. The pgTAP suite verifies the covered viewer/member workspace isolation cases against a disposable local database; it does not replace those live checks. Do not enter customer data until all release gates pass.
+## Environment status (checked 2026-11-20)
+
+The GitHub Pages deployment workflow run #203 completed successfully from the `main` branch (build and deploy jobs both succeeded). This confirms that the checked commit built and was deployed to GitHub Pages; it does not by itself prove every live application workflow or security control.
+
+The separate `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`) remains available for isolated testing. The repository's two initial versioned migrations were previously applied to that TEST project and the `manage-workspace-member` Edge Function was deployed there.
+
+The Production Supabase project (`ekznyijmghrjtovbbgun`) is active and has also been modified. A read-only database inspection on 2026-11-20 found the five application tables with RLS policies present and the following record counts: one workspace, one workspace member, one lead, zero content items and zero audit events. These counts are a point-in-time snapshot, not a complete acceptance test. Do not infer successful live CRUD, invitations, role changes or cross-workspace isolation from table presence or row counts.
+
+The Production `manage-workspace-member` Edge Function is active (version 1). Its source validates the bearer token, checks owner/admin permissions, restricts allowed origins, rate-limits invitations and uses transactional database RPCs for membership/role changes. Live browser invocation, invitation delivery, role-change behavior and the configured `APP_ALLOWED_ORIGINS` secret still require verification. The function's default origin fallback is not a substitute for verifying the deployed secret configuration.
+
+## Security review and remaining release gates
+
+A Production advisor check on 2026-11-20 reported:
+- Leaked Password Protection is disabled and must be enabled in Supabase Auth Password Security settings.
+- A SECURITY DEFINER warning is reported for `public.create_workspace(workspace_name text)`. The function checks `auth.uid()`, validates the workspace name, uses an empty search path, creates the workspace and its owner membership together, and is executable by authenticated users. This privilege is part of the current workspace-creation design; do not revoke it or change it to SECURITY INVOKER without redesigning and testing workspace creation.
+- Five unused-index informational notices were reported. Do not drop indexes without query-plan and workload review.
+- The Health Advisor returned no notices at the time of inspection.
+
+The following live checks remain outstanding: production Lead and Content CRUD/persistence; two-user/two-workspace RLS isolation; a real invitation and role-change test using a second test account; SMTP, Site URL and redirect allowlist verification; Edge Function origin-secret verification; and backup, monitoring, retention and rate-limit operational checks. These checks require authenticated test sessions or dashboard configuration and are not proven by the successful GitHub Pages deployment.
 
 ## Local Supabase CI (no credentials required)
 
@@ -45,20 +63,16 @@ Configure the GitHub Actions environment `supabase-test` and its secrets:
 
 After the TEST Edge Function is deployed, set its server-side secret `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the app. Do not place service-role or database credentials in `VITE_` variables or browser code.
 
-The remote GitHub TEST deployment workflow has not been run; the two migrations and Edge Function were applied directly to the isolated TEST project during setup. Configure the listed GitHub environment secrets and required environment protection/reviewers before using the workflow. Never send secrets in chat or commit them to Git.
-
 ## Hosting status
 
-The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed to GitHub Pages. The TEST project is separate from production.
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. The repository workflow expects `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as Actions secrets for a cloud-connected deployment. Secret values are not readable from the repository documentation and must never be shared in chat or committed to Git.
 
 ## Not implemented / not connected
 
-- Live two-user/two-workspace Auth and RLS integration tests through the Supabase API, and live Edge Function JWT/CORS/invitation/role-change verification.
-- SMTP, Site URL, redirect allowlist, server-side password policy and app-origin CORS secret configuration.
 - Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
 - AI content generation/agent orchestration and scheduled automation.
-- Production monitoring, backups, retention and rate limiting.
+- Full production operational monitoring, backup/restore drills, retention policies and end-to-end rate-limit verification.
 
 ## Security and release rules
 
-The GitHub repository is public. Do not commit credentials, customer data or backups. Keep development on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM mutations and ad spend must remain behind human approval.
+The GitHub repository is public. Do not commit credentials, customer data or backups. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM mutations and ad spend must remain behind human approval.
