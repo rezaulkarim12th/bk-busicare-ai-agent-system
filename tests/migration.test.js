@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const sql = await readFile(new URL('../supabase/migrations/0001_multitenant_foundation.sql', import.meta.url), 'utf8');
+const migrationFiles = ['20261120044848_multitenant_foundation.sql', '20261120044911_performance_hardening.sql'];
+const sql = (await Promise.all(migrationFiles.map(file => readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8')))).join('\n');
 const normalized = sql.replace(/--.*$/gm, '').replace(/\s+/g, ' ').toLowerCase();
 const portal = await readFile(new URL('../src/auth-portal.js', import.meta.url), 'utf8');
 const app = await readFile(new URL('../src/main.js', import.meta.url), 'utf8');
