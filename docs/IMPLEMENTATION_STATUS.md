@@ -5,7 +5,8 @@ Last verified: 2026-11-21 (UTC)
 ## Published repository state
 
 - Default branch: `main`.
-- Latest release commit: `b3416b1406f7ed8995ee44d1e2bcf2e2aaeb073e`.
+- Application release commit: `b3416b1406f7ed8995ee44d1e2bcf2e2aaeb073e`.
+- This status report is maintained in a later documentation-only commit.
 - PR #9 (Content Planner modules) merged.
 - PR #8 (secure AI content-function foundation, quota controls, provider plan and commerce architecture) merged.
 - PR #7 closed as superseded by PR #8; no duplicate draft remains.
@@ -27,7 +28,11 @@ Last verified: 2026-11-21 (UTC)
 ## Verified environments and limits
 
 - GitHub Pages is deployed. It hosts the browser MVP; it does not itself provide the backend integrations.
-- The separate Supabase TEST project was previously verified ACTIVE_HEALTHY. Core schema and team-management function were deployed there. The AI quota migration and its service-role privilege/smoke checks were applied and verified in TEST according to the PR #8 validation record.
+- Supabase TEST project `BK-BusiCare-TEST` (`rmnoiwzkhjwmgxwkfdzb`) was rechecked on 2026-11-21 and is `ACTIVE_HEALTHY`.
+- Six migrations are present in TEST, including `ai_content_usage_quota`. The five public application tables have RLS enabled and currently contain zero rows.
+- TEST has the active `manage-workspace-member` Edge Function (version 2, `verify_jwt=false`); the function performs its own caller-token validation.
+- TEST security advisor returned no lints. The performance advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
+- **Outstanding defense-in-depth finding:** Supabase's table inspection reports RLS disabled on `private.ai_content_usage`. A direct privilege check confirmed `anon` cannot use the private schema, neither `anon` nor `authenticated` has SELECT on the quota table, and `service_role` does. This limits current exposure, but the advisor still flags the table. Do not treat the warning as resolved. Proposed remediation is to enable RLS and add an explicit service-role-only policy; this needs an approved migration and re-test before changing TEST.
 - The AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required secrets and model configuration are not present/verified.
 - The local/demo mode uses browser Local Storage; it does not sync across devices.
 - Content Planner does not publish social posts, create live ad campaigns or spend money.
@@ -38,6 +43,7 @@ Last verified: 2026-11-21 (UTC)
 ## Remaining release gates
 
 ### Supabase and authentication
+- Review and approve remediation for RLS on `private.ai_content_usage`; then apply in TEST and verify service-role access plus denial for anon/authenticated.
 - Verify Auth SMTP, site URL and redirect URLs; test sign-in, password recovery and invitation delivery.
 - Run authenticated two-user/two-workspace API tests for owner/admin/member/viewer access and cross-tenant isolation.
 - Review SECURITY DEFINER functions and resolve remaining advisor warnings with explicit tests.
