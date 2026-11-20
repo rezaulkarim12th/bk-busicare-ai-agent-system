@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const allowedOrigins = new Set(
-  (Deno.env.get('APP_ALLOWED_ORIGINS') || 'https://rezaulkarim12th.github.io')
+  (Deno.env.get('APP_ALLOWED_ORIGINS') || '')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean)
@@ -28,7 +28,7 @@ const readKey = (name: string, legacy?: string) => {
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('Origin') || '';
-  if (origin && !allowedOrigins.has(origin)) return json(403, { error: 'Origin not allowed' });
+  if (!origin || allowedOrigins.size === 0 || !allowedOrigins.has(origin)) return json(403, { error: 'Origin not allowed or APP_ALLOWED_ORIGINS is not configured' });
   if (req.method === 'OPTIONS') return new Response('ok', { headers: responseHeaders(origin) });
   if (req.method !== 'POST') return json(405, { error: 'Method not allowed' }, origin);
 
