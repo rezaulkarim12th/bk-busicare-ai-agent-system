@@ -28,25 +28,13 @@ The authenticated portal supports workspace-scoped cloud Leads and Content creat
 
 The SQL migrations create workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
 
-## Environment status (checked 2026-11-20)
+## Environment status (verified 2026-11-21)
 
-The GitHub Pages deployment workflow run #203 completed successfully from the `main` branch (build and deploy jobs both succeeded). This confirms that the checked commit built and was deployed to GitHub Pages; it does not by itself prove every live application workflow or security control.
+The latest repository commit aligns the Supabase Edge Function gateway JWT settings for `manage-workspace-member`, `create-workspace` and `ai-content`. GitHub Actions run [44810200210](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44810200210) completed successfully: both build and GitHub Pages deploy jobs passed.
 
-The separate `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`) remains available for isolated testing. The repository's two initial versioned migrations were previously applied to that TEST project and the `manage-workspace-member` Edge Function was deployed there.
+The isolated `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`) has the verified multi-tenant database foundation and the deployed `create-workspace` and `manage-workspace-member` functions described in [Implementation & Release Status](docs/IMPLEMENTATION_STATUS.md). That status document is the current source of truth for migration counts, function versions, regression results and outstanding release gates.
 
-The Production Supabase project (`ekznyijmghrjtovbbgun`) is active and has also been modified. A read-only database inspection on 2026-11-20 found the five application tables with RLS policies present and the following record counts: one workspace, one workspace member, one lead, zero content items and zero audit events. These counts are a point-in-time snapshot, not a complete acceptance test. Do not infer successful live CRUD, invitations, role changes or cross-workspace isolation from table presence or row counts.
-
-The Production `manage-workspace-member` Edge Function is active (version 1). Its source validates the bearer token, checks owner/admin permissions, restricts allowed origins, rate-limits invitations and uses transactional database RPCs for membership/role changes. Live browser invocation, invitation delivery, role-change behavior and the configured `APP_ALLOWED_ORIGINS` secret still require verification. The function's default origin fallback is not a substitute for verifying the deployed secret configuration.
-
-## Security review and remaining release gates
-
-A Production advisor check on 2026-11-20 reported:
-- Leaked Password Protection is disabled and must be enabled in Supabase Auth Password Security settings.
-- A SECURITY DEFINER warning is reported for `public.create_workspace(workspace_name text)`. The function checks `auth.uid()`, validates the workspace name, uses an empty search path, creates the workspace and its owner membership together, and is executable by authenticated users. This privilege is part of the current workspace-creation design; do not revoke it or change it to SECURITY INVOKER without redesigning and testing workspace creation.
-- Five unused-index informational notices were reported. Do not drop indexes without query-plan and workload review.
-- The Health Advisor returned no notices at the time of inspection.
-
-The following live checks remain outstanding: production Lead and Content CRUD/persistence; two-user/two-workspace RLS isolation; a real invitation and role-change test using a second test account; SMTP, Site URL and redirect allowlist verification; Edge Function origin-secret verification; and backup, monitoring, retention and rate-limit operational checks. These checks require authenticated test sessions or dashboard configuration and are not proven by the successful GitHub Pages deployment.
+Production project configuration and live user workflows are not certified by a successful GitHub Pages build. Older point-in-time Production observations are intentionally not presented here as current acceptance evidence. Do not change Production without explicit owner approval and a reviewed deployment plan.
 
 ## Local Supabase CI (no credentials required)
 
