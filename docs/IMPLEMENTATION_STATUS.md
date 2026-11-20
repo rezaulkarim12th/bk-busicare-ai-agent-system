@@ -13,7 +13,8 @@ Last verified: 2026-11-21 (UTC)
 
 ## Implemented and published
 
-- MVP dashboard, leads, sales pipeline, content planner, reports and settings.
+- MVP dashboard, leads, sales pipeline, content planner, Store catalogue preview, reports and settings.
+- Store view includes sample-only catalogue cards and a browser-session demo cart; sample entries have no real price, inventory, download, checkout, order submission or payment. Checkout remains disabled.
 - Five Content Planner modules: Social Media Content; Meta Ads Management; Google Ads Management; Publishing & Scheduling; Campaign Reports. These are planning tools, not live ad activation or publishing.
 - Supabase multi-tenant foundation, RLS policies, workspace/team-management foundations and authenticated cloud CRUD described in the architecture docs.
 - Secure server-side OpenAI Edge Function source with Supabase JWT validation, exact-origin allowlist, bounded request body, timeout and draft-only response. Provider key is not in browser code.
@@ -39,7 +40,7 @@ Last verified: 2026-11-21 (UTC)
 - AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required provider secrets/model configuration are not present/verified.
 - Auth SMTP, redirect URLs and real email delivery have not been verified.
 - Local/demo mode uses browser Local Storage and does not sync across devices.
-- Storefront, checkout, payment processing and live order acceptance are not implemented. The current WordPress.com Simple plan does not support plugin installation/WooCommerce on this site.
+- Storefront UI is a clearly labelled demo preview only. Supabase commerce schema/RLS, transactional orders, checkout, payment processing and live order acceptance are not implemented. The current WordPress.com Simple plan does not support plugin installation/WooCommerce on this site.
 - No Meta, Google Ads, TikTok, LinkedIn, YouTube or Microsoft account integration is active.
 
 ## Remaining release gates
@@ -56,7 +57,7 @@ Last verified: 2026-11-21 (UTC)
 - Keep provider secrets server-side. Never paste credentials into chat or commit them to Git.
 
 ### Commerce and external integrations
-- Implement Store UI, catalogue, cart, order-request flow, commerce schema/RLS and transactional order creation in TEST.
+- Store UI preview and session-only demo cart are published; next implement TEST commerce schema/RLS, transactional order-request flow and stock controls.
 - Keep checkout/payment and live order acceptance disabled until an approved provider, policies and end-to-end tests exist.
 - Meta, Google Ads, TikTok, LinkedIn, YouTube and Microsoft integrations require owner-managed developer apps, scopes, OAuth approvals and server-side secret storage.
 - Keep publishing, messaging, campaign changes and advertising spend disabled until authorized and tested.
