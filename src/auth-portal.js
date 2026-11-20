@@ -30,6 +30,7 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate table tbody { display:block; }
       #bk-secure-gate table tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:10px 0; border-bottom:1px solid #dce8df; }
       #bk-secure-gate table td { display:block; min-width:0; overflow-wrap:anywhere; border:0; padding:5px; }
+      #bk-secure-gate table td[data-label]::before { content:attr(data-label); display:block; margin-bottom:4px; color:#687a70; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
       #bk-secure-gate form { min-width:0; }
     }
   `;
