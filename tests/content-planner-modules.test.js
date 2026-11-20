@@ -40,3 +40,15 @@ test('all modules remain planning-only; no live publishing or ad execution is en
   assert.ok(CONTENT_PLANNER_MODULES.every(module => !isLiveExecutionEnabled(module.id)));
   assert.equal(isLiveExecutionEnabled('unknown'), false);
 });
+
+
+import { readFile } from 'node:fs/promises';
+
+test('Content Planner UI renders module navigation and a planning-only brief form', async () => {
+  const source = await readFile(new URL('../src/main.js', import.meta.url), 'utf8');
+  assert.match(source, /getContentPlannerModules/);
+  assert.match(source, /data-planner-module/);
+  assert.match(source, /planner-brief-form/);
+  assert.match(source, /Planning only — no live campaign, publishing or spend/);
+  assert.match(source, /planner-download/);
+});
