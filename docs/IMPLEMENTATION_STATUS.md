@@ -20,6 +20,7 @@ Last verified: 2026-11-21 (UTC)
 - Secure server-side OpenAI Edge Function source with Supabase JWT validation, exact-origin allowlist, bounded request body, timeout and draft-only response. Provider key is not in browser code.
 - Atomic per-user AI generation quota: 5 requests per rolling minute and 50 per rolling 24 hours.
 - TEST RLS lockdown migration for `private.ai_content_usage`: explicit service_role policy, anon/authenticated table grants revoked.
+- Dedicated AI usage RLS regression test added to `supabase/tests/ai_content_usage_rls.test.sql`.
 - CI checks for dependency audit, Deno type-check, migration/static tests, JavaScript syntax and production build; Android debug APK workflow.
 
 ## Verified environments and limits
@@ -29,7 +30,7 @@ Last verified: 2026-11-21 (UTC)
 - Seven migrations are recorded in TEST, including `ai_content_usage_quota` and `ai_content_usage_rls_lockdown`.
 - Five public application tables have RLS enabled.
 - `private.ai_content_usage`: RLS is enabled; one policy exists for `service_role` (ALL, USING true, WITH CHECK true). Table grants remain limited to postgres and service_role; anon/authenticated have no table privileges. The private schema is not available to anon.
-- RLS access test transaction passed: anon and authenticated saw zero rows and their attempted inserts were rejected when temporary test-only schema/table grants were applied; service_role successfully inserted and read one test event. The test transaction was rolled back; no test usage row or test auth user was retained.
+- Access checks passed: 32 multi-tenant RLS regression assertions, 3 AI quota RPC assertions, and 6 AI usage RLS catalog/grant assertions. A separate transaction test also confirmed anon/authenticated row reads and inserts are blocked even when temporary test-only schema/table grants are applied, while service_role can insert/read. All test transactions were rolled back; no test usage row or test auth user was retained.
 - Supabase Security Advisor returned no lints after the migration.
 - Performance Advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
 - TEST has the active `manage-workspace-member` Edge Function (version 2, `verify_jwt=false`); the function performs its own caller-token validation.
@@ -61,7 +62,7 @@ Last verified: 2026-11-21 (UTC)
 
 **Status: Published MVP + TEST backend foundation; not a production-ready, fully integrated AI SaaS.**
 
-Pages deployment and Android build are verified successful. External account setup, provider secrets, OAuth approvals, live API tests, Store implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
+Pages deployment and Android build were verified successful on the earlier release. New RLS migration and regression-test commits have been pushed; their latest CI run is pending verification. External account setup, provider secrets, OAuth approvals, live API tests, Store implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
 
 ## References
 
