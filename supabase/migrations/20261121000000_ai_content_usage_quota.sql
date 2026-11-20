@@ -4,6 +4,7 @@ create table if not exists private.ai_content_usage (
   user_id uuid not null references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
 );
+grant usage on schema private to service_role;
 create index if not exists ai_content_usage_user_created_idx
   on private.ai_content_usage(user_id, created_at desc);
 revoke all on table private.ai_content_usage from public, anon, authenticated;
