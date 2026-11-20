@@ -9,12 +9,22 @@ on:
       - '.github/workflows/android-apk.yml'
       - 'capacitor.config.json'
       - 'package.json'
+      - 'package-lock.json'
       - 'src/**'
       - 'index.html'
       - 'vite.config.js'
   push:
     branches:
+      - main
       - feature/android-apk-ci-clean
+    paths:
+      - '.github/workflows/android-apk.yml'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'index.html'
+      - 'vite.config.js'
 
 permissions:
   contents: read
@@ -40,7 +50,7 @@ jobs:
           java-version: '21'
 
       - name: Install web dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install Capacitor Android tooling
         run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
