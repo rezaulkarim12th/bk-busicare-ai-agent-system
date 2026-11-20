@@ -1,6 +1,6 @@
 # BK-BusiCare AI Agent System
 
-Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains a local operations demo and an early Supabase authentication / multi-tenant foundation. It is **not yet a production SaaS or a fully integrated AI agent**.
+Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains the local operations demo, Supabase authentication portal source, and a TEST-deployed multi-tenant foundation. It is **not yet a production SaaS or a fully integrated AI agent**.
 
 ## Run locally
 
@@ -45,16 +45,16 @@ Configure the GitHub Actions environment `supabase-test` and its secrets:
 
 After the TEST Edge Function is deployed, set its server-side secret `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the app. Do not place service-role or database credentials in `VITE_` variables or browser code.
 
-The remote GitHub deployment workflow has not been run; the two migrations and Edge Function were applied directly to the isolated TEST project during setup. Configure the listed GitHub environment secrets and required environment protection/reviewers before using the workflow. Never send secrets in chat or commit them to Git.
+The remote GitHub TEST deployment workflow has not been run; the two migrations and Edge Function were applied directly to the isolated TEST project during setup. Configure the listed GitHub environment secrets and required environment protection/reviewers before using the workflow. Never send secrets in chat or commit them to Git.
 
 ## Hosting status
 
-The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed.
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed to GitHub Pages. The TEST project is separate from production.
 
 ## Not implemented / not connected
 
-- Live Supabase provisioning, migration application and Edge Function deployment.
-- Live cross-tenant RLS integration tests through the Supabase API and production security review.
+- Live two-user/two-workspace Auth and RLS integration tests through the Supabase API, and live Edge Function JWT/CORS/invitation/role-change verification.
+- SMTP, Site URL, redirect allowlist, server-side password policy and app-origin CORS secret configuration.
 - Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
 - AI content generation/agent orchestration and scheduled automation.
 - Production monitoring, backups, retention and rate limiting.
