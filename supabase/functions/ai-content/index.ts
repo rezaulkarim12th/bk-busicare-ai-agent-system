@@ -1,0 +1,118 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const corsHeaders = (origin: string) => ({
+  "Access-Control-Allow-Origin": origin,
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
+});
+
+const json = (body: Record<string, unknown>, status: number, origin: string) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": "no-store" },
+  });
+
+const allowedPlatforms = new Set(["Facebook", "Instagram", "TikTok", "LinkedIn", "YouTube"]);
+const maxBodyBytes = 12_000;
+
+Deno.serve(async (req: Request) => {
+  const configuredOrigins = (Deno.env.get("APP_ALLOWED_ORIGINS") ?? "")
+    .split(",").map((value) => value.trim()).filter(Boolean);
+  const origin = req.headers.get("origin") ?? "";
+
+  if (req.method === "OPTIONS") {
+    if (!origin || !configuredOrigins.includes(origin)) {
+      return new Response(null, { status: 403, headers: { "Vary": "Origin" } });
+    }
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, origin || "null");
+  if (!origin || !configuredOrigins.includes(origin)) {
+    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+      status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    });
+  }
+
+  const authHeader = req.headers.get("authorization") ?? "";
+  const token = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!token || !supabaseUrl || !supabaseAnonKey) {
+    return json({ error: "Authentication required" }, 401, origin);
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: authData, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !authData.user) return json({ error: "Invalid session" }, 401, origin);
+
+  const apiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!apiKey) return json({ error: "AI provider is not configured" }, 503, origin);
+
+  const declaredLength = Number(req.headers.get("content-length") ?? "0");
+  if (declaredLength > maxBodyBytes) return json({ error: "Request too large" }, 413, origin);
+
+  let payload: unknown;
+  try {
+    payload = await req.json();
+  } catch {
+    return json({ error: "Invalid JSON" }, 400, origin);
+  }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return json({ error: "Invalid request" }, 400, origin);
+  }
+  const input = payload as Record<string, unknown>;
+  const topic = typeof input.topic === "string" ? input.topic.trim() : "";
+  const platform = typeof input.platform === "string" ? input.platform : "";
+  const audience = typeof input.audience === "string" ? input.audience.trim().slice(0, 240) : "General audience";
+  const objective = typeof input.objective === "string" ? input.objective.trim().slice(0, 240) : "Useful, accurate engagement";
+  const offer = typeof input.offer === "string" ? input.offer.trim().slice(0, 300) : "";
+
+  if (!topic || topic.length > 500 || !allowedPlatforms.has(platform)) {
+    return json({ error: "Provide a topic (max 500 characters) and a supported platform" }, 400, origin);
+  }
+
+  const prompt = [
+    "Create one accurate, non-deceptive social media draft.",
+    "Do not invent prices, guarantees, credentials, statistics, testimonials, or product claims.",
+    "If essential facts are missing, use clear placeholders rather than guessing.",
+    "Return a hook, concise body, one CTA, five relevant hashtags, and one alternate headline.",
+    "Do not publish, message users, spend money, or invoke tools.",
+    `Platform: ${platform}`,
+    `Topic: ${topic}`,
+    `Audience: ${audience}`,
+    `Objective: ${objective}`,
+    `Offer or verified facts: ${offer || "Not provided"}`,
+  ].join("\n");
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: Deno.env.get("OPENAI_MODEL") || "gpt-6.2-astra",
+        input: prompt,
+        max_output_tokens: 1200,
+        store: false,
+      }),
+      signal: AbortSignal.timeout(25_000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      console.error("OpenAI request failed", { status: response.status, requestId: response.headers.get("x-request-id") });
+      return json({ error: "AI provider request failed" }, 502, origin);
+    }
+    const output = Array.isArray(result.output) ? result.output : [];
+    const text = output.flatMap((item: Record<string, unknown>) =>
+      item.type === "message" && Array.isArray(item.content) ? item.content : [])
+      .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
+      .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
+    if (!text) return json({ error: "AI provider returned no text" }, 502, origin);
+    return json({ text, provider: "openai", published: false }, 200, origin);
+  } catch (error) {
+    console.error("AI request unavailable", error instanceof Error ? error.name : "unknown");
+    return json({ error: "AI service temporarily unavailable" }, 503, origin);
+  }
+});
