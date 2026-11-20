@@ -228,9 +228,9 @@ if (hasUrl !== hasKey) {
         root.querySelector('#workspace-form').onsubmit = async e => {
           e.preventDefault();
           const name = String(new FormData(e.currentTarget).get('name')).trim();
-          const r = await supabase.rpc('create_workspace', { workspace_name: name });
-          if (r.error) { note(r.error.message,true); return; }
-          activeId = r.data;
+          const { data: created, error } = await supabase.functions.invoke('create-workspace', { body: { workspace_name: name } });
+          if (error || created?.error) { note(created?.error || error?.message || 'Workspace creation failed.',true); return; }
+          activeId = created.workspace_id;
           await portal();
         };
         root.querySelector('#logout').onclick = logout;
