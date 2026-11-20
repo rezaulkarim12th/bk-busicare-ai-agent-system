@@ -15,6 +15,26 @@ const json = (body: Record<string, unknown>, status: number, origin: string) =>
 
 const allowedPlatforms = new Set(["Facebook", "Instagram", "TikTok", "LinkedIn", "YouTube"]);
 const maxBodyBytes = 12_000;
+const readLimitedBody = async (req: Request): Promise<string | null> => {
+  const reader = req.body?.getReader();
+  if (!reader) return "";
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBodyBytes) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return new TextDecoder().decode(bytes);
+};
 
 Deno.serve(async (req: Request) => {
   const configuredOrigins = (Deno.env.get("APP_ALLOWED_ORIGINS") ?? "")
@@ -38,28 +58,35 @@ Deno.serve(async (req: Request) => {
   const token = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (!token || !supabaseUrl || !supabaseAnonKey) {
-    return json({ error: "Authentication required" }, 401, origin);
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!token || !supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
+    return json({ error: "Server authentication is not configured" }, 503, origin);
   }
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data: authData, error: authError } = await supabase.auth.getUser(token);
   if (authError || !authData.user) return json({ error: "Invalid session" }, 401, origin);
 
   const apiKey = Deno.env.get("OPENAI_API_KEY");
-  if (!apiKey) return json({ error: "AI provider is not configured" }, 503, origin);
+  const model = Deno.env.get("OPENAI_MODEL");
+  if (!apiKey || !model) return json({ error: "AI provider is not configured" }, 503, origin);
 
   const declaredLength = Number(req.headers.get("content-length") ?? "0");
   if (declaredLength > maxBodyBytes) return json({ error: "Request too large" }, 413, origin);
 
+  let rawBody: string | null;
+  try { rawBody = await readLimitedBody(req); }
+  catch { return json({ error: "Unable to read request body" }, 400, origin); }
+  if (rawBody === null) return json({ error: "Request too large" }, 413, origin);
+
   let payload: unknown;
-  try {
-    payload = await req.json();
-  } catch {
-    return json({ error: "Invalid JSON" }, 400, origin);
-  }
+  try { payload = JSON.parse(rawBody); }
+  catch { return json({ error: "Invalid JSON" }, 400, origin); }
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return json({ error: "Invalid request" }, 400, origin);
   }
@@ -73,6 +100,16 @@ Deno.serve(async (req: Request) => {
   if (!topic || topic.length > 500 || !allowedPlatforms.has(platform)) {
     return json({ error: "Provide a topic (max 500 characters) and a supported platform" }, 400, origin);
   }
+
+  // Reserve quota atomically. Fail closed if the quota service is unavailable.
+  const { data: quotaAllowed, error: quotaError } = await admin.rpc("reserve_ai_content_generation", {
+    target_actor: authData.user.id,
+  });
+  if (quotaError) {
+    console.error("AI quota reservation failed", { code: quotaError.code });
+    return json({ error: "Usage limit service temporarily unavailable" }, 503, origin);
+  }
+  if (quotaAllowed !== true) return json({ error: "AI usage limit reached. Try again later." }, 429, origin);
 
   const prompt = [
     "Create one accurate, non-deceptive social media draft.",
@@ -92,7 +129,7 @@ Deno.serve(async (req: Request) => {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: Deno.env.get("OPENAI_MODEL") || "gpt-6.2-astra",
+        model,
         input: prompt,
         max_output_tokens: 1200,
         store: false,
