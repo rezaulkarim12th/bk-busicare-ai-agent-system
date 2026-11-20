@@ -1,14 +1,18 @@
 {
   "name": "bk-busicare-ai-agent-system",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4"
   },
   "devDependencies": {
-    "vite": "^6.0.0"
+    "vite": "^8.3.8"
   }
 }
