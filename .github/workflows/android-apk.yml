@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - feature/multitenant-foundation
+      - main
     paths:
       - '.github/workflows/android-apk.yml'
       - 'capacitor.config.json'
