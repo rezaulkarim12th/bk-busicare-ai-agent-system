@@ -16,6 +16,24 @@ if (hasUrl !== hasKey) {
   root.id = 'bk-secure-gate';
   root.style.cssText = 'position:fixed;inset:0;z-index:99999;overflow:auto;background:#f4f7f5;padding:24px;font-family:Arial,sans-serif;color:#18372b';
   document.body.appendChild(root);
+  const responsiveStyle = document.createElement('style');
+  responsiveStyle.textContent = `
+    #bk-secure-gate table { width:100%; border-collapse:collapse; }
+    #bk-secure-gate th, #bk-secure-gate td { padding:10px 8px; text-align:left; vertical-align:top; border-bottom:1px solid #e6eee8; }
+    #bk-secure-gate input, #bk-secure-gate select, #bk-secure-gate textarea, #bk-secure-gate button { max-width:100%; box-sizing:border-box; }
+    #bk-secure-gate button { min-height:40px; }
+    @media (max-width:640px) {
+      #bk-secure-gate { padding:12px !important; }
+      #bk-secure-gate > div { padding:16px !important; }
+      #bk-secure-gate table { display:block; overflow-x:auto; }
+      #bk-secure-gate table thead { display:none; }
+      #bk-secure-gate table tbody { display:block; }
+      #bk-secure-gate table tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:10px 0; border-bottom:1px solid #dce8df; }
+      #bk-secure-gate table td { display:block; min-width:0; overflow-wrap:anywhere; border:0; padding:5px; }
+      #bk-secure-gate form { min-width:0; }
+    }
+  `;
+  root.appendChild(responsiveStyle);
 
   let session = null;
   let workspaces = [];
@@ -87,10 +105,10 @@ if (hasUrl !== hasKey) {
     contentItems = c.data || [];
   }
   function leadRows() {
-    return leads.map(l => '<tr><td><b>' + safe(l.name) + '</b><br><small>' + safe(l.company) + ' · ' + safe(l.phone) + ' · ' + safe(l.email) + '</small></td><td>' + safe(l.service) + '</td><td>' + (activeRole==='viewer'?safe(l.status):'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td>৳' + Number(l.value || 0).toLocaleString('en-BD') + '</td><td>' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Lead নেই।</td></tr>';
+    return leads.map(l => '<tr><td data-label="Name"><b>' + safe(l.name) + '</b><br><small>' + safe(l.company) + ' · ' + safe(l.phone) + ' · ' + safe(l.email) + '</small></td><td data-label="Service">' + safe(l.service) + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(l.status):'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Value">৳' + Number(l.value || 0).toLocaleString('en-BD') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Lead নেই।</td></tr>';
   }
   function contentRows() {
-    return contentItems.map(c => '<tr><td><b>' + safe(c.title) + '</b><br><small>' + safe(c.body) + '</small></td><td>' + safe(c.platform) + '</td><td>' + safe(c.scheduled_at || 'Not scheduled') + '</td><td>' + (activeRole==='viewer'?safe(c.status):'<select data-content-status="' + safe(c.id) + '">' + ['Draft','Needs approval','Approved','Scheduled','Published','Failed'].map(s => '<option' + (c.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td>' + (activeRole==='viewer'?'':button('Edit','edit-content',' data-id="' + safe(c.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-content',' data-id="' + safe(c.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Content item নেই।</td></tr>';
+    return contentItems.map(c => '<tr><td data-label="Title"><b>' + safe(c.title) + '</b><br><small>' + safe(c.body) + '</small></td><td data-label="Platform">' + safe(c.platform) + '</td><td data-label="Schedule">' + safe(c.scheduled_at || 'Not scheduled') + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(c.status):'<select data-content-status="' + safe(c.id) + '">' + ['Draft','Needs approval','Approved','Scheduled','Published','Failed'].map(s => '<option' + (c.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-content',' data-id="' + safe(c.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-content',' data-id="' + safe(c.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Content item নেই।</td></tr>';
   }
   function portalView() {
     const w = workspaces.find(x => x.id === activeId);
@@ -119,7 +137,9 @@ if (hasUrl !== hasKey) {
     const host = root.querySelector('#members');
     if (!host) return;
     if (r.error) { host.textContent = r.error.message; return; }
-    host.innerHTML = '<table style="width:100%;border-collapse:collapse"><tbody>' + (r.data || []).map(m => '<tr><td style="padding:8px;overflow-wrap:anywhere">' + safe(m.user_id) + '</td><td><b>' + safe(m.role) + '</b></td><td>' + ((activeRole==='owner'||activeRole==='admin')&&m.role!=='owner'&&m.user_id!==session.user.id?'<select data-member-role="' + safe(m.user_id) + '">' + (activeRole==='owner'?'<option value="admin"' + (m.role==='admin'?' selected':'') + '>Admin</option>':'') + '<option value="member"' + (m.role==='member'?' selected':'') + '>Member</option><option value="viewer"' + (m.role==='viewer'?' selected':'') + '>Viewer</option></select> <button type="button" data-set-role="' + safe(m.user_id) + '">Save role</button>':'') + '</td></tr>').join('') + '</tbody></table>' || 'No members found.';
+    const members = r.data || [];
+    if (!members.length) { host.textContent = 'No workspace members found.'; return; }
+    host.innerHTML = '<table><thead><tr><th>Member</th><th>Role</th><th>Actions</th></tr></thead><tbody>' + members.map(m => '<tr><td data-label="Member">' + (m.user_id===session.user.id ? 'You (current account)' : 'Workspace member') + '</td><td data-label="Role"><b>' + safe(m.role) + '</b></td><td data-label="Actions">' + ((activeRole==='owner'||activeRole==='admin')&&m.role!=='owner'&&m.user_id!==session.user.id?'<select aria-label="Member role" data-member-role="' + safe(m.user_id) + '">' + (activeRole==='owner'?'<option value="admin"' + (m.role==='admin'?' selected':'') + '>Admin</option>':'') + '<option value="member"' + (m.role==='member'?' selected':'') + '>Member</option><option value="viewer"' + (m.role==='viewer'?' selected':'') + '>Viewer</option></select> <button type="button" data-set-role="' + safe(m.user_id) + '">Save role</button>':'—') + '</td></tr>').join('') + '</tbody></table>';
     host.querySelectorAll('[data-set-role]').forEach(b => b.onclick = async () => {
       const select = host.querySelector('[data-member-role="' + b.dataset.setRole + '"]');
       if (!select) return;
