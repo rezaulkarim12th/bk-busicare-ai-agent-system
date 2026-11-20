@@ -11,6 +11,12 @@ let page = 'Dashboard';
 let leadQuery = '';
 let leadStatus = 'All';
 let selectedContentModule = 'social-content';
+let storeCart = {};
+const demoProducts = [
+  {id:'sample-1',name:'BK-BusiCare Business Starter Kit',kind:'Digital concept',description:'Sample catalogue item for layout testing. No product or download is supplied.'},
+  {id:'sample-2',name:'BK-BusiCare Brand Essentials',kind:'Service concept',description:'Sample service listing for interface preview. No booking or payment is available.'},
+  {id:'sample-3',name:'BK-BusiCare Marketing Toolkit',kind:'Digital concept',description:'Sample catalogue item only. Digital access is not enabled.'}
+];
 function load(){
   try {
     const stored = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -54,7 +60,7 @@ function save(){
 function money(n){return '৳'+Number(n||0).toLocaleString('en-BD')}
 function csvCell(value){const raw=String(value??'');const safe=/^[\u0000-\u0020\uFEFF\u200B-\u200D\u2060]*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-const nav=[['Dashboard','▦'],['Leads','◉'],['Sales Pipeline','⇢'],['Content Planner','▤'],['Reports','▥'],['Settings','⚙']];
+const nav=[['Dashboard','▦'],['Leads','◉'],['Sales Pipeline','⇢'],['Content Planner','▤'],['Store','▣'],['Reports','▥'],['Settings','⚙']];
 function shell(){document.querySelector('#app').innerHTML=`
 <div class="layout"><aside class="sidebar"><div class="brand"><div class="logo">BK</div><div><b>BK-BusiCare</b><small>AI Agent System</small></div></div><div class="workspace">WORKSPACE <strong>${esc(data.workspace.name)}</strong></div><nav>${nav.map(([n,i])=>`<button class="nav ${page===n?'active':''}" data-page="${n}"><span>${i}</span>${n}</button>`).join('')}</nav><div class="side-foot"><span class="status-dot"></span> Local MVP · Demo mode</div></aside><main class="main"><header><div><div class="eyebrow">BK-BUSICARE / WORKSPACE</div><h1>${page}</h1></div><div class="user"><div class="avatar">BK</div><div><b>Administrator</b><small>Workspace owner</small></div></div></header><section id="view">${renderPage()}</section><footer>BK-BusiCare AI Agent System <span>Version 0.2.0 · MVP</span></footer></main></div>`;}
 function renderPage(){
@@ -62,8 +68,21 @@ if(page==='Dashboard'){const metrics=getSalesMetrics(data.leads), followUps=getF
 if(page==='Leads')return `<div class="section-head"><div><h3>Lead Management</h3><p>লিড তৈরি, যোগাযোগ, ফলো-আপ ও স্ট্যাটাস আপডেট করুন</p></div><button class="primary" id="add-lead">+ নতুন লিড</button></div><div class="filters"><input id="lead-search" placeholder="নাম, প্রতিষ্ঠান বা ফোন দিয়ে খুঁজুন" value="${esc(leadQuery)}"><select id="lead-status-filter"><option value="All">সব স্ট্যাটাস</option>${['New','Contacted','Proposal','Won','Lost'].map(s=>`<option value="${s}" ${leadStatus===s?'selected':''}>${s}</option>`).join('')}</select></div><div id="leads-table">${leadTable(filteredLeads(),true)}</div><div id="lead-form"></div>`;
 if(page==='Sales Pipeline'){const stages=['New','Contacted','Proposal','Won','Lost'];return `<div class="stats compact"><article class="stat"><span>Pipeline Value</span><strong>${money(data.leads.filter(l=>!['Won','Lost'].includes(l.status)).reduce((s,l)=>s+Number(l.value||0),0))}</strong></article><article class="stat"><span>Closed Won</span><strong>${data.leads.filter(l=>l.status==='Won').length}</strong></article><article class="stat"><span>Open Deals</span><strong>${data.leads.filter(l=>!['Won','Lost'].includes(l.status)).length}</strong></article></div><div class="board">${stages.map(s=>`<div class="stage"><div class="stage-title">${s}<span>${data.leads.filter(l=>l.status===s).length}</span></div>${data.leads.filter(l=>l.status===s).map(l=>`<article class="deal"><b>${esc(l.name)}</b><small>${esc(l.company||l.service)}</small><strong>${money(l.value)}</strong><select data-status="${esc(l.id)}">${stages.map(x=>`<option ${x===l.status?'selected':''}>${x}</option>`).join('')}</select></article>`).join('')||'<p class="empty">কোনো ডিল নেই</p>'}</div>`).join('')}</div>`}
 if(page==='Content Planner')return renderContentPlanner();
+if(page==='Store')return renderStore();
 if(page==='Reports')return `<div class="stats"><article class="stat"><span>Total Leads</span><strong>${data.leads.length}</strong></article><article class="stat"><span>Won</span><strong>${data.leads.filter(l=>l.status==='Won').length}</strong></article><article class="stat"><span>Lost</span><strong>${data.leads.filter(l=>l.status==='Lost').length}</strong></article><article class="stat"><span>Open Pipeline Value</span><strong>${money(data.leads.filter(l=>!['Won','Lost'].includes(l.status)).reduce((s,l)=>s+Number(l.value||0),0))}</strong></article></div><div class="panel"><h3>লিড স্ট্যাটাস রিপোর্ট</h3>${['New','Contacted','Proposal','Won','Lost'].map(s=>`<div class="report-row"><span>${s}</span><div class="bar"><i style="width:${data.leads.length?data.leads.filter(l=>l.status===s).length/data.leads.length*100:0}%"></i></div><b>${data.leads.filter(l=>l.status===s).length}</b></div>`).join('')}<button class="secondary" id="export">CSV Export</button></div>`;
 return `<div class="panel"><h3>Workspace Settings</h3><label>Business / Workspace name<input id="workspace-name" value="${esc(data.workspace.name)}"></label><p class="muted">এই MVP-তে ডেটা এই ব্রাউজারের Local Storage-এ থাকে। অন্য ডিভাইসে সিঙ্ক বা বহু-ব্যবহারকারীর লগইন এখনো যুক্ত হয়নি।</p><button class="primary" id="save-settings">সেটিংস সংরক্ষণ</button><hr><h3>ডেটা ব্যাকআপ</h3><p class="muted">লিড, কনটেন্ট ও Workspace-এর JSON ব্যাকআপ ডাউনলোড করুন। আগে নেওয়া BK-BusiCare JSON ব্যাকআপ এখান থেকে পুনরুদ্ধার করা যাবে। Import করলে বর্তমান ডেটা প্রতিস্থাপিত হবে।</p><div class="actions"><button class="secondary" id="backup-export">JSON Backup Export</button><label class="secondary" for="backup-import" style="display:inline-flex;align-items:center;cursor:pointer">JSON Backup Import<input id="backup-import" type="file" accept="application/json,.json" style="display:none"></label></div><hr><h3>পরিকল্পিত SaaS সক্ষমতা</h3><ul><li>প্রতিষ্ঠানভিত্তিক আলাদা workspace ও ডেটা</li><li>Role-based access ও team management</li><li>Subscription, billing ও usage limits</li><li>Secure cloud database ও audit log</li></ul></div>`;
+}
+
+
+function renderStore(){
+  const count=Object.values(storeCart).reduce((sum,n)=>sum+n,0);
+  return `<div class="welcome"><div><div class="eyebrow light">BK-BUSICARE / STORE PREVIEW</div><h2>BK-BusiCare Store</h2><p>ক্যাটালগ ও কার্টের ইন্টারফেস প্রিভিউ — বাস্তব বিক্রয় চালু নয়।</p></div><div class="welcome-mark">BK</div></div>
+  <div class="notice"><b>Demo catalogue only</b><p>নিচের সব পণ্য/সেবা নমুনা। এগুলো বাস্তব অফার, স্টক, মূল্য বা অর্ডার নয়। কার্ট শুধু এই ব্রাউজারের অস্থায়ী ডেমো; Checkout, payment ও order submission বন্ধ।</p></div>
+  <div class="store-toolbar"><div><h3>ক্যাটালগ</h3><p class="muted">নমুনা পণ্য ও সেবা</p></div><span class="pill">Cart items: ${count}</span></div>
+  <div class="store-grid">${demoProducts.map(p=>`<article class="store-card"><div class="store-art">BK</div><span class="pill">${esc(p.kind)}</span><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="store-meta"><b>৳ —</b><small>মূল্য নির্ধারিত নয়</small></div><button class="secondary" data-cart-add="${esc(p.id)}">ডেমো কার্টে যোগ করুন</button></article>`).join('')}</div>
+  <div class="panel store-cart"><div class="section-head"><div><h3>Demo Cart</h3><p>কার্টের পরিমাণ শুধু এই সেশনে থাকবে</p></div><button class="text-btn" id="clear-cart">কার্ট খালি করুন</button></div>
+  ${count?demoProducts.filter(p=>storeCart[p.id]).map(p=>`<div class="report-row"><span>${esc(p.name)}</span><div class="store-quantity"><button data-cart-minus="${p.id}">−</button><b>${storeCart[p.id]}</b><button data-cart-plus="${p.id}">+</button></div><button class="text-btn" data-cart-remove="${p.id}">মুছুন</button></div>`).join(''):'<p class="empty">কার্টে এখনো কিছু যোগ করা হয়নি।</p>'}
+  <button class="primary" disabled title="Order submission is not connected">Checkout / অর্ডার — এখনো চালু নয়</button></div>`;
 }
 
 function renderContentPlanner(){
@@ -98,6 +117,11 @@ document.querySelectorAll('[data-edit-lead]').forEach(b=>b.onclick=()=>{const le
 document.querySelectorAll('[data-delete-lead]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.deleteLead);const lead=data.leads.find(x=>x.id===id);if(lead&&confirm(`“${lead.name}” লিডটি স্থায়ীভাবে মুছবেন?`)){data.leads=data.leads.filter(x=>x.id!==id);save();shell()}});
 }
 function bind(){
+document.querySelectorAll('[data-cart-add]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartAdd;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);shell();bind()});
+document.querySelectorAll('[data-cart-plus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartPlus;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);shell();bind()});
+document.querySelectorAll('[data-cart-minus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartMinus;storeCart[id]=Math.max(0,(storeCart[id]||0)-1);if(!storeCart[id])delete storeCart[id];shell();bind()});
+document.querySelectorAll('[data-cart-remove]').forEach(b=>b.onclick=()=>{delete storeCart[b.dataset.cartRemove];shell();bind()});
+const clearCart=document.querySelector('#clear-cart');if(clearCart)clearCart.onclick=()=>{storeCart={};shell();bind()};
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;shell()});
 document.querySelectorAll('[data-planner-module]').forEach(b=>b.onclick=()=>{selectedContentModule=b.dataset.plannerModule;shell()});
 const plannerForm=document.querySelector('#planner-brief-form');
