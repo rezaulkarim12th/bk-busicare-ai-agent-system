@@ -1,7 +1,11 @@
 [functions.manage-workspace-member]
-# The handler validates the caller JWT with Supabase Auth before any admin operation.
-verify_jwt = false
+# Require a valid Supabase JWT at the gateway; handler also validates caller and workspace role.
+verify_jwt = true
 
 [functions.create-workspace]
-# Require a valid Supabase JWT before the handler performs account-scoped creation.
+# Require a valid Supabase JWT before account-scoped workspace creation.
+verify_jwt = true
+
+[functions.ai-content]
+# AI generation is user-authenticated and additionally validates the JWT in the handler.
 verify_jwt = true
