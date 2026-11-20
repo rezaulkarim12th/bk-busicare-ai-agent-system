@@ -26,9 +26,9 @@ When both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured, the l
 
 The authenticated portal supports workspace-scoped cloud Leads and Content create/read/update/delete. PostgreSQL RLS is the security boundary; the UI also presents viewer accounts as read-only. Team invitations and role changes use the `manage-workspace-member` Supabase Edge Function, which validates caller JWTs and checks workspace roles. Deploy the function before using Team actions. Configure the Supabase Edge Function secret `APP_ALLOWED_ORIGINS` with a comma-separated exact allowlist of trusted app origins (for example, the deployed HTTPS app origin); wildcard origins are not supported. The function uses a database-locked invitation quota of five attempts per actor per workspace per ten minutes and records invitation attempts in the audit log.
 
-The SQL migration creates workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
+The SQL migrations create workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
 
-**Not live-verified:** the migration and Edge Function have not yet been deployed to a real Supabase project. The new pgTAP suite exercises viewer and member workspace isolation against a disposable local database; it does not replace live two-user/two-workspace API, Auth, invitation or penetration testing. Do not enter customer data until all release gates pass.
+**TEST deployment status (2026-11-20):** both versioned migrations (`20261120044848`, `20261120044911`) have been applied to the separate `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`), and `manage-workspace-member` is deployed there as an active Edge Function (version 1). The five application tables have RLS enabled and currently contain zero rows. Production project was not modified. The function still requires `APP_ALLOWED_ORIGINS` to be configured with the deployed app's exact HTTPS origin before browser invocation. Live two-user/two-workspace API, Auth, invitation, CORS and penetration testing remain release gates. The pgTAP suite verifies the covered viewer/member workspace isolation cases against a disposable local database; it does not replace those live checks. Do not enter customer data until all release gates pass.
 
 ## Local Supabase CI (no credentials required)
 
@@ -45,7 +45,7 @@ Configure the GitHub Actions environment `supabase-test` and its secrets:
 
 After the TEST Edge Function is deployed, set its server-side secret `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the app. Do not place service-role or database credentials in `VITE_` variables or browser code.
 
-The remote workflow has not been run. Configure required environment protection/reviewers before using it. Never send secrets in chat or commit them to Git.
+The remote GitHub deployment workflow has not been run; the two migrations and Edge Function were applied directly to the isolated TEST project during setup. Configure the listed GitHub environment secrets and required environment protection/reviewers before using the workflow. Never send secrets in chat or commit them to Git.
 
 ## Hosting status
 
