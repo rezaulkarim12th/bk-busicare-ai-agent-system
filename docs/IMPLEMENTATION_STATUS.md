@@ -6,69 +6,62 @@ Last verified: 2026-11-21 (UTC)
 
 - Default branch: `main`.
 - Application release commit: `b3416b1406f7ed8995ee44d1e2bcf2e2aaeb073e`.
-- This status report is maintained in a later documentation-only commit.
-- PR #9 (Content Planner modules) merged.
-- PR #8 (secure AI content-function foundation, quota controls, provider plan and commerce architecture) merged.
-- PR #7 closed as superseded by PR #8; no duplicate draft remains.
-- GitHub Pages deployment for the Content Planner release succeeded: [workflow 44804954156](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44804954156).
-- Main-branch build and Pages deployment after PR #8 succeeded: [workflow 44805713631](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713631).
-- Android debug APK workflow after PR #8 succeeded: [workflow 44805713702](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713702).
+- PR #9 (Content Planner modules) and PR #8 (secure AI content-function foundation) merged.
+- PR #7 closed as superseded by PR #8.
+- GitHub Pages deployment: [workflow 44804954156](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44804954156).
+- Main-branch build and Pages deployment: [workflow 44805713631](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713631).
+- Android debug APK workflow: [workflow 44805713702](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44805713702).
 
 ## Implemented and published
 
 - MVP dashboard, leads, sales pipeline, content planner, reports and settings.
-- Five Content Planner modules: Social Media Content; Meta Ads Management; Google Ads Management; Publishing & Scheduling; Campaign Reports.
-- Module-specific planning briefs and downloadable planning output. These are planning tools, not live ad activation or publishing.
-- Supabase multi-tenant foundation, RLS policies, workspace and team-management foundations, and authenticated cloud CRUD described in the architecture docs.
-- Secure server-side OpenAI Edge Function source code with Supabase JWT validation, exact-origin allowlist, bounded request body, timeout, draft-only response and no provider key in browser code.
-- Atomic per-user AI generation quota migration: 5 requests per rolling minute and 50 per rolling 24 hours; usage storage and RPC are restricted to service role.
-- CI checks for dependency audit, Deno type-check, migration/static tests, JavaScript syntax and production build.
-- Android debug APK build workflow.
+- Five Content Planner modules: Social Media Content; Meta Ads Management; Google Ads Management; Publishing & Scheduling; Campaign Reports. These are planning tools, not live ad activation or publishing.
+- Supabase multi-tenant foundation, RLS policies, workspace/team-management foundations and authenticated cloud CRUD described in the architecture docs.
+- Secure server-side OpenAI Edge Function source with Supabase JWT validation, exact-origin allowlist, bounded request body, timeout and draft-only response. Provider key is not in browser code.
+- Atomic per-user AI generation quota: 5 requests per rolling minute and 50 per rolling 24 hours.
+- TEST RLS lockdown migration for `private.ai_content_usage`: explicit service_role policy, anon/authenticated table grants revoked.
+- CI checks for dependency audit, Deno type-check, migration/static tests, JavaScript syntax and production build; Android debug APK workflow.
 
 ## Verified environments and limits
 
-- GitHub Pages is deployed. It hosts the browser MVP; it does not itself provide the backend integrations.
-- Supabase TEST project `BK-BusiCare-TEST` (`rmnoiwzkhjwmgxwkfdzb`) was rechecked on 2026-11-21 and is `ACTIVE_HEALTHY`.
-- Six migrations are present in TEST, including `ai_content_usage_quota`. The five public application tables have RLS enabled and currently contain zero rows.
+- GitHub Pages hosts the browser MVP; it does not itself provide backend integrations.
+- Supabase TEST project `BK-BusiCare-TEST` (`rmnoiwzkhjwmgxwkfdzb`) is `ACTIVE_HEALTHY`.
+- Seven migrations are recorded in TEST, including `ai_content_usage_quota` and `ai_content_usage_rls_lockdown`.
+- Five public application tables have RLS enabled.
+- `private.ai_content_usage`: RLS is enabled; one policy exists for `service_role` (ALL, USING true, WITH CHECK true). Table grants remain limited to postgres and service_role; anon/authenticated have no table privileges. The private schema is not available to anon.
+- RLS access test transaction passed: anon and authenticated saw zero rows and their attempted inserts were rejected when temporary test-only schema/table grants were applied; service_role successfully inserted and read one test event. The test transaction was rolled back; no test usage row or test auth user was retained.
+- Supabase Security Advisor returned no lints after the migration.
+- Performance Advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
 - TEST has the active `manage-workspace-member` Edge Function (version 2, `verify_jwt=false`); the function performs its own caller-token validation.
-- TEST security advisor returned no lints. The performance advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
-- **Outstanding defense-in-depth finding:** Supabase's table inspection reports RLS disabled on `private.ai_content_usage`. A direct privilege check confirmed `anon` cannot use the private schema, neither `anon` nor `authenticated` has SELECT on the quota table, and `service_role` does. This limits current exposure, but the advisor still flags the table. Do not treat the warning as resolved. Proposed remediation is to enable RLS and add an explicit service-role-only policy; this needs an approved migration and re-test before changing TEST.
-- The AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required secrets and model configuration are not present/verified.
-- The local/demo mode uses browser Local Storage; it does not sync across devices.
-- Content Planner does not publish social posts, create live ad campaigns or spend money.
-- Storefront, checkout, payment processing and live order acceptance are not implemented.
-- WordPress.com Simple plan does not support plugin installation/WooCommerce on the current site; the existing Shop page is a catalogue landing page.
+- AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required provider secrets/model configuration are not present/verified.
+- Local/demo mode uses browser Local Storage and does not sync across devices.
+- Storefront, checkout, payment processing and live order acceptance are not implemented. The current WordPress.com Simple plan does not support plugin installation/WooCommerce on this site.
 - No Meta, Google Ads, TikTok, LinkedIn, YouTube or Microsoft account integration is active.
 
 ## Remaining release gates
 
 ### Supabase and authentication
-- Review and approve remediation for RLS on `private.ai_content_usage`; then apply in TEST and verify service-role access plus denial for anon/authenticated.
 - Verify Auth SMTP, site URL and redirect URLs; test sign-in, password recovery and invitation delivery.
 - Run authenticated two-user/two-workspace API tests for owner/admin/member/viewer access and cross-tenant isolation.
-- Review SECURITY DEFINER functions and resolve remaining advisor warnings with explicit tests.
+- Review SECURITY DEFINER functions and run fresh advisor checks after subsequent schema changes.
 - Verify backups, restore, monitoring, retention and operational rate limits.
 
 ### AI provider
-- An authorized project administrator must configure `OPENAI_API_KEY`, `OPENAI_MODEL`, `APP_ALLOWED_ORIGINS` and required Supabase server secrets in the TEST environment.
+- An authorized project administrator must configure `OPENAI_API_KEY`, `OPENAI_MODEL`, `APP_ALLOWED_ORIGINS` and required Supabase server secrets in TEST.
 - Deploy the Edge Function only after configuration; test invalid sessions, disallowed origins, request-size limits, quotas, provider failures and draft generation.
-- Keep all provider secrets server-side. Never paste credentials into chat or commit them to Git.
+- Keep provider secrets server-side. Never paste credentials into chat or commit them to Git.
 
-### Commerce
-- Implement Store UI, catalogue, cart and order-request flow.
-- Add and test commerce schema/RLS and transactional order creation in TEST.
+### Commerce and external integrations
+- Implement Store UI, catalogue, cart, order-request flow, commerce schema/RLS and transactional order creation in TEST.
 - Keep checkout/payment and live order acceptance disabled until an approved provider, policies and end-to-end tests exist.
-- WordPress Shop hand-off requires a verified Store URL and a compatible publishing plan.
-
-### External integrations
 - Meta, Google Ads, TikTok, LinkedIn, YouTube and Microsoft integrations require owner-managed developer apps, scopes, OAuth approvals and server-side secret storage.
-- Publishing, messaging, campaign changes and advertising spend must remain draft-only until the account owner explicitly authorizes each production capability.
+- Keep publishing, messaging, campaign changes and advertising spend disabled until authorized and tested.
 
 ## Release decision
 
 **Status: Published MVP + TEST backend foundation; not a production-ready, fully integrated AI SaaS.**
 
-The Pages deployment and Android build are verified successful. External account setup, provider secrets, OAuth approvals, live API tests, Store implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
+Pages deployment and Android build are verified successful. External account setup, provider secrets, OAuth approvals, live API tests, Store implementation and production security/operations review remain outstanding. Do not enter real customer data or enable live commerce/ad spend until those gates pass.
 
 ## References
 
