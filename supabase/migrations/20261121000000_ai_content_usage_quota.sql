@@ -26,6 +26,7 @@ begin
     raise exception 'Authenticated user required';
   end if;
   perform pg_advisory_xact_lock(hashtextextended(target_actor::text, 0));
+  delete from private.ai_content_usage where created_at < now() - interval '24 hours';
   select count(*)::integer into minute_count from private.ai_content_usage
     where user_id = target_actor and created_at >= now() - interval '1 minute';
   select count(*)::integer into daily_count from private.ai_content_usage
