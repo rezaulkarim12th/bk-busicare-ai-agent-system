@@ -41,7 +41,8 @@ These are coordinated project roles, not a claim that ten independent human coll
 - Google Ads planning includes Search, Display and YouTube.
 - Five unit tests cover module order, Meta scope, Google scope, unknown module handling and the planning-only execution guard.
 - These modules do **not** publish content, create or launch ad campaigns, spend budget, connect provider accounts or run scheduled jobs.
-- The registry is not yet integrated into the Content Planner user interface.
+- The registry is now integrated into the Content Planner UI with five selectable modules, responsive navigation, module-specific brief fields, planning-only safety labels and downloadable text briefs.
+- The UI integration has a regression test in the test suite; the latest commit's CI must complete successfully before merge.
 - The existing application remains an MVP. Local browser storage is not cross-device synchronization.
 
 ## Release controls
