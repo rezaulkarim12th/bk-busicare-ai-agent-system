@@ -1,65 +1,42 @@
-# BK-BusiCare release checklist
+# BK-BusiCare final delivery checklist
 
-This checklist records verified feature-branch work and the remaining release gates. The application is not production-ready until every required live test and deployment check passes.
+Reviewed: 2026-11-20
 
-## Verified in GitHub on latest feature commit
-Commit: `6b6203660db0b6b472ae35e645f28e0e9ca8409c`
-- [x] Deno Edge Function type-check, migration safety tests, JavaScript syntax checks and Vite production build passed: [Build run 44445257715](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445257715).
-- [x] Disposable local Supabase stack started successfully: [Local Test run 44445258020](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44445258020).
-- [x] All repository migrations applied to the disposable local database.
-- [x] pgTAP RLS isolation suite passed: 7 of 7 assertions.
-- [x] Local Supabase service status verified and stack cleaned up.
-- [x] Dashboard Operations Core integrated: pipeline metrics, won revenue, win rate and follow-up queue.
-- [x] AI Copilot prompt builder integrated into Content Planner with input validation and explicit disclosure that live provider is not connected.
-- [x] TEST deployment workflow has manual trigger, preview-first default, TEST-only environment, secret-only credentials, explicit apply confirmation, feature-branch checkout and a hard block for the known existing BK-BusiCare project ref.
-- [x] Deploy job correctly skipped for the feature-branch PR; no production deployment occurred.
-- [x] Commit CI-generated npm lockfile (lockfileVersion 3); verify clean npm ci install; switch both Build and Local Supabase CI to npm ci.
-- [x] Pin GitHub Actions dependencies to reviewed immutable commit SHAs; set Node.js 24, Deno 2.9.8 and Supabase CLI 3.2.0 explicitly, with regression tests against floating versions.
-- [x] Fix local-calendar follow-up date calculation, cap JSON backup imports at 2 MB, and restore previous in-memory data if browser storage cannot save an imported backup.
-- [x] Prevent ephemeral local Supabase keys from appearing in public CI logs; add an explicit empty seed file to avoid ambiguous seed warnings.
-- [ ] Confirm latest full dependency audit and both CI workflows pass after these final hardening changes.
+## Delivered MVP
+- [x] Responsive Vite application: Dashboard, Leads/CRM, Sales Pipeline, Content Planner, Reports and Settings.
+- [x] Lead create/edit/delete/search, status updates, pipeline metrics and follow-up queue.
+- [x] Content planning for Facebook, Instagram, TikTok, LinkedIn and YouTube.
+- [x] AI Copilot prompt builder with bounded inputs and explicit notice that live AI is not connected.
+- [x] CSV lead export with spreadsheet formula-injection mitigation.
+- [x] JSON backup/restore with structure validation, 2 MB import cap and persistence-failure recovery.
+- [x] Supabase Auth portal source for sign-in, registration, password recovery, workspace creation/switching, cloud Leads/Content CRUD and team management.
+- [x] Multi-tenant schema, role policies, audit events and RLS across five application tables.
+- [x] Team Edge Function source with JWT validation, owner/admin boundaries, exact-origin CORS allowlist, invitation quota and audited membership/role operations.
+- [x] Responsive styles and reproducible locked dependency installation.
 
-## Required TEST environment setup (external release gate)
-1. Create a separate disposable Supabase TEST project. Do not use the existing BK-BusiCare project unless its non-production status is independently confirmed.
-2. In GitHub repository Settings -> Environments, create `supabase-test`. Add required reviewers/protection if available.
-3. Add these environment secrets without placing them in source control or chat:
-   - `SUPABASE_ACCESS_TOKEN`
-   - `SUPABASE_DB_PASSWORD`
-   - `SUPABASE_PROJECT_REF` (20-character project reference for the TEST project)
-4. Run Actions -> Supabase TEST deployment with operation `preview`. Inspect the migration plan/log.
-5. Only after reviewing the preview, run operation `apply` and tick `confirm_apply`. This applies migrations and deploys the Edge Function to the TEST project only.
-6. In Supabase Edge Function secrets, set `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the approved app. Do not use wildcard origins.
-7. Configure Supabase Auth Site URL, allowed redirect URLs and SMTP. Test registration, sign-in, password reset and team invitations.
+## Current CI evidence — feature head `46b97a7e2b9613dce5a5d033742ce7e42d29b7d8`
+- [x] Build, full dependency audit, Deno type-check, Node regression tests, JavaScript syntax checks and Vite production build: [Build run 44678286959](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678286959).
+- [x] Disposable local Supabase startup, migrations, pgTAP RLS isolation tests, service checks and cleanup: [Local Supabase run 44678286878](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678286878).
+- [x] Build deploy job skipped on feature branch as intended.
 
-## Mandatory live security tests
-- Create two separate test users and two separate workspaces.
-- Verify each user can read/write only records in their authorized workspace.
-- Verify cross-workspace reads, writes, updates and deletes are denied by PostgreSQL RLS, including direct API requests.
-- Verify viewer role is read-only and contributor/admin/owner boundaries are enforced.
-- Verify invitation quota, duplicate/invalid email handling, audit logging and rollback behavior.
-- Verify CORS rejects unlisted origins and the Edge Function rejects missing/invalid caller JWTs.
-- Record evidence and fix all failures before release. Do not enter real customer data during testing.
+## Remote TEST project — verified
+- [x] Supabase project `BK-BusiCare-TEST`, ref `rmnoiwzkhjwmgxwkfdzb`, ACTIVE_HEALTHY.
+- [x] Migrations `20261120044848_multitenant_foundation` and `20261120044911_performance_hardening` applied.
+- [x] `workspaces`, `workspace_members`, `leads`, `content_items`, `audit_events` created with RLS enabled; currently zero rows.
+- [x] `manage-workspace-member` Edge Function deployed and ACTIVE (version 1).
+- [x] Temporary two-tenant SQL isolation check showed zero cross-workspace rows; transaction rolled back.
+- [ ] Set Edge Function secret `APP_ALLOWED_ORIGINS` to the exact deployed app HTTPS origin.
+- [ ] Configure Auth Site URL, redirect allowlist, SMTP and server-side password policy.
+- [ ] Execute live two-user/two-workspace Auth/API RLS tests and live JWT/CORS/invitation/quota/audit/rollback/role-boundary tests.
 
-## Hosting / app release
-1. Decide and verify the canonical production HTTPS domain.
-2. Configure GitHub Pages for GitHub Actions if Pages is the chosen host.
-3. Add repository Actions secrets `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for the intended production Supabase project. These are frontend values; never add service-role keys, database passwords or access tokens to `VITE_` variables.
-4. Review the feature PR diff and all live test evidence. Keep the PR Draft until tests pass.
-5. After explicit owner release approval, mark the PR ready, merge to `main`, and verify the Pages deployment and live auth flow.
-6. Confirm HTTPS, redirects, browser console, API permissions, backup/restore and monitoring before adding customer data.
+## Hosting and release
+- [ ] Configure GitHub Pages and production repository secrets `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for the intended production Supabase project.
+- [ ] Run a production build/deploy from `main` and verify HTTPS, redirects, browser console and auth flows.
+- [ ] Complete backup/restore drills, monitoring, privacy/accessibility/performance and independent security review.
+- [ ] Mark PR #1 ready and merge only after live TEST gates pass and the owner explicitly approves release.
 
-## External integrations — not yet connected
-Each provider requires the account owner to create/authorize the app, approve scopes, configure callback URLs and provide credentials through an approved secret store:
-- Meta Facebook Pages / Instagram Graph API and Meta Ads.
-- TikTok publishing / business APIs.
-- LinkedIn organization and marketing APIs.
-- Google OAuth, Ads, Analytics and Search Console.
-- YouTube Data API.
-- Shopify / WooCommerce, payment provider and order webhooks.
-- Live AI provider for content/agent orchestration.
-- Scheduler/queue, publishing approvals, retries, logs, rate limits and monitoring.
-
-Do not promise automatic publishing or ad management until each provider integration has been implemented, permission-reviewed and tested. Keep customer messaging, publishing, CRM mutations and ad spend behind explicit human approval.
+## Not connected in this delivery
+Live AI provider/orchestration, Meta/Instagram/TikTok/LinkedIn/YouTube publishing, Meta/Google Ads, messaging, Shopify/WooCommerce, payments, subscription billing, scheduled jobs and external marketplace integrations are not implemented/connected. Provider accounts, OAuth approvals, API scopes, server-side secrets and additional backend work are required. Human approval must remain required for publishing, messaging, CRM mutations and ad spend.
 
 ## Release decision
-Current state: feature-branch Build and disposable Local Supabase Test both pass on commit `6b6203660db0b6b472ae35e645f28e0e9ca8409c`. This confirms the tested local code and migration path only. Live Supabase TEST deployment, live RLS/API tests, production hosting and external provider integrations remain unverified/unconnected. This is a code-tested MVP foundation, not a completed live automation service.
+**Delivered: code-tested MVP + TEST-stage Supabase foundation. Not delivered: production deployment or fully integrated AI/social automation SaaS.** PR #1 remains Draft and unmerged. Production project `ekznyijmghrjtovbbgun` has not been modified. Do not enter real customer data until all live TEST and production release gates pass.
