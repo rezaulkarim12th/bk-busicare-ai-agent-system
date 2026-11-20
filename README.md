@@ -13,6 +13,7 @@ Responsive Vite web-app MVP for BK-BusiCare. The repository contains a local ope
 
 When both Supabase variables are absent, the app opens its browser-local demo:
 - Dashboard, leads and sales pipeline.
+- Store catalogue preview with sample-only cards and session-only demo cart (no live inventory, checkout or payments).
 - Content planning for Facebook, Instagram, TikTok, LinkedIn and YouTube.
 - Basic reports and CSV export.
 - JSON backup and restore.
@@ -57,7 +58,7 @@ The GitHub Actions workflow builds pull requests and deploys to GitHub Pages onl
 
 ## Not implemented / not connected
 
-- Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
+- Live social publishing, Meta/Google ads, messaging, commerce database/orders, checkout and payment integrations.
 - AI content generation/agent orchestration and scheduled automation.
 - Full production operational monitoring, backup/restore drills, retention policies and end-to-end rate-limit verification.
 
