@@ -1,43 +1,64 @@
 # BK-BusiCare AI Agent System
 
-Responsive web-app MVP for BK-BusiCare, designed to evolve into a multi-tenant SaaS product.
+Responsive Vite web-app MVP for BK-BusiCare. The feature branch contains the local operations demo, Supabase authentication portal source, and a TEST-deployed multi-tenant foundation. It is **not yet a production SaaS or a fully integrated AI agent**.
 
 ## Run locally
+
 1. Install Node.js 20 or later.
-2. Run `npm install`.
+2. Run `npm ci`.
 3. Run `npm run dev`.
 4. Open the local URL printed by Vite.
 
-## Included in MVP
-- Dashboard with lead and pipeline summaries.
-- Lead creation and service categorization.
-- Sales pipeline with New, Contacted, Proposal, Won and Lost stages.
-- Content planner for Facebook, Instagram, TikTok, LinkedIn and YouTube.
-- Basic lead report and CSV export.
-- Workspace name settings.
-- Responsive desktop and mobile layout.
+## Local demo features
 
-## Current limitations
-- Data is stored in this browser's Local Storage. It is not cloud-synced.
-- No authentication, team roles, server database or tenant isolation is implemented yet.
-- Zoho CRM, social publishing, ad accounts, messaging, payment and AI provider APIs are not connected.
-- Content planner records plans only; it does not publish content.
-- This is an MVP prototype, not production-ready SaaS.
+When both Supabase variables are absent, the app opens its browser-local demo:
+- Dashboard, leads and sales pipeline.
+- Content planning for Facebook, Instagram, TikTok, LinkedIn and YouTube.
+- Basic reports and CSV export.
+- JSON backup and restore.
+- Responsive desktop and mobile UI.
 
-## SaaS architecture roadmap
-1. Replace browser storage with a secure server API and relational database.
-2. Implement tenant-scoped data access, authentication, role-based permissions and audit logs.
-3. Add subscription plans, billing, usage limits and tenant onboarding.
-4. Add integrations only with verified API scopes and explicit approval for external actions.
+Demo records stay in the current browser's Local Storage. They do not sync across devices or accounts.
 
-## Security
-Never commit credentials, API keys, tokens or private customer records. Use environment variables and a managed secrets store for future integrations. Require human approval before publishing, messaging customers, modifying external CRM records or spending advertising budget.
+## Supabase authentication and cloud workspace
 
-## Publish with GitHub Pages
-1. Open the repository on GitHub.
-2. Go to **Settings → Pages**.
-3. Under **Build and deployment → Source**, select **GitHub Actions**.
-4. Push a commit to `main` (or run the workflow manually from **Actions → Build and deploy to GitHub Pages**).
-5. After the workflow succeeds, the site URL is `https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/`.
+When both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured, the local demo is suppressed and the authenticated portal opens. It supports email/password sign-in, registration, password recovery, workspace creation and workspace selection.
 
-The first deployment will not be available until GitHub Pages is enabled for this repository and the Actions workflow succeeds.
+The authenticated portal supports workspace-scoped cloud Leads and Content create/read/update/delete. PostgreSQL RLS is the security boundary; the UI also presents viewer accounts as read-only. Team invitations and role changes use the `manage-workspace-member` Supabase Edge Function, which validates caller JWTs and checks workspace roles. Deploy the function before using Team actions. Configure the Supabase Edge Function secret `APP_ALLOWED_ORIGINS` with a comma-separated exact allowlist of trusted app origins (for example, the deployed HTTPS app origin); wildcard origins are not supported. The function uses a database-locked invitation quota of five attempts per actor per workspace per ten minutes and records invitation attempts in the audit log.
+
+The SQL migrations create workspace, membership, lead, content and audit tables with RLS. Authorization helpers live in a private schema; do not expose that schema through the Supabase API. Never put the secret/service-role key in browser code.
+
+**TEST deployment status (2026-11-20):** both versioned migrations (`20261120044848`, `20261120044911`) have been applied to the separate `BK-BusiCare-TEST` Supabase project (`rmnoiwzkhjwmgxwkfdzb`), and `manage-workspace-member` is deployed there as an active Edge Function (version 1). The five application tables have RLS enabled and currently contain zero rows. Production project was not modified. The function still requires `APP_ALLOWED_ORIGINS` to be configured with the deployed app's exact HTTPS origin before browser invocation. Live two-user/two-workspace API, Auth, invitation, CORS and penetration testing remain release gates. The pgTAP suite verifies the covered viewer/member workspace isolation cases against a disposable local database; it does not replace those live checks. Do not enter customer data until all release gates pass.
+
+## Local Supabase CI (no credentials required)
+
+The GitHub Actions workflow `.github/workflows/supabase-local-ci.yml` starts a disposable Supabase stack on the GitHub-hosted runner, applies all repository migrations to that local database, runs the pgTAP RLS regression suite in `supabase/tests/rls_isolation.test.sql`, and reports service status. It runs for pull requests targeting `main` and manual dispatch. It does not connect to or modify your Supabase account and requires no Supabase secrets. A successful run confirms migrations and the covered role-isolation cases work in a fresh local database; it does not prove live Supabase configuration, auth delivery, or production security.
+
+## Test deployment to a separate Supabase project
+
+A manually triggered GitHub Actions workflow is provided at `.github/workflows/supabase-test-deploy.yml`. It is intended only for a disposable TEST Supabase project. It has separate `preview` and `apply` operations. Run `preview` first and inspect its logs; only then run `apply` with the confirmation checkbox enabled. The apply operation re-runs the preview, applies migrations with the database password, and deploys the team Edge Function.
+
+Configure the GitHub Actions environment `supabase-test` and its secrets:
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
+- `SUPABASE_PROJECT_REF` — must identify the disposable TEST project, never production.
+
+After the TEST Edge Function is deployed, set its server-side secret `APP_ALLOWED_ORIGINS` to the exact HTTPS origin(s) of the app. Do not place service-role or database credentials in `VITE_` variables or browser code.
+
+The remote GitHub TEST deployment workflow has not been run; the two migrations and Edge Function were applied directly to the isolated TEST project during setup. Configure the listed GitHub environment secrets and required environment protection/reviewers before using the workflow. Never send secrets in chat or commit them to Git.
+
+## Hosting status
+
+The GitHub Actions workflow builds pull requests and deploys to GitHub Pages only from `main`, when Pages is configured for GitHub Actions. Before a production deployment, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository Actions secrets; the workflow fails closed if either is missing. The current feature branch is not deployed to GitHub Pages. The TEST project is separate from production.
+
+## Not implemented / not connected
+
+- Live two-user/two-workspace Auth and RLS integration tests through the Supabase API, and live Edge Function JWT/CORS/invitation/role-change verification.
+- SMTP, Site URL, redirect allowlist, server-side password policy and app-origin CORS secret configuration.
+- Social publishing, Meta/Google ads, messaging, marketplace, e-commerce and payment integrations.
+- AI content generation/agent orchestration and scheduled automation.
+- Production monitoring, backups, retention and rate limiting.
+
+## Security and release rules
+
+The GitHub repository is public. Do not commit credentials, customer data or backups. Keep development on the feature branch. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM mutations and ad spend must remain behind human approval.
