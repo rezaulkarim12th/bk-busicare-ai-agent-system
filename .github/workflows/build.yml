@@ -40,18 +40,11 @@ jobs:
         run: |
           node --check src/main.js
           node --check src/auth-portal.js
-      - name: Require Supabase configuration for production deployment
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: |
-          test -n "$VITE_SUPABASE_URL" || (echo 'Missing VITE_SUPABASE_URL repository secret' && exit 1)
-          test -n "$VITE_SUPABASE_ANON_KEY" || (echo 'Missing VITE_SUPABASE_ANON_KEY repository secret' && exit 1)
+      # Supabase publishable keys are designed for browser exposure; never put a secret/service-role key here.
       - name: Build production bundle
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: https://ekznyijmghrjtovbbgun.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_7A96UbC3vWB9uLYab3cpCg_D71wX2I7
         run: npm run build
 
       - name: Upload Pages artifact
