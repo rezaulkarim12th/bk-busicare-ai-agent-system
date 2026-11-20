@@ -55,6 +55,4 @@ revoke all on function public.create_workspace_for_user(text, uuid)
 grant execute on function public.create_workspace_for_user(text, uuid)
   to service_role;
 
--- The browser must no longer call the legacy SECURITY DEFINER RPC directly.
-revoke all on function public.create_workspace(text)
-  from public, anon, authenticated;
+-- Legacy RPC permissions are revoked only after the updated frontend is deployed.
