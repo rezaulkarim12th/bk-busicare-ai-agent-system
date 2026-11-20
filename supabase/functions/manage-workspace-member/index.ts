@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const allowedOrigins = new Set(
-  (Deno.env.get('APP_ALLOWED_ORIGINS') || '')
+  (Deno.env.get('APP_ALLOWED_ORIGINS') || 'https://rezaulkarim12th.github.io')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean)
