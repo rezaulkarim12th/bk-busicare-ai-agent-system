@@ -8,7 +8,7 @@ set local role authenticated;
 select set_config('request.jwt.claims','{"role":"authenticated","sub":"30000000-0000-4000-8000-000000000001"}',true);
 select throws_ok(
   $$select public.reserve_ai_content_generation('30000000-0000-4000-8000-000000000001')$$,
-  'P0001', null, 'authenticated users cannot call the server-only quota RPC'
+  '42501', null, 'authenticated users cannot call the server-only quota RPC'
 );
 reset role;
 set local role service_role;
