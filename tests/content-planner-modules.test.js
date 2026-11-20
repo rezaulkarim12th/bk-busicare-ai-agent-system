@@ -49,6 +49,6 @@ test('Content Planner UI renders module navigation and a planning-only brief for
   assert.match(source, /getContentPlannerModules/);
   assert.match(source, /data-planner-module/);
   assert.match(source, /planner-brief-form/);
-  assert.match(source, /Planning only — no live campaign, publishing or spend/);
+  assert.match(source, /Planning mode · No live execution/);
   assert.match(source, /planner-download/);
 });
