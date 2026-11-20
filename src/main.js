@@ -117,11 +117,11 @@ document.querySelectorAll('[data-edit-lead]').forEach(b=>b.onclick=()=>{const le
 document.querySelectorAll('[data-delete-lead]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.deleteLead);const lead=data.leads.find(x=>x.id===id);if(lead&&confirm(`“${lead.name}” লিডটি স্থায়ীভাবে মুছবেন?`)){data.leads=data.leads.filter(x=>x.id!==id);save();shell()}});
 }
 function bind(){
-document.querySelectorAll('[data-cart-add]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartAdd;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);shell();bind()});
-document.querySelectorAll('[data-cart-plus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartPlus;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);shell();bind()});
-document.querySelectorAll('[data-cart-minus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartMinus;storeCart[id]=Math.max(0,(storeCart[id]||0)-1);if(!storeCart[id])delete storeCart[id];shell();bind()});
-document.querySelectorAll('[data-cart-remove]').forEach(b=>b.onclick=()=>{delete storeCart[b.dataset.cartRemove];shell();bind()});
-const clearCart=document.querySelector('#clear-cart');if(clearCart)clearCart.onclick=()=>{storeCart={};shell();bind()};
+document.querySelectorAll('[data-cart-add]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartAdd;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);render();bind()});
+document.querySelectorAll('[data-cart-plus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartPlus;storeCart[id]=Math.min(10,(storeCart[id]||0)+1);render();bind()});
+document.querySelectorAll('[data-cart-minus]').forEach(b=>b.onclick=()=>{const id=b.dataset.cartMinus;storeCart[id]=Math.max(0,(storeCart[id]||0)-1);if(!storeCart[id])delete storeCart[id];render();bind()});
+document.querySelectorAll('[data-cart-remove]').forEach(b=>b.onclick=()=>{delete storeCart[b.dataset.cartRemove];render();bind()});
+const clearCart=document.querySelector('#clear-cart');if(clearCart)clearCart.onclick=()=>{storeCart={};render();bind()};
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;shell()});
 document.querySelectorAll('[data-planner-module]').forEach(b=>b.onclick=()=>{selectedContentModule=b.dataset.plannerModule;shell()});
 const plannerForm=document.querySelector('#planner-brief-form');
