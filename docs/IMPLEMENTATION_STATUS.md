@@ -33,9 +33,9 @@ Last verified: 2026-11-21 (UTC)
 - `private.ai_content_usage`: RLS is enabled; one policy exists for `service_role` (ALL, USING true, WITH CHECK true). Table grants remain limited to postgres and service_role; anon/authenticated have no table privileges. The private schema is not available to anon.
 - Database regression assertions passed: 32 multi-tenant RLS checks, 3 AI quota RPC checks, 6 AI usage RLS/grant checks and 3 first-workspace bootstrap checks (44 assertions total). Separate temporary-grant tests also verified anon/authenticated cannot read or insert quota rows while service_role can insert/read. All test transactions were rolled back; no test usage rows, test users or test workspaces were retained.
 - First-workspace RPC creates an owner membership, rejects a second workspace for the same user, and denies direct authenticated execution. Its `create-workspace` Edge Function is ACTIVE, version 1, with `verify_jwt=true`. The frontend calls this function for initial workspace setup.
-- `manage-workspace-member` remains ACTIVE, version 2; its handler validates caller JWT itself.
+- `manage-workspace-member` is ACTIVE, version 3, with gateway `verify_jwt=true`; the handler also validates the caller JWT and enforces workspace owner/admin authorization.
 - Supabase Security Advisor returned no lints after the latest schema changes.
-- Performance Advisor returned seven INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
+- Latest Performance Advisor check returned three INFO-level unused-index notices; no index was removed because the test project has little/no workload history.
 - AI Content Edge Function source is in `main`, but the function is **not deployed or activated**. Required provider secrets/model configuration are not present/verified.
 - Auth SMTP, redirect URLs and real email delivery have not been verified.
 - Local/demo mode uses browser Local Storage and does not sync across devices.
