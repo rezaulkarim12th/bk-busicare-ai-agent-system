@@ -57,12 +57,12 @@ if (hasUrl !== hasKey) {
           session = r.data.session;
           await portal();
         } else if (mode === 'signup') {
-          const r = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: location.origin } });
+          const r = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: new URL(import.meta.env.BASE_URL, location.origin).toString() } });
           if (r.error) throw r.error;
           if (r.data.session) { session = r.data.session; await portal(); }
           else note('Account created. Confirm your email, then sign in.');
         } else {
-          const r = await supabase.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+          const r = await supabase.auth.resetPasswordForEmail(email, { redirectTo: new URL(import.meta.env.BASE_URL, location.origin).toString() });
           if (r.error) throw r.error;
           note('If the account exists, a password reset link has been sent.');
         }
