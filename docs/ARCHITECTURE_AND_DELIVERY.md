@@ -1,7 +1,7 @@
 # BK-BusiCare Centralized Business Management System
 
 ## Product objective
-Evolve the existing browser-based MVP into a secure, multi-user operations platform for BK-BusiCare. The feature branch now includes a Supabase Auth portal, tenant-scoped cloud Leads/Content CRUD, PostgreSQL RLS and a team-management Edge Function source. These components have not yet been validated against a live Supabase project.
+Evolve the existing browser-based MVP into a secure, multi-user operations platform for BK-BusiCare. The feature branch now includes a Supabase Auth portal, tenant-scoped cloud Leads/Content CRUD, PostgreSQL RLS and a team-management Edge Function source. Migrations and the team Edge Function are deployed to the separate TEST project; live browser Auth, CORS and full API role tests remain outstanding.
 
 ## Implemented foundation
 - Responsive Vite application with local demo dashboard, CRM leads, sales pipeline, content planner, reports, CSV export and JSON backup/restore.
@@ -64,4 +64,8 @@ Evolve the existing browser-based MVP into a secure, multi-user operations platf
 For each provider record: account owner, app/client registration, business verification status, approved scopes, redirect URLs, webhook endpoints, rate limits, review status, token storage, data retention and revocation procedure. Do not collect passwords or paste access tokens into chat or source control.
 
 ## Release blockers
-A remote disposable Supabase TEST project, live Auth/SMTP and invitation email tests, two-user/two-workspace API tests, production hosting secrets, external provider integrations and production operations controls remain outstanding. Local pgTAP tests do not certify live Supabase configuration. The feature branch is not production-ready.
+The separate TEST project is active and has the migrations and Edge Function deployed. Live Auth/SMTP and invitation email tests, two-user/two-workspace API tests, app-origin CORS configuration, production hosting secrets, external provider integrations and production operations controls remain outstanding. Local pgTAP tests do not certify live Supabase configuration. The feature branch is not production-ready.
+
+
+## Delivery snapshot — 2026-11-20
+Phase 1 MVP source/build and disposable local regression suite are verified. The separate TEST Supabase project has both migrations applied, five RLS-enabled application tables, and the team Edge Function deployed. GitHub Actions Build and Local Supabase workflows passed on feature head `46b97a7e2b9613dce5a5d033742ce7e42d29b7d8`. The feature branch is not deployed to GitHub Pages; PR #1 remains Draft. Do not use real customer data until live Auth, CORS, tenant/API role tests and operational release controls are completed.
