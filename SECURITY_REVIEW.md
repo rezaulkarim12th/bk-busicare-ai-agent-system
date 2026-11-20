@@ -1,6 +1,6 @@
 # BK-BusiCare security review
 
-Review scope: feature-branch source, SQL migrations, Supabase Edge Function, browser auth portal, GitHub Actions workflows and automated tests. This is a static code/configuration review plus disposable local database regression testing, not a penetration test or live Supabase verification.
+Review scope: feature-branch source, SQL migrations, Supabase Edge Function, browser auth portal, GitHub Actions workflows and automated tests. This is a static code/configuration review plus disposable local database regression testing and transaction-scoped live TEST database checks. It is not a penetration test or a complete live Auth/REST/Edge Function end-to-end test.
 
 ## Controls observed in source
 - RLS is enabled on workspaces, workspace_members, leads, content_items and audit_events.
@@ -16,22 +16,22 @@ Review scope: feature-branch source, SQL migrations, Supabase Edge Function, bro
 - AI Copilot currently builds and validates content prompts locally. It does not connect to a live AI provider and does not publish content.
 
 ## Verification performed on current feature head (2026-11-20)
-- Build run [44678286959](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678286959) passed full configured dependency audit, Deno Edge Function type-check, Node regression suite, JavaScript syntax checks and Vite production build.
-- Local Supabase run [44678286878](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678286878) passed disposable stack startup, all repository migrations, pgTAP RLS isolation suite, local service checks and cleanup.
-- Remote TEST project `rmnoiwzkhjwmgxwkfdzb` is ACTIVE_HEALTHY; both versioned migrations are applied, five application tables have RLS enabled, and `manage-workspace-member` Edge Function is ACTIVE version 1.
-- A temporary SQL two-tenant check returned zero cross-workspace rows; its transaction was rolled back. This is a narrow check, not a complete live API test.
-- Security Advisor reports one WARN: authenticated users can execute `public.create_workspace(text)` as SECURITY DEFINER. The function is intended for authenticated workspace creation and has an empty locked search_path; live authorization tests remain required.
-- The Build deploy job was skipped as intended on the feature branch. No production deployment occurred.
+- Current-head Build workflow [44678696642](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678696642): PASS — locked dependency install, dependency vulnerability audit, Edge Function Deno type-check, migration safety checks, JavaScript syntax checks and production bundle build. The Pages deploy job was skipped on this feature branch as intended.
+- Current-head Local Supabase workflow [44678696630](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44678696630): PASS — disposable Supabase stack, all migrations, pgTAP RLS regression tests, service verification and cleanup.
+- Remote TEST project `rmnoiwzkhjwmgxwkfdzb` is ACTIVE_HEALTHY; migrations `20261120044848` and `20261120044911` are applied. All five application tables have RLS enabled, 12 policies are present, and anon has zero table grants for those application tables.
+- Remote TEST inventory: four expected public RPCs and three private authorization/trigger helpers are present. `manage-workspace-member` is ACTIVE version 1.
+- A transaction-scoped live TEST database check created two synthetic users and two workspaces, set authenticated role/JWT subject claims, verified each tenant could read only its own lead/workspace, and verified authenticated workspace creation assigns the caller the owner role. The transaction was rolled back; no test rows were retained. This validates PostgreSQL RLS/function behavior in the remote database under simulated claims, not signed-in browser sessions or the REST API.
+- Supabase Health Advisor returned no findings. Performance Advisor returned seven unused-index INFO findings while the TEST tables are empty; indexes were retained pending real workload evidence.
+- Security Advisor reports one WARN: authenticated users can execute `public.create_workspace(text)` as SECURITY DEFINER. This is an intentional authenticated workspace-creation RPC; it checks `auth.uid()`, validates the workspace name and pins an empty search_path. Do not revoke it without replacing the client workspace-creation flow.
+- No production database or hosting deployment was changed.
 
-## Not verified — release blockers
-- Full two-user/two-workspace Auth and direct REST API role tests have not been completed against the remote TEST project.
-- No two-user/two-workspace cross-tenant RLS/API authorization test has run against live Supabase.
-- Edge Function JWT, configured-origin CORS, invitation email, quota, rollback and role-boundary behavior have not been exercised end-to-end against the live TEST project.
-- Auth SMTP, redirect allowlists, server-side password policy, backups, monitoring and recovery have not been configured/verified.
+## Remaining live release verification
+- Signed-in two-user/two-workspace browser Auth and direct REST API tests are not yet run.
+- Edge Function JWT, exact-origin CORS, invitation email delivery, quota exhaustion, rollback and role-boundary behavior are not yet exercised end-to-end. Configure the exact deployed app origin in server-side `APP_ALLOWED_ORIGINS` before browser invocation.
+- Auth Site URL, redirect allowlist, SMTP and server-side password policy require configuration and verification.
+- Backups, monitoring, recovery and production operational controls require setup.
 - Production Pages deployment has not occurred.
 - Meta, Instagram, TikTok, LinkedIn, Google, YouTube, e-commerce, payment, live AI provider and scheduler integrations are not implemented/connected.
 
-- Edge Function `APP_ALLOWED_ORIGINS`, Auth SMTP, Site URL, redirect allowlist and server-side password policy are not yet verified.
-
 ## Release decision
-**Do not merge or deploy to production yet.** Keep the PR Draft until a disposable TEST project has been used for migration preview/apply, live RLS and Edge Function security tests pass, hosting secrets are verified, and the owner explicitly approves release. Never place service-role keys, DB passwords or access tokens in chat, browser code, repository files or `VITE_` variables.
+**Keep the PR Draft; do not merge or deploy to production until the remaining live Auth/API/Edge Function checks pass and the owner explicitly approves release.** Never place service-role keys, DB passwords or access tokens in chat, browser code, repository files or `VITE_` variables.
