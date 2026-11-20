@@ -1,0 +1,8 @@
+{
+  "appId": "com.bkbusicare.app",
+  "appName": "BK-BusiCare",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
