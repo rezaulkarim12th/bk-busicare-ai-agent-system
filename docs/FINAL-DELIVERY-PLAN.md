@@ -26,7 +26,7 @@ These are coordinated project roles, not a claim that ten independent human coll
 | # | Workstream | Current evidence | Acceptance gate |
 |---|---|---|---|
 | 1 | Six-section application shell and navigation | Existing MVP navigation has Dashboard, Leads, Sales Pipeline, Content Planner, Reports and Settings | Responsive navigation, route/state regression tests and accessibility review |
-| 2 | Content Planner modules | Five-module planning registry and five unit tests are added in PR #9; UI is not yet wired to the registry | Five usable submodule screens; Meta and Google campaign forms; validation and tests |
+| 2 | Content Planner modules | Five-module planning registry and five unit tests are added in PR #9; the UI is wired to the registry with module selection and planning brief forms | Five usable submodule screens; Meta and Google campaign forms; validation and tests |
 | 3 | AI Agent and provider integration | Current Copilot builds prompts only; no live provider connection | Server-side provider adapter, secret management, usage limits, error handling and human approval |
 | 4 | Shopify / E-commerce | Architecture is documented; no live store, checkout or order sync | Adult account-owner approval, verified store, sandbox order flow, webhook verification and security review |
 | 5 | Microsoft Office AI Suite | Product scope is planned; no Microsoft integration | Confirm API/licensing, consent and permissions; implement and test Word/Excel/PowerPoint workflows |
@@ -41,8 +41,8 @@ These are coordinated project roles, not a claim that ten independent human coll
 - Google Ads planning includes Search, Display and YouTube.
 - Five unit tests cover module order, Meta scope, Google scope, unknown module handling and the planning-only execution guard.
 - These modules do **not** publish content, create or launch ad campaigns, spend budget, connect provider accounts or run scheduled jobs.
-- The registry is now integrated into the Content Planner UI with five selectable modules, responsive navigation, module-specific brief fields, planning-only safety labels and downloadable text briefs.
-- The UI integration has a regression test in the test suite; the latest commit's CI must complete successfully before merge.
+- The registry is integrated into the Content Planner UI with five selectable modules, responsive navigation, module-specific brief fields, planning-only safety labels and downloadable text briefs.
+- UI integration and Copilot prompt-builder regression tests are included; the latest commit's CI must complete successfully before merge.
 - The existing application remains an MVP. Local browser storage is not cross-device synchronization.
 
 ## Release controls
@@ -56,4 +56,4 @@ These are coordinated project roles, not a claim that ten independent human coll
 
 ## Delivery statement
 
-This document and the Content Planner registry/tests are engineering deliverables for review. They are **not** evidence that all eight workstreams are complete. Production delivery remains blocked on UI integration, provider implementations, external account approvals, live security testing and release gates.
+This document and the Content Planner UI, registry and tests are engineering deliverables for review. They are **not** evidence that all eight workstreams are complete. Production delivery remains blocked on live provider implementations, external account approvals, live security testing and release gates.
