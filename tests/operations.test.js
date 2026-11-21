@@ -34,12 +34,12 @@ test('sales metrics handle empty and invalid input', () => {
 });
 
 test('next-action guidance covers every supported sales stage', () => {
-  assert.match(recommendNextAction({ status: 'New' }), /প্রথম যোগাযোগ/);
-  assert.match(recommendNextAction({ status: 'Contacted' }), /ফলো-আপ/);
-  assert.match(recommendNextAction({ status: 'Proposal' }), /প্রস্তাব/);
-  assert.match(recommendNextAction({ status: 'Won' }), /অনবোর্ডিং/);
-  assert.match(recommendNextAction({ status: 'Lost' }), /কারণ/);
-  assert.match(recommendNextAction({ status: 'unknown' }), /যাচাই/);
+  assert.match(recommendNextAction({ status: 'New' }), /first contact/i);
+  assert.match(recommendNextAction({ status: 'Contacted' }), /follow up/i);
+  assert.match(recommendNextAction({ status: 'Proposal' }), /proposal/i);
+  assert.match(recommendNextAction({ status: 'Won' }), /onboarding/i);
+  assert.match(recommendNextAction({ status: 'Lost' }), /reason/i);
+  assert.match(recommendNextAction({ status: 'unknown' }), /review/i);
 });
 
 
