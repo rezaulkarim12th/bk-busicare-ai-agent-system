@@ -256,3 +256,13 @@ test('local demo restores persisted state after failed saves and bounds record i
   assert.match(app, /c\.title\.length <= 200/);
   assert.match(app, /Number\.isFinite\(value\)\|\|value<0/);
 });
+
+test('AI quota lockdown migration is safe on a clean database before the quota RPC migration', async () => {
+  const lockdown = await readFile(new URL('../supabase/migrations/20261120195748_ai_content_usage_rls_lockdown.sql', import.meta.url), 'utf8');
+  const quota = await readFile(new URL('../supabase/migrations/20261121000000_ai_content_usage_quota.sql', import.meta.url), 'utf8');
+  assert.match(lockdown, /create table if not exists private\\.ai_content_usage/);
+  assert.match(lockdown, /grant usage on schema private to service_role/);
+  assert.match(lockdown, /revoke all on table private\\.ai_content_usage from public, anon, authenticated/);
+  assert.match(quota, /create table if not exists private\\.ai_content_usage/);
+  assert.match(quota, /create or replace function public\\.reserve_ai_content_generation/);
+});
