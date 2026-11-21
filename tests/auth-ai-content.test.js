@@ -11,7 +11,7 @@ test('authenticated portal exposes the AI Content Studio and invokes the protect
   assert.match(source, /save-ai-draft/);
   assert.match(source, /status: 'Draft'/);
   assert.match(source, /activeRole==='viewer'/);
-  assert.match(source, /কাউকে message পাঠায় না/);
+  assert.doesNotMatch(source, /functions\\.invoke\\(['\"](?:publish|send-message)/i);
 });
 
 test('AI endpoint enforces workspace membership and role server-side', async () => {
