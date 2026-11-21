@@ -1,6 +1,6 @@
 # BK-BusiCare — Implementation & Release Status
 
-Last verified: 2026-11-21
+Last verified: 2026-11-21 (refreshed after successful build/deploy and Supabase advisor review)
 
 ## Release summary
 
@@ -17,9 +17,9 @@ Verified from Supabase on 2026-11-21. All three are ACTIVE with gateway JWT veri
 
 | Function | Status | Version | Gateway JWT |
 |---|---|---:|---|
-| create-workspace | ACTIVE | 7 | Required |
-| manage-workspace-member | ACTIVE | 9 | Required |
-| ai-content | ACTIVE | 2 | Required |
+| create-workspace | ACTIVE | 11 | Required |
+| manage-workspace-member | ACTIVE | 13 | Required |
+| ai-content | ACTIVE | 7 | Required |
 
 The workspace functions use bounded request-body parsing and configured exact-origin allowlisting. The owner saved the TEST `APP_ALLOWED_ORIGINS` secret through the Supabase dashboard. Its stored value is not readable through the available management interface; confirm it remains exactly `https://rezaulkarim12th.github.io`.
 
@@ -36,13 +36,14 @@ The AI function validates the caller JWT, requires a valid workspace UUID, check
 - Request-body limits and JSON object validation are applied to workspace creation and member-management endpoints.
 - Regression tests cover AI portal wiring, server-side workspace authorization logic and bounded request parsing.
 - TEST database has eight migrations applied.
-- Latest verified GitHub Actions run [44862660139](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44862660139): build and deploy jobs both completed successfully. The run includes dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment.
-- Latest Supabase Security Advisor: zero lints.
+- Latest verified GitHub Actions run [44886059909](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886059909): after aligning stale regression-test assertions with the current English UI and source copy, all build and deploy jobs completed successfully. The run includes dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment. The run includes dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment.
+- Supabase Security Advisor currently reports one WARN: leaked-password protection is disabled. The BK-BusiCare Supabase organization is on the Free plan; Supabase documents this control as available on Pro and above. This is a provider-level Auth setting and cannot be cleared by a SQL migration or client-side check. Upgrade decision and dashboard enablement remain owner actions.
 
 ## Security and database observations
 
 - All three deployed TEST Edge Functions have gateway JWT verification enabled.
-- Security Advisor currently reports zero lints.
+- Security Advisor reports one WARN for disabled leaked-password protection. The organization is currently on the Free plan; Supabase documents this feature as available on Pro and above. No SQL or browser-side change can truthfully substitute for this provider-level control.
+- Performance Advisor reports three INFO-level unused-index notices (`audit_events_actor_idx`, `leads_workspace_status_idx`, `audit_workspace_created_idx`). They were not removed because usage evidence is insufficient to justify a potentially harmful index change.
 - Performance Advisor reports three INFO-level unused-index notices. No indexes were removed because there is not enough workload evidence to justify removal.
 - Source-level and CI regression checks do not substitute for live API authorization tests or independent penetration testing.
 - No live two-user/two-workspace API isolation test has been completed.
@@ -88,7 +89,7 @@ Do not load real customer data, enable checkout/payment, publish social content 
 
 - [Live application](https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/)
 - [Repository](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system)
-- [Latest successful Build and Deploy workflow 44862660139](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44862660139)
+- [Latest successful Build and Deploy workflow 44886059909](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886059909)
 - [Architecture and delivery](ARCHITECTURE_AND_DELIVERY.md)
 - [Security audit](SECURITY_AUDIT.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
