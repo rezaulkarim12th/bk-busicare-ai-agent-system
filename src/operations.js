@@ -48,13 +48,13 @@ export function getSalesMetrics(leads) {
 }
 
 export function recommendNextAction(lead) {
-  if (!lead || typeof lead !== 'object') return 'লিডের তথ্য যাচাই করুন';
+  if (!lead || typeof lead !== 'object') return 'Review the lead details';
   switch (lead.status) {
-    case 'New': return 'প্রথম যোগাযোগ করুন এবং প্রয়োজন বুঝুন';
-    case 'Contacted': return 'ফলো-আপ করে আগ্রহ ও সিদ্ধান্তের সময় জানুন';
-    case 'Proposal': return 'প্রস্তাবের বিষয়ে মতামত নিন এবং আপত্তি সমাধান করুন';
-    case 'Won': return 'ক্লায়েন্ট অনবোর্ডিং ও কাজের পরিকল্পনা শুরু করুন';
-    case 'Lost': return 'হারানোর কারণ নথিভুক্ত করে ভবিষ্যৎ ফলো-আপ বিবেচনা করুন';
-    default: return 'লিডের স্ট্যাটাস যাচাই করুন';
+    case 'New': return 'Make the first contact and understand the customer's needs';
+    case 'Contacted': return 'Follow up to understand interest and the decision timeline';
+    case 'Proposal': return 'Request feedback on the proposal and address objections';
+    case 'Won': return 'Begin client onboarding and project planning';
+    case 'Lost': return 'Record the reason for the loss and consider future follow-up';
+    default: return 'লিডের Status যাচাই করুন';
   }
 }
