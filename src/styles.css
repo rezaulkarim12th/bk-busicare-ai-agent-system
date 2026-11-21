@@ -460,3 +460,30 @@ footer{color:#8791a0}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* Mobile navigation polish from device review */
+@media(max-width:700px){
+  .sidebar{padding:12px 10px 9px!important}
+  .brand{padding:0 5px 11px!important}
+  .sidebar nav{
+    display:flex!important;flex-wrap:nowrap!important;gap:6px!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    max-width:100%;padding:2px 1px 7px!important;
+    scrollbar-width:thin;scrollbar-color:#d9b45f55 transparent;
+    -webkit-overflow-scrolling:touch
+  }
+  .sidebar nav::-webkit-scrollbar{height:4px}
+  .sidebar nav::-webkit-scrollbar-thumb{background:#d9b45f88;border-radius:8px}
+  .sidebar .nav{
+    flex:0 0 auto!important;min-height:40px!important;
+    padding:9px 11px!important;font-size:11px!important;
+    white-space:nowrap!important;border-radius:10px!important
+  }
+  .sidebar .nav span{width:19px!important}
+  .main{padding-top:15px!important}
+  .welcome{margin-top:2px}
+}
+@media(max-width:380px){
+  .sidebar .nav{padding:8px 9px!important;font-size:10px!important}
+  .sidebar .nav span{width:16px!important}
+}
