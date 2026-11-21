@@ -32,3 +32,12 @@ test('workspace and team endpoints reject oversized or non-object JSON bodies', 
     assert.match(source, /Invalid JSON object/);
   }
 });
+
+test('AI endpoint parses standard Bearer authorization headers and joins prompt/output lines', async () => {
+  const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
+  assert.ok(source.includes(String.raw`match(/^Bearer\s+(.+)$/i)`));
+  assert.ok(source.includes(String.raw`.join("\n")`));
+  const bearerPattern = /^Bearer\s+(.+)$/i;
+  assert.equal('Bearer eyJhbGciOiJIUzI1NiJ9'.match(bearerPattern)?.[1], 'eyJhbGciOiJIUzI1NiJ9');
+  assert.equal('Bearer'.match(bearerPattern), null);
+});
