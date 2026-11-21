@@ -51,7 +51,7 @@ export function recommendNextAction(lead) {
   if (!lead || typeof lead !== 'object') return 'Review the lead details';
   switch (lead.status) {
     case 'New': return 'Make the first contact and understand the customer's needs';
-    case 'Contacted': return 'Follow up to understand interest and the decision timeline';
+    case 'Contacted': return "Follow up to understand interest and the customer's decision timeline";
     case 'Proposal': return 'Request feedback on the proposal and address objections';
     case 'Won': return 'Begin client onboarding and project planning';
     case 'Lost': return 'Record the reason for the loss and consider future follow-up';
