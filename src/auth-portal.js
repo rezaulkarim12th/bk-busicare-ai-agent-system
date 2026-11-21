@@ -90,7 +90,7 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate nav[style] { grid-template-columns:1fr !important; }
     }
   `;
-  root.appendChild(responsiveStyle);
+  document.head.appendChild(responsiveStyle);
 
   let session = null;
   let workspaces = [];
