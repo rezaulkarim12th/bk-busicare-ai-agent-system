@@ -45,8 +45,8 @@ jobs:
       # Supabase publishable keys are designed for browser exposure; never put a secret/service-role key here.
       - name: Build production bundle
         env:
-          VITE_SUPABASE_URL: https://ekznyijmghrjtovbbgun.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_7A96UbC3vWB9uLYab3cpCg_D71wX2I7
+          VITE_SUPABASE_URL: https://rmnoiwzkhjwmgxwkfdzb.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw
         run: npm run build
 
       - name: Upload Pages artifact
