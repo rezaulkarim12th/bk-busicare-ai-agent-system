@@ -72,7 +72,7 @@ The browser MVP is published and the TEST backend foundation has three active JW
 
 - [Live application](https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/)
 - [Repository](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system)
-- [Latest recorded successful Pages workflow](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44813680076)
+- [Latest successful TEST-connected Pages workflow](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44860584113)
 - [Architecture and delivery](ARCHITECTURE_AND_DELIVERY.md)
 - [Security audit](SECURITY_AUDIT.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
