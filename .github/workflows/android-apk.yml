@@ -64,6 +64,42 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
+      - name: Configure Android SDK levels
+        working-directory: android
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          variables = Path("variables.gradle")
+          content = variables.read_text()
+          expected = {
+              "minSdkVersion": "26",
+              "compileSdkVersion": "36",
+              "targetSdkVersion": "36",
+          }
+          for key, value in expected.items():
+              pattern = rf"(?m)^(\s*{key}\s*=\s*)\d+(\s*)$"
+              content, count = re.subn(pattern, rf"\g<1>{value}\g<2>", content)
+              if count != 1:
+                  raise SystemExit(f"Expected exactly one {key} setting in variables.gradle; found {count}")
+          variables.write_text(content)
+
+          root_build = Path("build.gradle")
+          root_content = root_build.read_text()
+          root_content, count = re.subn(
+              r"(com\.android\.tools\.build:gradle:)\d+\.\d+\.\d+",
+              r"\g<1>8.9.1",
+              root_content,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("Could not safely locate Android Gradle Plugin version in build.gradle")
+          root_build.write_text(root_content)
+
+          print("Configured minSdk=26, compileSdk=36, targetSdk=36, Android Gradle Plugin=8.9.1")
+          PY
+
       - name: Build debug APK
         working-directory: android
         run: |
