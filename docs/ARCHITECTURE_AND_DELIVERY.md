@@ -1,39 +1,46 @@
 # BK-BusiCare Centralized Business Management System
 
 ## Product objective
-Evolve the existing browser-based MVP into a secure, multi-user operations platform for BK-BusiCare. The feature branch now includes a Supabase Auth portal, tenant-scoped cloud Leads/Content CRUD, PostgreSQL RLS and a team-management Edge Function source. Migrations and the team Edge Function are deployed to the separate TEST project; live browser Auth, CORS and full API role tests remain outstanding.
+
+Evolve the published BK-BusiCare browser MVP into a secure, multi-user operations platform. The current implementation uses a Vite frontend, Supabase Auth, PostgreSQL row-level security and Supabase Edge Functions. The separate TEST project is the only backend environment used for current development. Production remains untouched.
 
 ## Implemented foundation
-- Responsive Vite application with local demo dashboard, CRM leads, sales pipeline, content planner, reports, CSV export and JSON backup/restore.
-- Supabase email/password authentication portal, password recovery and workspace selection.
-- Workspace-scoped Leads and Content CRUD with PostgreSQL RLS.
-- Owner/admin/member/viewer roles; trusted Edge Function path for invitations and role changes, with exact-origin CORS allowlisting, JWT and input validation, database-locked invitation quotas, atomic membership/role plus audit transactions, and best-effort Auth-account cleanup if invitation setup fails.
-- Migration safety tests, expanded 16-assertion local pgTAP RLS suite, Deno type-check, JavaScript syntax checks, full npm dependency audit and production build in GitHub Actions.
-- Focused internal security review recorded in `SECURITY_AUDIT.md`, covering output encoding, input bounds, persistence rollback, CSV formula injection, RLS grants/policies and atomic team authorization/audit operations.
-- Manually gated, two-step Supabase TEST deployment workflow (read-only preview, separately confirmed apply).
+
+- Responsive browser application with dashboard, CRM Leads, sales pipeline, Content Planner, reports, CSV export and JSON backup/restore.
+- Published GitHub Pages MVP: https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/
+- Supabase email/password Auth portal source with registration, sign-in, password recovery and workspace selection; live email delivery and full user journey still require verification.
+- Workspace-scoped Leads and Content operations protected by PostgreSQL RLS.
+- Owner/admin/member/viewer role model and server-side membership checks for protected Edge Function operations.
+- Team invitation and role-management path with JWT validation, exact-origin CORS allowlisting, input bounds, database-locked quotas and atomic membership/audit operations.
+- AI Content Studio integrated with the authenticated portal. It submits the active workspace ID and can save generated text as a Draft. The server function checks membership/role and quota; output is draft-only.
+- CI checks include dependency audit, Deno type-check, Node regression tests, JavaScript syntax, migration safety checks and production build.
+- TEST project currently has eight migrations and three ACTIVE JWT-protected Edge Functions: create-workspace v7, manage-workspace-member v9, ai-content v2.
+- Latest successful Build and Deploy workflow: [44862660139](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44862660139).
 
 ## Target modules
-1. Executive dashboard: leads, sales, follow-ups, content queue, client delivery, and campaign KPIs.
-2. CRM: contacts, organizations, lead source, service interest, consent, owner, notes, next action, and full activity history.
-3. Sales pipeline: qualification, proposal, negotiation, won/lost, revenue forecast, and follow-up reminders.
-4. Client operations: onboarding, scope, tasks, deliverables, deadlines, approvals, and client communication log.
-5. Content studio: multi-platform calendar, campaign briefs, copy variants, creative asset references, review/approval, and publishing status.
-6. Social and advertising integrations: Meta, Instagram, TikTok, LinkedIn, YouTube, and Google, subject to each provider's official API eligibility and granted scopes.
-7. Marketplace and prospecting workspace: Upwork, Fiverr, and other prospect sources. Use permitted APIs or user-assisted workflows; do not automate prohibited scraping or unsolicited messaging.
-8. E-commerce and web operations: Shopify/WooCommerce/WordPress connections where supported, store health, product/content tasks, and reporting.
-9. AI copilot: draft content, summarize leads, propose next actions, and prepare reports. AI must not independently send messages, publish, edit external records, or spend money.
-10. Reporting: CSV/XLSX exports, sales funnel, source attribution, campaign metrics, task delivery, and audit history.
-11. Administration: secure sign-in, role-based access, tenant isolation, team invitations, settings, backup/restore, and audit logs.
+
+1. Executive dashboard: leads, sales, follow-ups, content queue, client delivery and campaign KPIs.
+2. CRM: contacts, organizations, lead source, service interest, consent, owner, notes, next action and activity history.
+3. Sales pipeline: qualification, proposal, negotiation, won/lost, revenue forecast and follow-up reminders.
+4. Client operations: onboarding, scope, tasks, deliverables, deadlines, approvals and client communication log.
+5. Content studio: multi-platform calendar, campaign briefs, copy variants, creative asset references, review/approval and publishing status.
+6. Social and advertising integrations: Meta, Instagram, TikTok, LinkedIn, YouTube and Google, subject to official API eligibility and granted scopes.
+7. Prospecting workspace: Upwork, Fiverr and other prospect sources. Use permitted APIs or user-assisted workflows; do not automate prohibited scraping or unsolicited messaging.
+8. E-commerce and web operations: Shopify/WordPress connections where supported, store health, product/content tasks and reporting.
+9. AI copilot: draft content, summarize leads, propose next actions and prepare reports. AI must not independently send messages, publish, edit external records or spend money.
+10. Reporting: CSV/XLSX exports, sales funnel, source attribution, campaign metrics, task delivery and audit history.
+11. Administration: secure sign-in, role-based access, tenant isolation, team invitations, settings, backup/restore and audit logs.
 
 ## Delivery phases and acceptance gates
-### Phase 1 — Stabilize the prototype
-- Reproducible production build and automated smoke tests.
-- Validate lead creation/edit/delete, pipeline stage updates, content planning, CSV export, JSON backup/restore and mobile layout.
-- Acceptance: prototype workflows pass tests; limitations remain clearly labelled.
+
+### Phase 1 — Published MVP stabilization
+- Reproducible production build and automated smoke/regression tests.
+- Validate lead, pipeline, content, CSV export, JSON backup/restore and mobile workflows.
+- Current state: Pages build and deploy workflow succeeded. Manual signed-in user acceptance across all workflows is still required.
 
 ### Phase 2 — Secure application foundation
-- Apply the reviewed migration to a disposable Supabase TEST project.
-- Configure Auth email delivery and redirect URLs.
+- Configure TEST Auth Site URL, redirect URLs and SMTP.
+- Test signup, login, password recovery, workspace bootstrap and invitations.
 - Test two separate users and two workspaces, including direct API access and role boundaries.
 - Acceptance: live security and tenant-isolation tests pass before customer data is loaded.
 
@@ -43,29 +50,37 @@ Evolve the existing browser-based MVP into a secure, multi-user operations platf
 - Acceptance: end-to-end lead-to-client workflow is tested.
 
 ### Phase 4 — AI copilot
-- Add provider-backed AI behind a server-side adapter; never expose provider keys in browser code.
-- Support draft generation, summaries, lead prioritization suggestions and report explanations.
-- Add approval queue, usage limits, logging and human review.
-- Acceptance: AI cannot trigger consequential external actions without explicit user approval.
+- Configure provider credentials only as TEST server-side secrets.
+- Verify authenticated draft generation, quotas, invalid JWT, origin checks, body limits and provider failures.
+- Add approval workflow for any future consequential action; no automatic publishing or messaging.
+- Acceptance: AI cannot trigger external actions without explicit user approval.
 
-### Phase 5 — Official integrations
-- Integrate one provider at a time after checking API access, business verification, scopes, rate limits and platform policies.
-- Use OAuth with least privilege, encrypted token storage, revocation handling and webhook signature verification.
-- Begin with read-only data where possible. Publishing, messaging, CRM writes and ad spend require preview and explicit confirmation.
+### Phase 5 — Official integrations and commerce
+- Integrate one provider at a time after confirming API access, business verification, scopes, rate limits and platform policies.
+- Use OAuth with least privilege, secure token storage, revocation handling and webhook signature verification.
+- Build commerce schema, RLS, order workflow and stock controls before accepting real orders.
+- Keep payment and external write actions disabled until reviewed and tested.
 - Acceptance: provider sandbox/test flows, permission review, error handling and audit trail pass.
 
-### Phase 6 — Release and operations
-- Configure production domain, HTTPS, monitoring, error reporting, backups, restore drills and incident response.
+### Phase 6 — Controlled testing and production operations
+- Run functional and modest concurrency tests against TEST only.
+- Configure production domain, HTTPS, monitoring, error reporting, backups, restore drills and incident response after separate owner approval.
 - Run accessibility, performance, privacy and security checks.
-- Pilot with test data, then limited real users after approval.
-- Acceptance: user acceptance testing and rollback plan are signed off.
+- Acceptance: user acceptance testing, rollback plan and owner release sign-off.
 
 ## Integration readiness checklist
+
 For each provider record: account owner, app/client registration, business verification status, approved scopes, redirect URLs, webhook endpoints, rate limits, review status, token storage, data retention and revocation procedure. Do not collect passwords or paste access tokens into chat or source control.
 
-## Release blockers
-The separate TEST project is active and has the migrations and Edge Function deployed. Live Auth/SMTP and invitation email tests, two-user/two-workspace API tests, app-origin CORS configuration, production hosting secrets, external provider integrations and production operations controls remain outstanding. Local pgTAP tests do not certify live Supabase configuration. The feature branch is not production-ready.
+## Current verified release snapshot — 2026-11-21
 
+- GitHub Pages MVP is published.
+- Supabase TEST project `BK-BusiCare-TEST` is ACTIVE_HEALTHY.
+- Eight migrations are present in TEST.
+- Edge Functions: `create-workspace` v7, `manage-workspace-member` v9 and `ai-content` v2; all ACTIVE with JWT verification.
+- Security Advisor reports zero lints; Performance Advisor has three INFO unused-index notices. No indexes were removed.
+- Latest workflow [44862660139](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44862660139) has successful build and deploy jobs.
+- Live Auth/email delivery, two-user/two-workspace API isolation, successful AI provider request, controlled load test, complete CRM/client operations, commerce, external integrations and production operations are not yet verified or complete.
+- Production Supabase project was not modified.
 
-## Delivery snapshot — 2026-11-20
-Phase 1 MVP source/build and disposable local regression suite are verified. The separate TEST Supabase project has both migrations applied, five RLS-enabled application tables, and the team Edge Function deployed. GitHub Actions Build and Local Supabase workflows passed on feature head `46b97a7e2b9613dce5a5d033742ce7e42d29b7d8`. The feature branch is not deployed to GitHub Pages; PR #1 remains Draft. Do not use real customer data until live Auth, CORS, tenant/API role tests and operational release controls are completed.
+See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the current release gate list and [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for the scope and limitations of the internal review.
