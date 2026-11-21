@@ -7,6 +7,6 @@ test('content planner exposes the safe AI copilot prompt builder', async () => {
   assert.match(source,/from ['"]\.\/copilot\.js['"]/);
   assert.match(source,/buildContentPrompt\(/);
   assert.match(source,/AI Copilot/);
-  assert.match(source,/লাইভ AI Provider সংযুক্ত নয়/);
+  assert.match(source,/No live AI provider is connected/);
   assert.match(source,/copy-copilot-prompt/);
 });
