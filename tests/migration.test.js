@@ -194,7 +194,7 @@ test('local demo safely recovers from malformed browser storage and rejects inva
   assert.match(app, /Array\.isArray\(stored\.content\)/);
   assert.match(app, /Number\.isSafeInteger\(Number\(l\.id\)\)/);
   assert.match(app, /localStorage\.setItem\(KEY, JSON\.stringify\(data\)\)/);
-  assert.match(app, /ডেটা সংরক্ষণ করা যায়নি/);
+  assert.match(app, /Data could not be saved/);
 });
 
 
@@ -250,7 +250,7 @@ test('invitation membership and audit writes are atomic and re-authorized after 
 });
 
 test('local demo restores persisted state after failed saves and bounds record inputs', () => {
-  assert.match(app, /data = load\(\);[\s\S]*?আগের সংরক্ষিত ডেটা ফিরিয়ে আনা হয়েছে/);
+  assert.match(app, /data = load\(\);[\s\S]*?previously saved data has been restored/);
   assert.match(app, /l\.name\.length <= 160/);
   assert.match(app, /l\.notes\.length <= 4000/);
   assert.match(app, /c\.title\.length <= 200/);
