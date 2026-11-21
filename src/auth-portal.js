@@ -59,8 +59,8 @@ if (hasUrl !== hasKey) {
     #bk-secure-gate nav[style] button {
       min-height:66px !important; margin:0 !important; padding:12px 10px !important;
       border:1px solid #c49a43 !important; border-radius:15px !important;
-      background:linear-gradient(135deg,#f4e2b1,#d0a650) !important;
-      color:#102542 !important; font-weight:750 !important; font-size:14px !important;
+      background:linear-gradient(145deg,#ffffff,#f3f6fb) !important;
+      border-color:#dfe5ee !important; color:#102542 !important; font-weight:750 !important; font-size:14px !important;
       box-shadow:0 5px 14px #10254212 !important;
     }
     #bk-secure-gate nav[style] button[style*="background"] {
