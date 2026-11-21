@@ -25,21 +25,21 @@ The deployed `create-workspace` and `manage-workspace-member` source now use a f
 
 ## Implemented and published
 
-- Responsive Vite browser MVP: dashboard, Leads, sales pipeline, Content Planner, Store catalogue preview, reports, CSV export and JSON backup/restore.
+- Responsive Vite browser MVP: dashboard, Leads, sales pipeline, Content Planner, authenticated AI Content Studio, Store catalogue preview, reports, CSV export and JSON backup/restore.
 - Store is sample-only: no live catalogue, inventory, checkout, order submission, downloads or payments.
 - Supabase Auth portal source supports email/password sign-in, registration, password recovery and workspace selection. Live email delivery and full user journey remain unverified.
 - Workspace-scoped cloud Leads and Content CRUD with PostgreSQL RLS.
 - Workspace/team roles and Edge Function authorization foundations.
-- AI Content Edge Function deployed to TEST with JWT verification, exact-origin allowlist, bounded request body, usage quota reservation and draft-only output. Provider credentials/model remain an owner-side configuration gate.
+- AI Content Edge Function deployed to TEST with JWT verification, exact-origin allowlist, bounded request body, usage quota reservation and draft-only output. The authenticated portal now invokes this function, displays generated draft text and lets non-viewer workspace members save it as a Draft in Content Planner. GitHub CI test coverage checks the integration wiring. Provider credentials/model remain an owner-side configuration gate; no successful live AI generation has yet been demonstrated.
 - TEST database regression suite previously passed 44 assertions across tenant RLS, AI quota, AI usage grants/RLS and workspace bootstrap. These were rollback-only tests; no test user/workspace/usage rows were retained.
-- Latest recorded GitHub Pages workflow 44813680076: build and deploy jobs both succeeded, including dependency audit, Deno type-check, migration safety checks, JavaScript syntax and production bundle.
+- Latest successful GitHub Pages workflow 44861095620: dependency audit, Deno type-check, migration safety checks (including the new AI UI integration test), JavaScript syntax, bundle build, artifact upload and Pages deployment all passed. The Pages build is configured to use TEST Supabase, not Production.
 
 ## Security and database observations
 
 - Latest Supabase Security Advisor: zero lints.
 - Performance Advisor: three INFO-level unused-index notices. No indexes were removed because the project has insufficient workload evidence.
 - Function JWT verification is enabled on all three deployed functions.
-- No live authenticated end-to-end test or two-user/two-workspace API isolation test has been completed.
+- No live authenticated end-to-end test, successful live AI generation, or two-user/two-workspace API isolation test has been completed. GitHub CI verifies source wiring and build only.
 - The TEST `APP_ALLOWED_ORIGINS` secret was saved by the owner, but its stored value cannot be read back; the owner should ensure it is exactly `https://rezaulkarim12th.github.io`.
 
 ## Remaining release gates
@@ -72,7 +72,7 @@ The browser MVP is published and the TEST backend foundation has three active JW
 
 - [Live application](https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/)
 - [Repository](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system)
-- [Latest successful TEST-connected Pages workflow](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44860584113)
+- [Latest successful AI Studio TEST-connected Pages workflow](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44861095620)
 - [Architecture and delivery](ARCHITECTURE_AND_DELIVERY.md)
 - [Security audit](SECURITY_AUDIT.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
