@@ -62,6 +62,47 @@ if (hasUrl !== hasKey) {
   function field(label, name, type, required, value) {
     return '<label style="display:block;margin:9px 0">' + label + '<input name="' + name + '" type="' + (type || 'text') + '"' + (required ? ' required' : '') + ' value="' + safe(value || '') + '" style="display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:5px;border:1px solid #ccd9d0;border-radius:7px"></label>';
   }
+
+  // Keep unfinished AI form input for this signed-in user and workspace.
+  // sessionStorage avoids persisting potentially sensitive briefs beyond this tab session.
+  function aiFormDraftKey() {
+    return session?.user?.id && activeId ? 'bkbusicare-ai-form-v1:' + session.user.id + ':' + activeId : '';
+  }
+  function persistAiFormDraft(form) {
+    const key = aiFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const values = Object.fromEntries(new FormData(form).entries());
+      sessionStorage.setItem(key, JSON.stringify({ values, draft: aiDraft }));
+    } catch {
+      note('এই ব্রাউজারে AI ফর্মের খসড়া সাময়িকভাবে সংরক্ষণ করা যায়নি।', true);
+    }
+  }
+  function restoreAiFormDraft(form) {
+    const key = aiFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+      if (!saved || typeof saved !== 'object') return;
+      for (const [name, value] of Object.entries(saved.values || {})) {
+        const control = form.elements.namedItem(name);
+        if (control && typeof value === 'string') control.value = value;
+      }
+      if (saved.draft && typeof saved.draft.text === 'string' && saved.draft.text.trim()) {
+        aiDraft = {
+          text: saved.draft.text,
+          title: typeof saved.draft.title === 'string' ? saved.draft.title : '',
+          platform: typeof saved.draft.platform === 'string' ? saved.draft.platform : 'Facebook'
+        };
+        const output = root.querySelector('#ai-draft-output');
+        if (output) output.value = aiDraft.text;
+        const save = root.querySelector('[data-action="save-ai-draft"]');
+        if (save) save.disabled = false;
+      }
+    } catch {
+      // Ignore malformed or unavailable session storage; the form remains usable.
+    }
+  }
   function authView(mode) {
     card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>আপনার workspace-এ নিরাপদে প্রবেশ করুন।</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
     root.querySelector('#auth-form').onsubmit = async e => {
@@ -131,8 +172,24 @@ if (hasUrl !== hasKey) {
     }
     card('<header style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>BK-BusiCare · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div><button type="button" id="logout">Sign out</button></header><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
-    root.querySelector('#workspace-select').onchange = async e => { activeId=e.target.value; await refresh(); };
-    root.querySelectorAll('[data-page]').forEach(b => b.onclick = () => { page=b.dataset.page; portalView(); bindDataActions(); });
+    root.querySelector('#workspace-select').onchange = async e => {
+      persistAiFormDraft(root.querySelector('#ai-content-form'));
+      activeId=e.target.value;
+      aiDraft = null;
+      await refresh();
+    };
+    const currentAiForm = root.querySelector('#ai-content-form');
+    if (currentAiForm) {
+      restoreAiFormDraft(currentAiForm);
+      currentAiForm.addEventListener('input', () => persistAiFormDraft(currentAiForm));
+      currentAiForm.addEventListener('change', () => persistAiFormDraft(currentAiForm));
+    }
+    root.querySelectorAll('[data-page]').forEach(b => b.onclick = () => {
+      persistAiFormDraft(root.querySelector('#ai-content-form'));
+      page=b.dataset.page;
+      portalView();
+      bindDataActions();
+    });
     if (page === 'Team') loadMembers();
     bindDataActions();
   }
@@ -180,6 +237,7 @@ if (hasUrl !== hasKey) {
         if (result.error || result.data?.error) throw new Error(result.data?.error || result.error?.message || 'AI generation failed');
         if (typeof result.data?.text !== 'string' || !result.data.text.trim()) throw new Error('AI provider returned an empty draft');
         aiDraft = { text: result.data.text.trim(), title: payload.topic.slice(0,200), platform: payload.platform };
+        persistAiFormDraft(aiForm);
         const output = root.querySelector('#ai-draft-output');
         if (output) output.value = aiDraft.text;
         const save = root.querySelector('[data-action="save-ai-draft"]');
@@ -199,6 +257,8 @@ if (hasUrl !== hasKey) {
       const result = await supabase.from('content_items').insert(payload);
       if (result.error) { saveAi.disabled = false; note(result.error.message, true); return; }
       aiDraft = null;
+      const draftKey = aiFormDraftKey();
+      if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
       note('AI draft Content Planner-এ সংরক্ষিত হয়েছে।');
       await refresh();
     };
@@ -301,7 +361,9 @@ if (hasUrl !== hasKey) {
   async function logout() {
     const r = await supabase.auth.signOut();
     if (r.error) { note(r.error.message,true); return; }
-    session = null; workspaces = []; activeId = ''; leads = []; contentItems = []; authView('login');
+    const draftKey = aiFormDraftKey();
+    if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
+    session = null; workspaces = []; activeId = ''; leads = []; contentItems = []; aiDraft = null; authView('login');
   }
   let passwordRecoveryPending = false;
   supabase.auth.onAuthStateChange((event,next) => {

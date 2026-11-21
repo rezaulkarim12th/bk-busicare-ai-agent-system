@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, origin || "null");
   if (!origin || !configuredOrigins.includes(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
-  const token = (req.headers.get("authorization") ?? "").match(/^Bearer\\s+(.+)$/i)?.[1];
+  const token = (req.headers.get("authorization") ?? "").match(/^Bearer\s+(.+)$/i)?.[1];
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -97,7 +97,7 @@ Deno.serve(async (req: Request) => {
     "Do not publish, message users, spend money, or invoke tools.",
     `Platform: ${platform}`, `Topic: ${topic}`, `Audience: ${audience}`, `Objective: ${objective}`,
     `Offer or verified facts: ${offer || "Not provided"}`,
-  ].join("\\n");
+  ].join("\n");
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
     const output = Array.isArray(result.output) ? result.output : [];
     const text = output.flatMap((item: Record<string, unknown>) => item.type === "message" && Array.isArray(item.content) ? item.content : [])
       .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
-      .map((item: Record<string, unknown>) => item.text as string).join("\\n").trim();
+      .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
     if (!text) return json({ error: "AI provider returned no text" }, 502, origin);
     return json({ text, provider: "openai", published: false }, 200, origin);
   } catch (error) {
