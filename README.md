@@ -65,3 +65,12 @@ The GitHub Actions workflow builds pull requests and deploys to GitHub Pages onl
 ## Security and release rules
 
 The GitHub repository is public. Do not commit credentials, customer data or backups. Require live database security tests and explicit owner approval before merging or deploying. External publishing, customer messaging, CRM mutations and ad spend must remain behind human approval.
+
+
+## Brand assets
+
+- `public/bk-busicare-horizontal-logo.svg` — BK-BusiCare public website and workspace header.
+- `public/busicare-app-icon.svg` — BusiCare in-app identity / square app mark.
+- `public/brand-demo.html` — responsive brand experience preview.
+
+The profile portrait in the demo remains an initials placeholder until the owner-provided photo is added to the repository. The vector marks are clean implementation assets and should be replaced with the approved original logo artwork if pixel-perfect brand matching is required.
