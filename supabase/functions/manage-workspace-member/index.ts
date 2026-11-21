@@ -6,6 +6,30 @@ const allowedOrigins = new Set(
     .map((origin) => origin.trim())
     .filter(Boolean)
 );
+const MAX_BODY_BYTES = 12_000;
+async function readJsonObject(req: Request): Promise<Record<string, unknown> | null | undefined> {
+  const declaredLength = Number(req.headers.get('content-length') || '0');
+  if (declaredLength > MAX_BODY_BYTES) return null;
+  const reader = req.body?.getReader();
+  if (!reader) return undefined;
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_BODY_BYTES) { await reader.cancel(); return null; }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  let parsed: unknown;
+  try { parsed = JSON.parse(new TextDecoder().decode(bytes)); } catch { return undefined; }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined;
+  return parsed as Record<string, unknown>;
+}
+
 const responseHeaders = (origin = '') => {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
@@ -46,8 +70,9 @@ Deno.serve(async (req: Request) => {
   const { data: authData, error: authError } = await userClient.auth.getUser(token);
   if (authError || !authData.user) return json(401, { error: 'Invalid or expired session' }, origin);
 
-  let input: Record<string, unknown>;
-  try { input = await req.json(); } catch { return json(400, { error: 'Invalid JSON body' }, origin); }
+  const input = await readJsonObject(req);
+  if (input === null) return json(413, { error: 'Request too large' }, origin);
+  if (!input) return json(400, { error: 'Invalid JSON object' }, origin);
   const action = input.action;
   const workspaceId = typeof input.workspace_id === 'string' ? input.workspace_id : '';
   const role = typeof input.role === 'string' ? input.role : '';
