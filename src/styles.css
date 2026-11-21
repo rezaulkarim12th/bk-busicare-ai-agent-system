@@ -54,3 +54,156 @@ footer{border-top:1px solid #e7eee9;margin-top:26px;padding-top:18px}
 /* Store catalogue preview: demo-only, no checkout or real inventory */
 .store-toolbar{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px}.store-toolbar h3{margin:0}.store-toolbar p{margin:4px 0 0}.store-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.store-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 5px 18px #1c392b08}.store-art{height:110px;border-radius:10px;background:linear-gradient(135deg,#102f25,#28704c);display:grid;place-items:center;color:#e2c77c;font-weight:800;font-size:30px;letter-spacing:-2px;margin-bottom:12px}.store-card h3{font-size:14px;margin:10px 0 6px}.store-card p{font-size:11px;line-height:1.6;color:#718078;min-height:54px}.store-meta{display:flex;justify-content:space-between;align-items:center;margin:12px 0}.store-meta small{font-size:10px;color:#87958d}.store-cart{margin-top:18px}.store-quantity{display:flex;align-items:center;justify-content:center;gap:12px}.store-quantity button{width:28px;height:28px;border:1px solid #dce8df;background:#f4f8f5;border-radius:7px;color:#245a3e;font-size:17px}.store-cart>.primary:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:850px){.store-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.store-grid{grid-template-columns:1fr}.store-card p{min-height:0}.store-toolbar{align-items:flex-start}}
+
+
+/* BK-BusiCare Premium Corporate Design System — Navy / Gold / Ivory */
+:root{
+  color-scheme:light;
+  --ink:#14243a;
+  --muted:#6d7785;
+  --line:#e7e1d5;
+  --surface:#ffffff;
+  --canvas:#f6f4ef;
+  --navy:#0b1d34;
+  --navy-2:#142d4b;
+  --navy-3:#203c5e;
+  --gold:#d7ad55;
+  --gold-light:#f4dda0;
+  --gold-pale:#fbf4e3;
+  --green:#176344;
+  --green-dark:#102f25;
+  --mint:#d9f1e2;
+  font-family:Inter,Arial,sans-serif;
+}
+html{background:var(--canvas)}
+body,.layout{background:var(--canvas);color:var(--ink)}
+.sidebar{
+  background:linear-gradient(180deg,#091a30 0%,#102944 58%,#142f50 100%);
+  color:#edf1f6;box-shadow:8px 0 28px #07172a1a
+}
+.brand{padding-bottom:27px}
+.logo,.avatar{
+  background:linear-gradient(145deg,#fff7df,#dfb75e);
+  color:#10243e;border:1px solid #e8c977;
+  box-shadow:0 5px 15px #0003
+}
+.brand b{font-size:16px;letter-spacing:-.3px;color:#fff}
+.brand small{color:#c8d2df}
+.workspace{border-top-color:#ffffff20;color:#b9c6d6}
+.workspace strong{color:#fff}
+.nav{color:#c8d2df;border:1px solid transparent}
+.nav:hover{background:#ffffff12;color:#fff;transform:translateX(2px)}
+.nav.active{
+  background:linear-gradient(100deg,#f5d88f,#d5a947);
+  color:#10243e;box-shadow:0 5px 16px #0002;border-color:#f7e5b5;font-weight:750
+}
+.nav.active span{color:#10243e}
+.side-foot{color:#b4c1d0}
+.status-dot{background:#e0bd69;box-shadow:0 0 0 3px #e0bd6925}
+.main{max-width:1540px;padding:32px 42px}
+header{border-bottom:1px solid #e6dfd2;padding-bottom:18px;margin-bottom:27px}
+.eyebrow{color:#7a6a4b;letter-spacing:1.8px;font-weight:800}
+h1{font-size:30px;letter-spacing:-1px;color:var(--navy);font-weight:800}
+h2,h3{color:var(--navy)}
+.user{background:#fff;border:1px solid var(--line);box-shadow:0 4px 15px #172c4410}
+.avatar{background:linear-gradient(145deg,#fff8e8,#efd28b);border-color:#e6c36e}
+.welcome{
+  position:relative;isolation:isolate;min-height:174px;padding:30px 32px;
+  background:radial-gradient(ellipse at 84% 15%,#d8ad5530,transparent 30%),
+  linear-gradient(112deg,#091a30 0%,#102b4b 58%,#1b3b5c 100%);
+  border:1px solid #b98e3e;border-radius:18px;color:#fff;
+  box-shadow:0 14px 32px #0c21351c
+}
+.welcome:after{
+  content:"";position:absolute;z-index:-1;right:-35px;top:-90px;width:230px;height:230px;
+  border:1px solid #e4bd6b55;border-radius:50%;
+  box-shadow:0 0 0 18px #e4bd6b0d,0 0 0 38px #e4bd6b0a
+}
+.welcome .eyebrow,.welcome .light{color:var(--gold-light)}
+.welcome h2{max-width:650px;color:#fff;font-size:29px;line-height:1.18;letter-spacing:-.8px}
+.welcome p{color:#d8e0e9;font-size:13px;line-height:1.7}
+.welcome-mark{font-size:76px;letter-spacing:-7px;color:#e4c77935;text-shadow:0 8px 25px #0004}
+.stats{gap:16px;margin:20px 0 30px}
+.stat,.panel{
+  background:#fff;border:1px solid #e8e1d5;border-radius:15px;
+  box-shadow:0 6px 20px #172c4409
+}
+.stat{position:relative;padding:21px;overflow:hidden}
+.stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f0d58f,#bd8e35)}
+.stat span{font-weight:700;color:#536174}
+.stat strong{color:var(--navy);font-size:28px;letter-spacing:-.8px}
+.stat small{color:#788393}
+.stat:hover{transform:translateY(-2px);box-shadow:0 12px 25px #172c4415}
+.section-head{margin:27px 0 14px}
+.section-head p,.muted{color:var(--muted)}
+.primary{
+  color:#13243b;background:linear-gradient(135deg,#f5df9e,#d5a746);
+  border:1px solid #d1a246;box-shadow:0 5px 13px #b88b3926;font-weight:800
+}
+.primary:hover{background:linear-gradient(135deg,#f8e7b7,#c99a3c);color:#10223a;transform:translateY(-1px)}
+.secondary{color:#18324f;background:#f8f5ed;border:1px solid #e6d8b9}
+.secondary:hover{background:#f3ead5}
+.table-wrap{border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 18px #172c4408}
+th{background:#f8f6f1;color:#74664d}
+td,th{border-bottom:1px solid #eee9df}
+tbody tr:hover{background:#fdfbf6}
+.pill{background:#f8f0dc;color:#75551c;border:1px solid #efe0b9;font-weight:750}
+.notice{background:linear-gradient(110deg,#f7f1e3,#fcfaf5);border:1px solid #e9dcbf;border-radius:13px}
+.notice p{color:#6d6a61}
+.board{gap:14px}
+.stage{background:#f0eee8;border:1px solid #e5dfd2;border-radius:13px}
+.stage-title{color:var(--navy)}
+.deal{border:1px solid #e9e2d5;box-shadow:0 4px 12px #172c4408}
+.deal select{background:#fbfaf7;border-color:#e7dfd1}
+.content-card{border:1px solid var(--line);border-radius:13px;box-shadow:0 4px 14px #172c4408}
+.form,.panel{border-radius:15px}
+.form input,.form select,.panel input,.filters input,.filters select,.deal select{
+  border-color:#e4ddcf;background:#fffdfa;color:#24344a
+}
+.form input:focus,.form select:focus,.panel input:focus,.filters input:focus,.filters select:focus{
+  border-color:#c49a48;box-shadow:0 0 0 3px #d7ad5526
+}
+.bar{background:#eee9de}.bar i{background:linear-gradient(90deg,#c89b43,#efd58d)}
+.planner-nav,.planner-tab,.planner-module-head,.store-card,.store-cart{
+  border-color:#e8e0d2
+}
+.planner-tab{background:#faf8f3;color:#213750}
+.planner-tab.active{background:#f8f0dc;border-color:#d8bb78;box-shadow:inset 3px 0 #c49a48}
+.planner-tab small{color:#747d88}
+.planner-items li{color:#59677a}
+#planner-brief-output,#copilot-output{background:#fbfaf7;border-color:#e6dece;color:#263a52}
+.store-art{background:linear-gradient(135deg,#0a1d34,#1c3b5c);color:#f0d38a}
+.store-card{box-shadow:0 6px 18px #172c4409}
+.store-quantity button{background:#f8f3e7;border-color:#e7d7b2;color:#5d481e}
+.text-btn{color:#9b4848}
+.empty-panel{background:#fcfbf8;border-color:#ded5c3}
+footer{border-top:1px solid #e7dfd1;color:#8a8477}
+@media(max-width:850px){
+  .sidebar{width:205px}
+  .main{padding:24px}
+}
+@media(max-width:600px){
+  .sidebar{position:relative;height:auto;padding:12px 12px 10px}
+  .brand{padding:0 5px 12px}
+  .sidebar nav{display:flex;overflow-x:auto;gap:5px;margin:0;padding-bottom:4px;scrollbar-width:none}
+  .sidebar nav::-webkit-scrollbar{display:none}
+  .nav{white-space:nowrap;padding:9px 10px;font-size:11px;border-radius:9px}
+  .nav span{width:18px}
+  .nav.active{box-shadow:inset 0 -2px #fff1c8}
+  .main{padding:16px 13px}
+  header{padding-bottom:14px;margin-bottom:18px}
+  h1{font-size:24px}
+  .welcome{min-height:145px;padding:21px 19px;border-radius:14px}
+  .welcome h2{font-size:21px;max-width:85%}
+  .welcome p{font-size:12px;max-width:88%}
+  .welcome-mark{font-size:48px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0 22px}
+  .stats.compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{padding:14px;border-radius:12px}
+  .stat strong{font-size:21px}
+  .stat span{font-size:11px}
+  .stat small{font-size:10px;line-height:1.45}
+  .panel{padding:15px}
+  .section-head{align-items:flex-start}
+  footer{font-size:9px;gap:10px}
+}
