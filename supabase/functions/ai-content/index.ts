@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, origin || "null");
   if (!origin || !configuredOrigins.includes(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
-  const token = (req.headers.get("authorization") ?? "").match(/^Bearer\\s+(.+)$/i)?.[1];
+  const token = (req.headers.get("authorization") ?? "").match(/^Bearer\s+(.+)$/i)?.[1];
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -97,7 +97,7 @@ Deno.serve(async (req: Request) => {
     "Do not publish, message users, spend money, or invoke tools.",
     `Platform: ${platform}`, `Topic: ${topic}`, `Audience: ${audience}`, `Objective: ${objective}`,
     `Offer or verified facts: ${offer || "Not provided"}`,
-  ].join("\\n");
+  ].join("\n");
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
