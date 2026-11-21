@@ -34,6 +34,62 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate form { min-width:0; }
     }
   `;
+  responsiveStyle.textContent += `
+    /* Premium reference-inspired styling for the authenticated workspace portal. */
+    #bk-secure-gate { background:#f3f5f8 !important; color:#14243b !important; }
+    #bk-secure-gate > div {
+      max-width:1100px !important; padding:22px !important;
+      border:1px solid #e4e8ef !important; border-radius:24px !important;
+      box-shadow:0 16px 44px #10254216 !important;
+    }
+    #bk-secure-gate header {
+      background:linear-gradient(120deg,#081a33,#17395f) !important;
+      border:1px solid #c9a24f !important; border-radius:20px !important;
+      padding:22px !important; color:#fff !important;
+    }
+    #bk-secure-gate header b { color:#fff !important; font-size:20px; }
+    #bk-secure-gate header p { color:#d7e1ee !important; }
+    #bk-secure-gate hr { border:0; border-top:1px solid #e4e8ef; margin:20px 0; }
+    #bk-secure-gate nav[style] {
+      display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+      gap:10px !important; margin:18px 0 22px !important;
+      padding:12px !important; border:1px solid #e5e8ef !important;
+      border-radius:20px !important; background:#fafbfd !important;
+    }
+    #bk-secure-gate nav[style] button {
+      min-height:66px !important; margin:0 !important; padding:12px 10px !important;
+      border:1px solid #c49a43 !important; border-radius:15px !important;
+      background:linear-gradient(135deg,#f4e2b1,#d0a650) !important;
+      color:#102542 !important; font-weight:750 !important; font-size:14px !important;
+      box-shadow:0 5px 14px #10254212 !important;
+    }
+    #bk-secure-gate nav[style] button[style*="background"] {
+      background:linear-gradient(135deg,#102b4b,#081a33) !important;
+      border-color:#c9a24f !important; color:#f5e4b8 !important;
+      box-shadow:inset 0 0 0 1px #c9a24f55,0 6px 16px #10254222 !important;
+    }
+    #bk-secure-gate button {
+      border-radius:13px !important; font-weight:700 !important;
+      border-color:#c49a43 !important;
+    }
+    #bk-secure-gate input,#bk-secure-gate select,#bk-secure-gate textarea {
+      border:1px solid #d9e0e9 !important; border-radius:12px !important;
+      background:#fff !important; color:#182b45 !important; padding:12px !important;
+    }
+    #bk-secure-gate h2 { color:#102542 !important; font-weight:800 !important; }
+    #bk-secure-gate table th { background:#f3f6fa; color:#52657d; }
+    #bk-secure-gate table td { border-bottom-color:#e6ebf1; }
+    @media(max-width:640px) {
+      #bk-secure-gate { padding:10px !important; }
+      #bk-secure-gate > div { padding:14px !important; border-radius:19px !important; }
+      #bk-secure-gate nav[style] { gap:8px !important; padding:9px !important; }
+      #bk-secure-gate nav[style] button { min-height:62px !important; font-size:12px !important; }
+      #bk-secure-gate header { padding:18px !important; }
+    }
+    @media(max-width:360px) {
+      #bk-secure-gate nav[style] { grid-template-columns:1fr !important; }
+    }
+  `;
   root.appendChild(responsiveStyle);
 
   let session = null;
