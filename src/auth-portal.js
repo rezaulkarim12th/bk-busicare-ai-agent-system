@@ -75,7 +75,7 @@ if (hasUrl !== hasKey) {
       const values = Object.fromEntries(new FormData(form).entries());
       sessionStorage.setItem(key, JSON.stringify({ values, draft: aiDraft }));
     } catch {
-      note('এই ব্রাউজারে AI ফর্মের খসড়া সাময়িকভাবে সংরক্ষণ করা যায়নি।', true);
+      note('এই ব্রাউজারে AI ফর্মের খসড়া সাময়িকভাবে Save করা যায়নি।', true);
     }
   }
   function restoreAiFormDraft(form) {
@@ -104,14 +104,14 @@ if (hasUrl !== hasKey) {
     }
   }
   function authView(mode) {
-    card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>আপনার workspace-এ নিরাপদে প্রবেশ করুন।</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
+    card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>Securely access your workspace.</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
     root.querySelector('#auth-form').onsubmit = async e => {
       e.preventDefault();
       const f = new FormData(e.currentTarget);
       const email = String(f.get('email')).trim();
       const password = String(f.get('password') || '');
       try {
-        if (mode === 'signup' && password.length < 12) return note('Password কমপক্ষে ১২ অক্ষরের হতে হবে।',true);
+        if (mode === 'signup' && password.length < 12) return note('Password must be at least 12 characters long.',true);
         if (mode === 'login') {
           const r = await supabase.auth.signInWithPassword({ email, password });
           if (r.error) throw r.error;
@@ -148,10 +148,10 @@ if (hasUrl !== hasKey) {
     contentItems = c.data || [];
   }
   function leadRows() {
-    return leads.map(l => '<tr><td data-label="Name"><b>' + safe(l.name) + '</b><br><small>' + safe(l.company) + ' · ' + safe(l.phone) + ' · ' + safe(l.email) + '</small></td><td data-label="Service">' + safe(l.service) + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(l.status):'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Value">৳' + Number(l.value || 0).toLocaleString('en-BD') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Lead নেই।</td></tr>';
+    return leads.map(l => '<tr><td data-label="Name"><b>' + safe(l.name) + '</b><br><small>' + safe(l.company) + ' · ' + safe(l.phone) + ' · ' + safe(l.email) + '</small></td><td data-label="Service">' + safe(l.service) + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(l.status):'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Value">৳' + Number(l.value || 0).toLocaleString('en-BD') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">No leads yet.</td></tr>';
   }
   function contentRows() {
-    return contentItems.map(c => '<tr><td data-label="Title"><b>' + safe(c.title) + '</b><br><small>' + safe(c.body) + '</small></td><td data-label="Platform">' + safe(c.platform) + '</td><td data-label="Schedule">' + safe(c.scheduled_at || 'Not scheduled') + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(c.status):'<select data-content-status="' + safe(c.id) + '">' + ['Draft','Needs approval','Approved','Scheduled','Published','Failed'].map(s => '<option' + (c.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-content',' data-id="' + safe(c.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-content',' data-id="' + safe(c.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">এখনো কোনো Content item নেই।</td></tr>';
+    return contentItems.map(c => '<tr><td data-label="Title"><b>' + safe(c.title) + '</b><br><small>' + safe(c.body) + '</small></td><td data-label="Platform">' + safe(c.platform) + '</td><td data-label="Schedule">' + safe(c.scheduled_at || 'Not scheduled') + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(c.status):'<select data-content-status="' + safe(c.id) + '">' + ['Draft','Needs approval','Approved','Scheduled','Published','Failed'].map(s => '<option' + (c.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-content',' data-id="' + safe(c.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-content',' data-id="' + safe(c.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">No content items yet.</td></tr>';
   }
   function portalView() {
     const w = workspaces.find(x => x.id === activeId);
@@ -160,13 +160,13 @@ if (hasUrl !== hasKey) {
     const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team'];
     let body = '';
     if (page === 'Dashboard') {
-      body = '<h2>Workspace Overview</h2><div style="display:flex;gap:14px;flex-wrap:wrap"><div style="padding:18px;background:#edf5f0;border-radius:10px">Total Leads<br><strong style="font-size:28px">' + leads.length + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Open Pipeline<br><strong style="font-size:28px">৳' + leads.filter(x=>!['Won','Lost'].includes(x.status)).reduce((a,x)=>a+Number(x.value||0),0).toLocaleString('en-BD') + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Content Items<br><strong style="font-size:28px">' + contentItems.length + '</strong></div></div><p>আপনার ডেটা Supabase Cloud-এ Workspace RLS দ্বারা সীমাবদ্ধ।</p>';
+      body = '<h2>Workspace Overview</h2><div style="display:flex;gap:14px;flex-wrap:wrap"><div style="padding:18px;background:#edf5f0;border-radius:10px">Total Leads<br><strong style="font-size:28px">' + leads.length + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Open Pipeline<br><strong style="font-size:28px">৳' + leads.filter(x=>!['Won','Lost'].includes(x.status)).reduce((a,x)=>a+Number(x.value||0),0).toLocaleString('en-BD') + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Content Items<br><strong style="font-size:28px">' + contentItems.length + '</strong></div></div><p>Your data is isolated in Supabase Cloud by workspace-level Row Level Security (RLS).</p>';
     } else if (page === 'Leads') {
       body = '<h2>Lead Management</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="lead-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Name','name','text',true,'') + field('Company','company','text',false,'') + field('Service','service','text',false,'Digital Marketing') + field('Phone','phone','tel',false,'') + field('Email','email','email',false,'') + field('Value (BDT)','value','number',false,'0') + field('Follow-up date','follow_up','date',false,'') + '<label style="grid-column:1/-1">Notes<textarea name="notes" maxlength="4000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Lead</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>' + leadRows() + '</tbody></table></div>';
     } else if (page === 'Content Planner') {
-      body = '<h2>Content Planner</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Title','title','text',true,'') + field('Platform','platform','text',true,'Facebook') + field('Schedule (ISO date/time)','scheduled_at','datetime-local',false,'') + '<label style="grid-column:1/-1">Content<textarea name="body" maxlength="10000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Content</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div><p>এখানে Content পরিকল্পনা সংরক্ষিত হয়; স্বয়ংক্রিয়ভাবে সামাজিক মাধ্যমে প্রকাশ হয় না।</p>';
+      body = '<h2>Content Planner</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Title','title','text',true,'') + field('Platform','platform','text',true,'Facebook') + field('Schedule (ISO date/time)','scheduled_at','datetime-local',false,'') + '<label style="grid-column:1/-1">Content<textarea name="body" maxlength="10000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Content</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div><p>Content plans are saved here; they are not automatically published to social media.</p>';
     } else if (page === 'AI Content Studio') {
-      body = '<h2>AI Content Studio</h2><p>শুধু authenticated workspace সদস্যরা draft তৈরি করতে পারবেন। AI কোনো পোস্ট প্রকাশ বা কাউকে message পাঠায় না।</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><label>Topic *<input name="topic" maxlength="500" required style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Platform<select name="platform" style="display:block;width:100%;padding:10px;margin-top:5px"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label style="grid-column:1/-1">Offer / verified facts<textarea name="offer" maxlength="300" style="display:block;width:100%;padding:10px;margin-top:5px"></textarea></label><button style="grid-column:1/-1">Generate AI draft</button></form>') + '<label style="display:block;margin-top:16px">Generated draft<textarea id="ai-draft-output" rows="12" readonly style="display:block;width:100%;padding:12px;margin-top:5px;box-sizing:border-box">' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output একটি খসড়া। প্রকাশের আগে তথ্য যাচাই ও মানবীয় অনুমোদন প্রয়োজন।</p>';
+      body = '<h2>AI Content Studio</h2><p>শুধু authenticated workspace সদস্যরা draft তৈরি করতে পারবেন। AI does not publish posts or send messages to anyone.</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><label>Topic *<input name="topic" maxlength="500" required style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Platform<select name="platform" style="display:block;width:100%;padding:10px;margin-top:5px"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label style="grid-column:1/-1">Offer / verified facts<textarea name="offer" maxlength="300" style="display:block;width:100%;padding:10px;margin-top:5px"></textarea></label><button style="grid-column:1/-1">Generate AI draft</button></form>') + '<label style="display:block;margin-top:16px">Generated draft<textarea id="ai-draft-output" rows="12" readonly style="display:block;width:100%;padding:12px;margin-top:5px;box-sizing:border-box">' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output is a draft. Verify the information and obtain human approval before publishing.</p>';
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
@@ -242,7 +242,7 @@ if (hasUrl !== hasKey) {
         if (output) output.value = aiDraft.text;
         const save = root.querySelector('[data-action="save-ai-draft"]');
         if (save) save.disabled = false;
-        note('AI draft তৈরি হয়েছে। যাচাই করে Save draft চাপুন।');
+        note('AI draft generated. Review it and select Save Draft.');
       } catch (err) {
         note(err.message || 'AI generation unavailable. TEST provider configuration পরীক্ষা করুন।', true);
       } finally {
@@ -259,7 +259,7 @@ if (hasUrl !== hasKey) {
       aiDraft = null;
       const draftKey = aiFormDraftKey();
       if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
-      note('AI draft Content Planner-এ সংরক্ষিত হয়েছে।');
+      note('AI draft saved to Content Planner.');
       await refresh();
     };
     const inviteForm = root.querySelector('#invite-form');
@@ -277,7 +277,7 @@ if (hasUrl !== hasKey) {
       e.preventDefault();
       const f = new FormData(lf);
       const payload = {workspace_id:activeId,name:String(f.get('name')).trim(),company:String(f.get('company')||'').trim(),service:String(f.get('service')||'').trim(),phone:String(f.get('phone')||'').trim(),email:String(f.get('email')||'').trim(),value:Math.max(0,Number(f.get('value')||0)),follow_up:f.get('follow_up')||null,notes:String(f.get('notes')||'').trim(),created_by:session.user.id};
-      if (!payload.name || !Number.isFinite(payload.value)) return note('Name এবং সঠিক Value দিন।',true);
+      if (!payload.name || !Number.isFinite(payload.value)) return note('Enter a name and a valid value.',true);
       const r = await supabase.from('leads').insert(payload);
       if (r.error) return note(r.error.message,true);
       await refresh();
@@ -287,7 +287,7 @@ if (hasUrl !== hasKey) {
       e.preventDefault();
       const f = new FormData(cf);
       const payload = {workspace_id:activeId,title:String(f.get('title')).trim(),platform:String(f.get('platform')).trim(),body:String(f.get('body')||'').trim(),scheduled_at:f.get('scheduled_at')?new Date(f.get('scheduled_at')).toISOString():null,created_by:session.user.id,status:'Draft'};
-      if (!payload.title || !payload.platform) return note('Title ও Platform দিন।',true);
+      if (!payload.title || !payload.platform) return note('Enter a title and platform.',true);
       const r = await supabase.from('content_items').insert(payload);
       if (r.error) return note(r.error.message,true);
       await refresh();
@@ -301,7 +301,7 @@ if (hasUrl !== hasKey) {
       if (r.error) note(r.error.message,true); else await refresh();
     });
     root.querySelectorAll('[data-action="delete-lead"],[data-action="delete-content"]').forEach(b => b.onclick = async () => {
-      if (!confirm('এই record স্থায়ীভাবে মুছবেন?')) return;
+      if (!confirm('Permanently delete this record?')) return;
       const table = b.dataset.action === 'delete-lead' ? 'leads' : 'content_items';
       const r = await supabase.from(table).delete().eq('id',b.dataset.id).eq('workspace_id',activeId);
       if (r.error) note(r.error.message,true); else await refresh();
@@ -328,7 +328,7 @@ if (hasUrl !== hasKey) {
     try {
       await loadWorkspaces();
       if (!workspaces.length) {
-        card('<b>BK-BusiCare · Workspace Setup</b><h2>Create your workspace</h2><p>আপনাকে Owner হিসেবে যুক্ত করা হবে।</p><form id="workspace-form">' + field('Workspace name','name','text',true,'') + '<button>Create workspace</button></form><p data-note></p><button id="logout">Sign out</button>');
+        card('<b>BK-BusiCare · Workspace Setup</b><h2>Create your workspace</h2><p>You will be assigned the Owner role.</p><form id="workspace-form">' + field('Workspace name','name','text',true,'') + '<button>Create workspace</button></form><p data-note></p><button id="logout">Sign out</button>');
         root.querySelector('#workspace-form').onsubmit = async e => {
           e.preventDefault();
           const name = String(new FormData(e.currentTarget).get('name')).trim();
@@ -352,7 +352,7 @@ if (hasUrl !== hasKey) {
     root.querySelector('#new-password').onsubmit = async e => {
       e.preventDefault();
       const password = String(new FormData(e.currentTarget).get('password') || '');
-      if (password.length < 12) return note('Password কমপক্ষে ১২ অক্ষরের হতে হবে।',true);
+      if (password.length < 12) return note('Password must be at least 12 characters long.',true);
       const result = await supabase.auth.updateUser({ password });
       if (result.error) { note(result.error.message,true); return; }
       note('Password updated successfully.');
