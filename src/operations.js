@@ -55,6 +55,6 @@ export function recommendNextAction(lead) {
     case 'Proposal': return 'Request feedback on the proposal and address objections';
     case 'Won': return 'Begin client onboarding and project planning';
     case 'Lost': return 'Record the reason for the loss and consider future follow-up';
-    default: return 'লিডের Status যাচাই করুন';
+    default: return 'Review the lead status';
   }
 }
