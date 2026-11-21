@@ -47,7 +47,7 @@ if (hasUrl !== hasKey) {
       border:1px solid #c9a24f !important; border-radius:20px !important;
       padding:22px !important; color:#fff !important;
     }
-    #bk-secure-gate header b { color:#fff !important; font-size:20px; }
+    #bk-secure-gate header b { color:#fff !important; font-size:20px; letter-spacing:-.2px; }
     #bk-secure-gate header p { color:#d7e1ee !important; }
     #bk-secure-gate hr { border:0; border-top:1px solid #e4e8ef; margin:20px 0; }
     #bk-secure-gate nav[style] {
@@ -64,9 +64,9 @@ if (hasUrl !== hasKey) {
       box-shadow:0 5px 14px #10254212 !important;
     }
     #bk-secure-gate nav[style] button[style*="background"] {
-      background:linear-gradient(135deg,#102b4b,#081a33) !important;
-      border-color:#c9a24f !important; color:#f5e4b8 !important;
-      box-shadow:inset 0 0 0 1px #c9a24f55,0 6px 16px #10254222 !important;
+      background:linear-gradient(135deg,#f4e2b1,#d0a650) !important;
+      border-color:#c9a24f !important; color:#102542 !important;
+      box-shadow:inset 0 0 0 1px #c9a24f33,0 6px 16px #10254212 !important;
     }
     #bk-secure-gate button {
       border-radius:13px !important; font-weight:700 !important;
@@ -85,6 +85,7 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate nav[style] { gap:8px !important; padding:9px !important; }
       #bk-secure-gate nav[style] button { min-height:62px !important; font-size:12px !important; }
       #bk-secure-gate header { padding:18px !important; }
+      #bk-secure-gate header b { font-size:18px !important; }
     }
     @media(max-width:360px) {
       #bk-secure-gate nav[style] { grid-template-columns:1fr !important; }
