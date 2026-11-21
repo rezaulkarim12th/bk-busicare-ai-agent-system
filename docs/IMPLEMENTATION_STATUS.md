@@ -36,7 +36,7 @@ The AI function validates the caller JWT, requires a valid workspace UUID, check
 - Request-body limits and JSON object validation are applied to workspace creation and member-management endpoints.
 - Regression tests cover AI portal wiring, server-side workspace authorization logic and bounded request parsing.
 - TEST database has eight migrations applied.
-- Latest verified GitHub Actions run [44886059909](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886059909): after aligning stale regression-test assertions with the current English UI and source copy, all build and deploy jobs completed successfully. The run includes dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment. The run includes dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment.
+- Latest verified GitHub Actions run [44886113136](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886113136) completed successfully after the implementation-status refresh. Both build and deploy jobs passed, including dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment.
 - Supabase Security Advisor currently reports one WARN: leaked-password protection is disabled. The BK-BusiCare Supabase organization is on the Free plan; Supabase documents this control as available on Pro and above. This is a provider-level Auth setting and cannot be cleared by a SQL migration or client-side check. Upgrade decision and dashboard enablement remain owner actions.
 
 ## Security and database observations
@@ -44,7 +44,6 @@ The AI function validates the caller JWT, requires a valid workspace UUID, check
 - All three deployed TEST Edge Functions have gateway JWT verification enabled.
 - Security Advisor reports one WARN for disabled leaked-password protection. The organization is currently on the Free plan; Supabase documents this feature as available on Pro and above. No SQL or browser-side change can truthfully substitute for this provider-level control.
 - Performance Advisor reports three INFO-level unused-index notices (`audit_events_actor_idx`, `leads_workspace_status_idx`, `audit_workspace_created_idx`). They were not removed because usage evidence is insufficient to justify a potentially harmful index change.
-- Performance Advisor reports three INFO-level unused-index notices. No indexes were removed because there is not enough workload evidence to justify removal.
 - Source-level and CI regression checks do not substitute for live API authorization tests or independent penetration testing.
 - No live two-user/two-workspace API isolation test has been completed.
 - No live signup, login, password recovery or invitation-email delivery test has been completed.
@@ -81,7 +80,7 @@ The AI function validates the caller JWT, requires a valid workspace UUID, check
 
 ## Release decision
 
-The browser MVP is published and the TEST backend foundation has three active JWT-protected Edge Functions. CI build/deploy is green and the Security Advisor reports zero lints. These facts do not certify production readiness. Live Auth, real multi-user isolation, AI provider activation, load testing, complete CRM/client operations, commerce, external integrations and production operations remain incomplete or unverified.
+The browser MVP is published and the TEST backend foundation has three active JWT-protected Edge Functions. CI build/deploy is green. The Security Advisor still reports one WARN for leaked-password protection being disabled; the Performance Advisor reports three INFO-level unused-index notices. These facts do not certify production readiness. Live Auth, real multi-user isolation, AI provider activation, load testing, complete CRM/client operations, commerce, external integrations and production operations remain incomplete or unverified.
 
 Do not load real customer data, enable checkout/payment, publish social content or spend advertising budget until the relevant gates pass and the owner approves.
 
