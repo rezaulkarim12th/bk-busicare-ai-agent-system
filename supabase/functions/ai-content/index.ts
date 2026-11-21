@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
     const output = Array.isArray(result.output) ? result.output : [];
     const text = output.flatMap((item: Record<string, unknown>) => item.type === "message" && Array.isArray(item.content) ? item.content : [])
       .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
-      .map((item: Record<string, unknown>) => item.text as string).join("\\n").trim();
+      .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
     if (!text) return json({ error: "AI provider returned no text" }, 502, origin);
     return json({ text, provider: "openai", published: false }, 200, origin);
   } catch (error) {
