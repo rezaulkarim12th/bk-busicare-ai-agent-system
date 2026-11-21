@@ -2,17 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildContentPrompt, validateCopilotText, getCopilotCapabilities } from '../src/copilot.js';
 
-test('builds a Bengali platform-specific prompt from bounded inputs', () => {
+test('builds an English platform-specific prompt from bounded inputs', () => {
   const prompt = buildContentPrompt({topic:'AI Marketing',platform:'Facebook',audience:'SME owners',offer:'Free consultation'});
-  assert.match(prompt,/প্ল্যাটফর্ম: Facebook/);
-  assert.match(prompt,/বিষয়: AI Marketing/);
+  assert.match(prompt,/Platform: Facebook/);
+  assert.match(prompt,/Topic: AI Marketing/);
   assert.match(prompt,/Free consultation/);
-  assert.match(prompt,/তথ্য উদ্ভাবন করবেন না/);
+  assert.match(prompt,/Do not invent facts/);
 });
 
 test('rejects missing topic and unsupported platform', () => {
-  assert.throws(()=>buildContentPrompt({platform:'Facebook'}),/বিষয়/);
-  assert.throws(()=>buildContentPrompt({topic:'SEO',platform:'Unknown'}),/প্ল্যাটফর্ম/);
+  assert.throws(()=>buildContentPrompt({platform:'Facebook'}),/content topic/i);
+  assert.throws(()=>buildContentPrompt({topic:'SEO',platform:'Unknown'}),/supported platform/i);
 });
 
 test('strips markup delimiters and bounds user-controlled prompt values', () => {
