@@ -41,3 +41,14 @@ test('AI endpoint parses standard Bearer authorization headers and joins prompt/
   assert.equal('Bearer eyJhbGciOiJIUzI1NiJ9'.match(bearerPattern)?.[1], 'eyJhbGciOiJIUzI1NiJ9');
   assert.equal('Bearer'.match(bearerPattern), null);
 });
+
+test('AI Content Studio saves and restores unfinished form drafts per workspace', async () => {
+  const source = await readFile(new URL('../src/auth-portal.js', import.meta.url), 'utf8');
+  assert.ok(source.includes('sessionStorage.setItem(key'));
+  assert.ok(source.includes('sessionStorage.getItem(key'));
+  assert.ok(source.includes('persistAiFormDraft(root.querySelector(\'#ai-content-form\'))'));
+  assert.ok(source.includes("currentAiForm.addEventListener('input'"));
+  assert.ok(source.includes("currentAiForm.addEventListener('change'"));
+  assert.ok(source.includes('bkbusicare-ai-form-v1:'));
+  assert.ok(source.includes('sessionStorage.removeItem(draftKey)'));
+});
