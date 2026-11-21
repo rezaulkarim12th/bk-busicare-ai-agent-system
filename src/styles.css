@@ -573,3 +573,98 @@ footer{color:#8791a0}
   .page-subnav{gap:5px;padding:7px}
   .subnav-item{font-size:10px;padding:8px 5px}
 }
+
+
+/* BK-BusiCare Premium Navy & Gold visual system — UI-only refresh.
+   Existing application logic, routes, forms and data attributes are intentionally untouched. */
+:root{
+  color-scheme:light;
+  --ink:#14243b;--muted:#69788d;--line:#e4e9f0;--surface:#ffffff;--canvas:#f4f6fa;
+  --green:#bd9440;--green-dark:#081a33;--mint:#f4ead2;
+  --bk-navy:#081a33;--bk-navy-2:#102a4c;--bk-gold:#c9a24f;--bk-gold-light:#f2dfad;
+}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:Inter,'Hind Siliguri',sans-serif}
+.layout,.main{background:var(--canvas)}
+.sidebar{
+  background:linear-gradient(180deg,#07172d 0%,#102b4b 100%);
+  color:#e8edf5;box-shadow:7px 0 28px #07172d18
+}
+.brand{align-items:center}
+.logo,.avatar{
+  background:linear-gradient(145deg,#f6e5b5,#c49a43);color:#10213a;
+  border:1px solid #f8e7ba;box-shadow:0 5px 16px #0003
+}
+.brand b{color:#fff;letter-spacing:-.25px}
+.brand small,.user small{color:#b9c6d7}
+.workspace{border-top-color:#ffffff22;color:#b7c5d8}
+.workspace strong{color:#fff}
+.sidebar nav{gap:7px}
+.nav{color:#c3cede;border:1px solid transparent;transition:all .18s ease}
+.nav span{color:#e0c27c}
+.nav.active,.nav:hover{
+  background:linear-gradient(90deg,#c69e4a2b,#c69e4a12);color:#fff;
+  border-color:#c69e4a55;box-shadow:inset 3px 0 #d7b568;transform:translateX(1px)
+}
+.side-foot{color:#b8c5d5}
+.status-dot{background:#d7b568;box-shadow:0 0 0 3px #d7b56822}
+.main{padding:32px 42px;max-width:1600px}
+header{border-bottom:1px solid var(--line);padding-bottom:19px;margin-bottom:24px}
+.eyebrow{color:#9b7935;letter-spacing:1.65px;font-size:9px}
+h1{color:#102542;font-size:29px;letter-spacing:-.8px;font-weight:800}
+h2{color:inherit;letter-spacing:-.55px}
+h3{color:#172b46;letter-spacing:-.2px}
+.user{background:#fff;border:1px solid var(--line);padding:7px 12px 7px 7px;border-radius:30px;box-shadow:0 4px 16px #1025420a}
+.user b{color:#1b2e49}
+.welcome{
+  background:radial-gradient(circle at 82% 15%,#f3d99128,transparent 27%),linear-gradient(115deg,#081a33 0%,#15385e 100%);
+  border:1px solid #bd994e;box-shadow:0 14px 34px #0a1c3520;min-height:160px
+}
+.welcome .eyebrow,.eyebrow.light{color:#e6ca86}
+.welcome p{color:#d3deec}
+.welcome-mark{color:#f0d99b33;text-shadow:0 8px 24px #0003}
+.stats{gap:16px}
+.stat,.panel,.table-wrap,.content-card,.empty-panel{
+  border-color:#e2e8f0;border-radius:14px;box-shadow:0 5px 20px #10254209
+}
+.stat{background:linear-gradient(180deg,#fff,#fcfdff);padding:19px}
+.stat span,.stat small{color:#718096}
+.stat strong{color:#142b49;letter-spacing:-.6px}
+.stat:hover{border-color:#d5bd82;box-shadow:0 10px 24px #10254212}
+.panel{background:#fff}
+.primary{
+  background:linear-gradient(135deg,#cba653,#ad8231);color:#111f34;
+  border:1px solid #b78c3c;box-shadow:0 4px 12px #b78c3c22
+}
+.primary:hover{background:linear-gradient(135deg,#d9b96d,#bd9440)}
+.secondary{background:#f4eddf;color:#72551e;border:1px solid #eadbb9}
+.table-wrap{background:#fff}
+th{background:#f5f7fa;color:#63738a}
+td,th{border-bottom-color:#e9edf3}
+.pill{background:#f5eddc;color:#785d26;border:1px solid #ecdfc1}
+.bar i{background:linear-gradient(90deg,#b88d3c,#e0c77e)}
+.stage{background:#eef2f7}
+.deal{box-shadow:0 2px 8px #1025420b}
+.form input:focus,.form select:focus,.panel input:focus,.filters input:focus,.filters select:focus{
+  outline:2px solid #d7b56866;border-color:#bd9440
+}
+.form input,.form select,.panel input,.filters input,.filters select{
+  border-color:#dce3ec;color:#1b2e49;background:#fff
+}
+.notice{background:#faf6ec;border-color:#eadbb9;color:#554522}
+.notice p{color:#75633b}
+.report-row .pill{white-space:nowrap}
+.page-subnav{border-bottom-color:#e3e8ef}
+.subnav-item{color:#65758a}
+.subnav-item.active{color:#8b6827;border-bottom-color:#c49a43}
+footer{color:#8592a4;border-top:1px solid #e5eaf1}
+@media(max-width:850px){.main{padding:22px}}
+@media(max-width:600px){
+  .sidebar{background:linear-gradient(180deg,#07172d,#102b4b)}
+  .main{padding:17px 13px}
+  .welcome{min-height:130px}
+  h1{font-size:23px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
