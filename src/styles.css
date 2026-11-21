@@ -668,3 +668,161 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* Reference-led menu card system across every workspace page.
+   Presentation-only overrides; navigation data attributes and handlers stay unchanged. */
+:root{
+  --bk-card-radius:20px;
+  --bk-card-border:#e5e8ef;
+}
+.sidebar nav{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.sidebar .nav{
+  min-height:54px;
+  padding:13px 15px;
+  border:1px solid #ffffff1c;
+  border-radius:15px;
+  background:linear-gradient(145deg,#112e50,#0a1d36);
+  box-shadow:0 5px 14px #020c1a30;
+  font-weight:700;
+}
+.sidebar .nav span{
+  display:inline-grid;
+  place-items:center;
+  width:28px;height:28px;
+  border-radius:9px;
+  background:#f0d99b;
+  color:#102542;
+  font-size:16px;
+}
+.sidebar .nav.active,.sidebar .nav:hover{
+  background:linear-gradient(135deg,#f3dfa9,#c99e49);
+  border-color:#f8e8bb;
+  color:#102542;
+  box-shadow:0 7px 18px #0003;
+  transform:translateY(-1px);
+}
+.sidebar .nav.active span,.sidebar .nav:hover span{
+  background:#102542;color:#f4dfaa;
+}
+.page-subnav{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:11px;
+  padding:14px;
+  border:1px solid var(--bk-card-border);
+  border-radius:var(--bk-card-radius);
+  background:linear-gradient(180deg,#fff,#f8f9fc);
+  box-shadow:0 8px 24px #1025420c;
+}
+.subnav-item{
+  min-height:62px;
+  padding:12px 14px;
+  border:1px solid #e4e8ef;
+  border-radius:15px;
+  background:linear-gradient(145deg,#fff,#f5f7fb);
+  color:#1b2e49;
+  font-size:13px;
+  font-weight:750;
+  white-space:normal;
+  box-shadow:0 4px 12px #1025420a;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.subnav-item.active,.subnav-item:hover{
+  background:linear-gradient(135deg,#f5e5b9,#d4ad5c);
+  color:#102542;
+  border-color:#c49a43;
+  box-shadow:0 7px 16px #b88b3925;
+  transform:translateY(-2px);
+}
+.welcome{
+  border-radius:24px;
+  padding:28px;
+  overflow:hidden;
+}
+.stat,.panel,.store-card,.planner-module-head,.planner-nav{
+  border-radius:20px;
+}
+.stat{padding:22px;min-height:132px}
+.store-card,.planner-tab{
+  border:1px solid #e2e7ef;
+  border-radius:18px;
+  box-shadow:0 7px 20px #1025420d;
+}
+.planner-tab{
+  background:linear-gradient(145deg,#fff,#f5f7fb);
+  padding:16px;
+}
+.planner-tab.active{
+  background:linear-gradient(135deg,#f5e5b9,#d4ad5c);
+  border-color:#c49a43;
+  color:#102542;
+}
+.primary,.secondary,.text-btn{
+  border-radius:13px;
+  min-height:44px;
+  font-weight:750;
+}
+@media(max-width:700px){
+  .layout{display:block}
+  .sidebar{
+    width:100%;
+    padding:15px 13px 12px;
+    border-radius:0 0 22px 22px;
+  }
+  .brand{padding-bottom:12px}
+  .workspace{margin-top:8px;padding-top:10px}
+  .sidebar nav{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+    margin-top:13px;
+  }
+  .sidebar .nav{
+    min-height:66px;
+    padding:10px 9px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    text-align:center;
+    font-size:12px;
+    line-height:1.2;
+    border-radius:15px;
+  }
+  .sidebar .nav span{width:27px;height:27px;flex:0 0 27px}
+  .side-foot{display:none}
+  .main{padding:18px 13px 28px}
+  header{align-items:flex-start;gap:10px}
+  .user{max-width:48%}
+  .page-subnav{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+    padding:10px;
+    margin:0 0 15px;
+  }
+  .subnav-item{
+    min-height:58px;
+    padding:10px 7px;
+    font-size:12px;
+    border-radius:14px;
+  }
+  .welcome{padding:22px 18px;border-radius:21px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{padding:16px;min-height:112px}
+  .stat strong{font-size:25px}
+  .panel{padding:17px}
+  .store-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+}
+@media(max-width:380px){
+  .sidebar nav{gap:7px}
+  .sidebar .nav{font-size:11px;min-height:61px}
+  .main{padding-left:10px;padding-right:10px}
+  .page-subnav{gap:7px;padding:8px}
+  .subnav-item{font-size:11px}
+  .store-grid{grid-template-columns:1fr}
+}
