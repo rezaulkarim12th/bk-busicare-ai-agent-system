@@ -168,6 +168,7 @@ if (hasUrl !== hasKey) {
       if (submit) { submit.disabled = true; submit.textContent = 'Generating…'; }
       const f = new FormData(aiForm);
       const payload = {
+        workspace_id: activeId,
         topic: String(f.get('topic') || '').trim(),
         platform: String(f.get('platform') || ''),
         audience: String(f.get('audience') || '').trim(),
