@@ -10,6 +10,6 @@ test('authenticated portal exposes the AI Content Studio and invokes the protect
   assert.match(source, /workspace_id: activeId/);
   assert.match(source, /save-ai-draft/);
   assert.match(source, /status: 'Draft'/);
-  assert.match(source, /activeRole === 'viewer'/);
-  assert.match(source, /published or কাউকে message/);
+  assert.match(source, /activeRole==='viewer'/);
+  assert.match(source, /কাউকে message পাঠায় না/);
 });
