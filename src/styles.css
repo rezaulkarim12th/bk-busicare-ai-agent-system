@@ -904,3 +904,83 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
   .sidebar .nav span{flex-basis:22px!important;width:22px!important;height:22px!important}
   .main{padding-left:10px!important;padding-right:10px!important}
 }
+
+
+/* Approved BusiCare in-app home direction: compact brand bar, profile welcome,
+   navy/gold module cards. Existing page routes and event handlers are preserved. */
+.app-brand-icon{
+  width:48px;height:48px;flex:0 0 48px;object-fit:cover;
+  border-radius:14px;border:2px solid #d7b568;background:#fff;
+  box-shadow:0 4px 14px #0003;
+}
+.app-brand-name{font-size:21px;font-weight:850;letter-spacing:-.7px;color:#fff;line-height:1.05}
+.app-brand-name span{color:#72d17e}
+.app-brand-name small{display:block;margin-top:5px;font-size:8px;letter-spacing:1.5px;color:#c4d1e1;font-weight:700}
+.sidebar .brand{gap:11px;padding:0 5px 22px}
+.user{gap:10px}
+.user div{display:grid;gap:2px}
+.user div small:first-child{font-size:10px;color:#8d7137;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.user div b{font-size:13px;color:#142b49}
+.user div small:last-child{font-size:10px;color:#6e7c90}
+@media(max-width:700px){
+  .sidebar{
+    position:relative!important;top:auto!important;height:auto!important;width:100%!important;
+    padding:13px 13px 14px!important;border-radius:0 0 25px 25px!important;
+    background:linear-gradient(155deg,#06172d 0%,#0d2a4b 100%)!important;
+    box-shadow:0 12px 28px #07172d22!important;
+  }
+  .sidebar .brand{display:flex!important;align-items:center!important;gap:11px!important;padding:0 4px 12px!important}
+  .app-brand-icon{width:44px;height:44px;flex-basis:44px;border-radius:13px}
+  .app-brand-name{font-size:20px}
+  .workspace{display:none!important}
+  .sidebar nav{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;gap:8px!important;margin:0!important;padding:0!important;
+    overflow:visible!important;
+  }
+  .sidebar .nav{
+    display:flex!important;flex-direction:row!important;align-items:center!important;
+    justify-content:flex-start!important;gap:9px!important;width:100%!important;
+    min-width:0!important;min-height:48px!important;padding:9px 11px!important;
+    border:1px solid #ffffff20!important;border-radius:13px!important;
+    background:linear-gradient(145deg,#122f50,#0a1e38)!important;
+    color:#e2e9f2!important;font-size:12px!important;font-weight:750!important;
+    text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;
+    box-shadow:0 4px 12px #020c1a30!important;transform:none!important;
+  }
+  .sidebar .nav span{
+    display:grid!important;place-items:center!important;flex:0 0 27px!important;
+    width:27px!important;height:27px!important;border-radius:9px!important;
+    background:linear-gradient(145deg,#f7e6b8,#d0a64e)!important;
+    color:#102542!important;font-size:15px!important;
+  }
+  .sidebar .nav.active{
+    background:linear-gradient(135deg,#f3dfa9,#c99e49)!important;
+    color:#102542!important;border-color:#f8e8bb!important;
+    box-shadow:0 6px 15px #0003!important;
+  }
+  .sidebar .nav.active span{background:#102542!important;color:#f4dfaa!important}
+  .side-foot{display:none!important}
+  .main{padding:16px 13px 28px!important}
+  .main>header{align-items:center!important;gap:10px!important;padding-bottom:14px!important;margin-bottom:17px!important}
+  .main>header h1{font-size:25px!important}
+  .main .user{max-width:68%!important;padding:5px 9px 5px 5px!important}
+  .main .user .avatar{width:42px!important;height:42px!important;flex:0 0 42px!important}
+  .main .user div small:last-child{max-width:155px;line-height:1.25}
+  .welcome{min-height:145px!important;padding:21px 18px!important;border-radius:20px!important}
+  .welcome h2{font-size:22px!important;max-width:290px;line-height:1.18}
+  .welcome p{font-size:12px!important;max-width:270px}
+  .welcome-mark{font-size:52px!important}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  .stat{min-height:105px!important;padding:14px!important;border-radius:15px!important}
+  .stat strong{font-size:21px!important;overflow-wrap:anywhere}
+  .page-subnav{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:380px){
+  .sidebar{padding:11px 10px 12px!important}
+  .sidebar nav{gap:6px!important}
+  .sidebar .nav{min-height:45px!important;padding:8px!important;font-size:11px!important}
+  .sidebar .nav span{flex-basis:24px!important;width:24px!important;height:24px!important}
+  .main{padding-left:10px!important;padding-right:10px!important}
+  .main .user div small:last-child{display:none}
+}
