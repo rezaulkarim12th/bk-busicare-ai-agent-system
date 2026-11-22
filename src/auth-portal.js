@@ -267,6 +267,28 @@ if (hasUrl !== hasKey) {
       }
     }
   `;
+  /* Mobile contrast correction: keep inactive workspace destinations readable. */
+  responsiveStyle.textContent += `
+    @media(max-width:640px){
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button:not([style*="background:#dcefe4"]){
+        background:linear-gradient(145deg,#ffffff,#f3f6fb)!important;
+        border:1px solid #dfe5ee!important;
+        color:#102542!important;
+        -webkit-text-fill-color:#102542!important;
+        opacity:1!important;
+      }
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button[style*="background:#dcefe4"]{
+        background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;
+        border-color:#c9a24f!important;
+        color:#102542!important;
+        -webkit-text-fill-color:#102542!important;
+        opacity:1!important;
+      }
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button:focus-visible{
+        outline:3px solid #c9a24f!important;outline-offset:2px!important;
+      }
+    }
+  `;
   document.head.appendChild(responsiveStyle);
 
   let session = null;
