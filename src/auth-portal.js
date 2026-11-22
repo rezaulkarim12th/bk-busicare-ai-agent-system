@@ -91,6 +91,68 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate nav[style] { grid-template-columns:1fr !important; }
     }
   `;
+
+  responsiveStyle.textContent += `
+    /* Authenticated BusiCare portal: match the approved navy/gold mobile app direction. */
+    #bk-secure-gate{background:#f3f5f8!important;color:#14243b!important;padding:clamp(10px,3vw,24px)!important}
+    #bk-secure-gate>div{max-width:1120px!important;padding:clamp(14px,3vw,26px)!important;border-radius:22px!important}
+    #bk-secure-gate .busicare-secure-header{
+      display:flex!important;align-items:center!important;justify-content:space-between!important;
+      gap:12px!important;padding:18px!important;border:1px solid #c9a24f!important;
+      border-radius:20px!important;background:linear-gradient(120deg,#081a33,#17395f)!important;color:#fff!important
+    }
+    #bk-secure-gate .busicare-secure-brand{display:flex;align-items:center;gap:12px;min-width:0}
+    #bk-secure-gate .busicare-secure-brand img{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:13px;border:2px solid #e0bf70;background:#fff}
+    #bk-secure-gate .busicare-secure-brand b{display:block;color:#fff!important;font-size:clamp(15px,2vw,20px)!important;line-height:1.2}
+    #bk-secure-gate .busicare-secure-brand b span{color:#75d27e}
+    #bk-secure-gate .busicare-secure-brand p{color:#d7e1ee!important;font-size:13px;overflow-wrap:anywhere}
+    #bk-secure-gate #logout{flex:0 0 auto}
+    #bk-secure-gate>div>label{display:block;margin:18px 0 12px!important;color:#59677a!important;font-weight:750}
+    #bk-secure-gate #workspace-select{display:block;width:100%;margin:8px 0!important;min-height:48px}
+    #bk-secure-gate nav[style]{
+      display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:10px!important;margin:18px 0 22px!important;padding:12px!important;
+      border:1px solid #e5e8ef!important;border-radius:20px!important;background:#fafbfd!important
+    }
+    #bk-secure-gate nav[style] button{
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      min-width:0!important;min-height:64px!important;margin:0!important;padding:12px 8px!important;
+      border:1px solid #dfe5ee!important;border-radius:15px!important;
+      background:linear-gradient(145deg,#102c4c,#0b1e37)!important;
+      color:#eef3f8!important;font-weight:750!important;font-size:14px!important;
+      box-shadow:0 5px 14px #10254220!important;white-space:normal!important
+    }
+    #bk-secure-gate nav[style] button[style*="background:#dcefe4"]{
+      background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;
+      border-color:#c9a24f!important;color:#102542!important
+    }
+    #bk-secure-gate h2{font-size:clamp(21px,3vw,28px)!important;margin:22px 0 14px!important}
+    #bk-secure-gate [style*="background:#edf5f0"]{
+      flex:1 1 145px!important;min-width:0!important;padding:17px!important;
+      border:1px solid #e7ddc9!important;border-radius:15px!important;
+      background:linear-gradient(145deg,#fffdf8,#f8f2e5)!important;color:#536174!important
+    }
+    #bk-secure-gate [style*="background:#edf5f0"] strong{display:block;color:#102542;font-size:28px;line-height:1.3}
+    #bk-secure-gate hr{margin:18px 0!important;border-top-color:#e5e8ef!important}
+    @media(max-width:640px){
+      #bk-secure-gate{padding:8px!important}
+      #bk-secure-gate>div{padding:12px!important;border-radius:19px!important}
+      #bk-secure-gate .busicare-secure-header{padding:14px!important;gap:8px!important}
+      #bk-secure-gate .busicare-secure-brand{gap:9px}
+      #bk-secure-gate .busicare-secure-brand img{width:42px;height:42px;flex-basis:42px}
+      #bk-secure-gate .busicare-secure-brand b{font-size:15px!important}
+      #bk-secure-gate .busicare-secure-brand p{font-size:11px}
+      #bk-secure-gate #logout{min-height:40px!important;padding:8px 10px!important;font-size:12px!important}
+      #bk-secure-gate nav[style]{gap:8px!important;padding:9px!important;margin:14px 0 18px!important}
+      #bk-secure-gate nav[style] button{min-height:58px!important;font-size:12px!important}
+      #bk-secure-gate h2{margin:18px 0 12px!important}
+    }
+    @media(max-width:360px){
+      #bk-secure-gate nav[style]{grid-template-columns:1fr!important}
+      #bk-secure-gate .busicare-secure-brand img{width:36px;height:36px;flex-basis:36px}
+      #bk-secure-gate .busicare-secure-brand b{font-size:13px!important}
+    }
+  `;
   document.head.appendChild(responsiveStyle);
 
   let session = null;
