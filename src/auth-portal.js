@@ -153,6 +153,93 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate .busicare-secure-brand b{font-size:13px!important}
     }
   `;
+
+  responsiveStyle.textContent += `
+    /* Full reference-inspired BusiCare app home layout for secure workspace. */
+    #bk-secure-gate{background:#f4f6fa!important;color:#132844!important}
+    #bk-secure-gate>div{max-width:1180px!important;border-radius:26px!important}
+    #bk-secure-gate .busicare-secure-header{
+      display:flex!important;align-items:center!important;justify-content:space-between!important;
+      gap:12px!important;padding:17px!important;border:1px solid #d0aa58!important;
+      border-radius:20px!important;background:linear-gradient(120deg,#071a32,#153b63)!important;color:#fff!important
+    }
+    #bk-secure-gate .busicare-secure-brand{display:flex;align-items:center;gap:12px;min-width:0}
+    #bk-secure-gate .busicare-secure-brand img{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:13px;border:2px solid #e0bf70;background:#fff}
+    #bk-secure-gate .busicare-secure-brand b{display:block;color:#fff!important;font-size:19px!important;line-height:1.2}
+    #bk-secure-gate .busicare-secure-brand b span{color:#75d27e}
+    #bk-secure-gate .busicare-secure-brand p{color:#d7e1ee!important;font-size:12px;overflow-wrap:anywhere}
+    #bk-secure-gate #logout{flex:0 0 auto}
+    #bk-secure-gate .busicare-profile-hero{
+      display:flex;align-items:center;gap:16px;margin:18px 0;padding:18px 20px;
+      border:1px solid #d2ad5d;border-radius:19px;
+      background:linear-gradient(110deg,#0a203b,#173d65);color:#fff
+    }
+    #bk-secure-gate .busicare-profile-hero img{
+      width:78px;height:78px;flex:0 0 78px;object-fit:cover;
+      border:3px solid #e4c36f;border-radius:50%;background:#fff
+    }
+    #bk-secure-gate .busicare-profile-hero small{font-size:10px;letter-spacing:1.5px;color:#f1d58f;font-weight:800}
+    #bk-secure-gate .busicare-profile-hero h2{margin:4px 0!important;color:#fff!important;font-size:23px!important}
+    #bk-secure-gate .busicare-profile-hero p{margin:0;color:#d8e3ef!important;font-size:12px}
+    #bk-secure-gate>div>label{display:block;margin:16px 0 12px!important;color:#59677a!important;font-weight:750}
+    #bk-secure-gate #workspace-select{display:block;width:100%;margin:8px 0!important;min-height:48px}
+    #bk-secure-gate nav[style]{
+      display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:10px!important;margin:16px 0 18px!important;padding:12px!important;
+      border:1px solid #e5e8ef!important;border-radius:20px!important;background:#fafbfd!important
+    }
+    #bk-secure-gate nav[style] button{
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      min-width:0!important;min-height:66px!important;margin:0!important;padding:12px 8px!important;
+      border:1px solid #dfe5ee!important;border-radius:15px!important;
+      background:linear-gradient(145deg,#0e2c4d,#091e38)!important;
+      color:#eef3f8!important;font-weight:750!important;font-size:14px!important;
+      box-shadow:0 5px 14px #10254220!important;white-space:normal!important
+    }
+    #bk-secure-gate nav[style] button[style*="background:#dcefe4"]{
+      background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;
+      border-color:#c9a24f!important;color:#102542!important
+    }
+    #bk-secure-gate .busicare-course-promo{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      margin:16px 0 22px;padding:17px 19px;border:1px solid #d4ae5d;border-radius:17px;
+      background:linear-gradient(110deg,#0a203b,#174a7b);color:#fff
+    }
+    #bk-secure-gate .busicare-course-promo small{display:block;color:#f0d48d;font-size:9px;font-weight:800;letter-spacing:1.4px;margin-bottom:5px}
+    #bk-secure-gate .busicare-course-promo b{display:block;color:#fff;font-size:17px;line-height:1.25}
+    #bk-secure-gate .busicare-course-promo span{display:block;color:#f3d991;font-size:11px;margin-top:7px}
+    #bk-secure-gate .course-mark{font-size:38px;color:#f1d58f}
+    #bk-secure-gate h2{font-size:clamp(21px,3vw,28px)!important;margin:22px 0 14px!important}
+    #bk-secure-gate [style*="background:#edf5f0"]{
+      flex:1 1 145px!important;min-width:0!important;padding:17px!important;
+      border:1px solid #e7ddc9!important;border-radius:15px!important;
+      background:linear-gradient(145deg,#fffdf8,#f8f2e5)!important;color:#536174!important
+    }
+    #bk-secure-gate [style*="background:#edf5f0"] strong{display:block;color:#102542;font-size:28px;line-height:1.3}
+    @media(max-width:640px){
+      #bk-secure-gate{padding:8px!important}
+      #bk-secure-gate>div{padding:12px!important;border-radius:19px!important}
+      #bk-secure-gate .busicare-secure-header{padding:13px!important;gap:8px!important}
+      #bk-secure-gate .busicare-secure-brand{gap:9px}
+      #bk-secure-gate .busicare-secure-brand img{width:42px;height:42px;flex-basis:42px}
+      #bk-secure-gate .busicare-secure-brand b{font-size:15px!important}
+      #bk-secure-gate .busicare-secure-brand p{font-size:11px}
+      #bk-secure-gate #logout{min-height:40px!important;padding:8px 10px!important;font-size:12px!important}
+      #bk-secure-gate .busicare-profile-hero{padding:14px!important;gap:11px!important}
+      #bk-secure-gate .busicare-profile-hero img{width:62px;height:62px;flex-basis:62px}
+      #bk-secure-gate .busicare-profile-hero h2{font-size:18px!important}
+      #bk-secure-gate .busicare-profile-hero p{font-size:10px}
+      #bk-secure-gate nav[style]{gap:8px!important;padding:9px!important;margin:13px 0 15px!important}
+      #bk-secure-gate nav[style] button{min-height:58px!important;font-size:12px!important}
+      #bk-secure-gate .busicare-course-promo{padding:14px!important}
+      #bk-secure-gate .busicare-course-promo b{font-size:14px}
+      #bk-secure-gate h2{margin:18px 0 12px!important}
+    }
+    @media(max-width:360px){
+      #bk-secure-gate nav[style]{grid-template-columns:1fr!important}
+      #bk-secure-gate .busicare-profile-hero img{width:54px;height:54px;flex-basis:54px}
+    }
+  `;
   document.head.appendChild(responsiveStyle);
 
   let session = null;
@@ -289,7 +376,7 @@ if (hasUrl !== hasKey) {
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
-    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav>' + body + '<p data-note></p>');
+    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
