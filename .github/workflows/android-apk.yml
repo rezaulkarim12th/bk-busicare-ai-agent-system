@@ -58,6 +58,9 @@ jobs:
       - name: Build web application for Android assets
         run: npm run build -- --base ./
 
+      - name: Generate Android project
+        run: npx cap add android
+
       - name: Prepare BK-BusiCare brand assets
         run: |
           python3 -m pip install --quiet Pillow
