@@ -240,6 +240,33 @@ if (hasUrl !== hasKey) {
       #bk-secure-gate .busicare-profile-hero img{width:54px;height:54px;flex-basis:54px}
     }
   `;
+
+  responsiveStyle.textContent += `
+    #bk-secure-gate .busicare-bottom-nav{display:none}
+    @media(max-width:640px){
+      #bk-secure-gate{padding-bottom:76px!important}
+      #bk-secure-gate .busicare-bottom-nav{
+        position:fixed;z-index:100001;left:8px;right:8px;bottom:8px;
+        display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;
+        padding:8px 5px calc(8px + env(safe-area-inset-bottom));
+        border:1px solid #caa452;border-radius:18px;
+        background:linear-gradient(110deg,#071a32f5,#14375cf5);
+        box-shadow:0 8px 28px #07172a40;backdrop-filter:blur(12px)
+      }
+      #bk-secure-gate .busicare-bottom-nav button{
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+        min-width:0;min-height:48px;padding:5px 2px!important;margin:0!important;
+        border:1px solid transparent!important;border-radius:12px!important;
+        background:transparent!important;color:#e8edf5!important;box-shadow:none!important
+      }
+      #bk-secure-gate .busicare-bottom-nav button span{font-size:20px;line-height:1}
+      #bk-secure-gate .busicare-bottom-nav button small{font-size:9px;line-height:1.15;white-space:nowrap}
+      #bk-secure-gate .busicare-bottom-nav button.active{
+        background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;
+        border-color:#e7c979!important;color:#102542!important
+      }
+    }
+  `;
   document.head.appendChild(responsiveStyle);
 
   let session = null;
@@ -376,7 +403,7 @@ if (hasUrl !== hasKey) {
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
-    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section>' + body + '<p data-note></p>');
+    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section><nav class="busicare-bottom-nav" aria-label="Quick navigation">' + [['Dashboard','⌂'],['Leads','◎'],['Content Planner','▤'],['AI Content Studio','✦'],['Team','♙']].map(([n,i]) => '<button type="button" data-page="' + n + '" class="' + (page===n?'active':'') + '"><span>' + i + '</span><small>' + (n==='Content Planner'?'Planner':n==='AI Content Studio'?'AI Studio':n) + '</small></button>').join('') + '</nav>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
