@@ -1218,3 +1218,57 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
   .page-subnav .subnav-item{min-height:42px!important;font-size:9px!important;padding:6px 3px!important}
   .welcome-mark{font-size:22px!important}
 }
+
+
+/* Dashboard compact correction v2: force the three section tabs into one compact row */
+@media(max-width:700px){
+  .page-subnav{
+    display:flex!important;
+    flex-flow:row nowrap!important;
+    align-items:stretch!important;
+    gap:5px!important;
+    width:100%!important;
+    min-width:0!important;
+    padding:5px!important;
+    margin:0 0 9px!important;
+    border-radius:11px!important;
+  }
+  .page-subnav>.subnav-item{
+    display:flex!important;
+    flex:1 1 0!important;
+    min-width:0!important;
+    width:0!important;
+    min-height:34px!important;
+    height:34px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:4px 2px!important;
+    margin:0!important;
+    border-radius:8px!important;
+    font-size:9px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+    text-align:center!important;
+    overflow-wrap:anywhere!important;
+  }
+  .welcome{
+    position:relative!important;
+    gap:6px!important;
+  }
+  .welcome-mark{
+    flex:0 0 22px!important;
+    width:22px!important;
+    max-width:22px!important;
+    font-size:13px!important;
+    line-height:1!important;
+    letter-spacing:-1px!important;
+    opacity:.28!important;
+    text-shadow:none!important;
+    overflow:hidden!important;
+  }
+}
+@media(max-width:380px){
+  .page-subnav{gap:3px!important;padding:4px!important}
+  .page-subnav>.subnav-item{min-height:31px!important;height:31px!important;font-size:8px!important}
+  .welcome-mark{flex-basis:17px!important;width:17px!important;max-width:17px!important;font-size:10px!important}
+}
