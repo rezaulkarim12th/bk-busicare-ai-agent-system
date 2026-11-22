@@ -53,7 +53,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Install Capacitor Android tooling
-        run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+        run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets@latest
 
       - name: Build web application for Android assets
         run: npm run build -- --base ./
@@ -80,7 +80,6 @@ jobs:
           splash.paste(mark, ((2732-mark.width)//2, (2732-mark.height)//2))
           splash.save('assets/splash.png', optimize=True)
           PY
-          npm install --no-save --package-lock=false @capacitor/assets@latest
           npx capacitor-assets generate --android
 
       - name: Sync web assets
