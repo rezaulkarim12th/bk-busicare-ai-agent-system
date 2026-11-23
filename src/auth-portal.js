@@ -10,7 +10,32 @@ if (hasUrl !== hasKey) {
   warning.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#f4f7f5;display:grid;place-items:center;padding:24px;font-family:Arial,sans-serif;color:#18372b';
   warning.innerHTML = '<div style="max-width:520px;background:white;border:1px solid #dce8df;border-radius:16px;padding:26px"><b>BK-BusiCare · Configuration required</b><h2>Supabase setup is incomplete</h2><p>Both VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be configured. Local Demo has been disabled for security.</p></div>';
   document.body.appendChild(warning);
-} else if (url && key) {
+} else {
+  if (!url && !key) {
+    const gate = document.createElement('section');
+    gate.id = 'bk-auth-setup-required';
+    gate.style.cssText = 'position:fixed;inset:0;z-index:100000;overflow:auto;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#071a32,#173b63);font-family:Arial,sans-serif;color:#14243b';
+    gate.innerHTML = `
+      <div style="width:min(100%,440px);box-sizing:border-box;padding:26px;border:1px solid #d3ad5e;border-radius:22px;background:#fff;box-shadow:0 18px 55px #0004">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+          <div style="width:58px;height:58px;display:grid;place-items:center;border:2px solid #d3ad5e;border-radius:15px;background:#f4f6fa;font-weight:900;color:#102542">BK</div>
+          <div><b style="font-size:23px;color:#102542">BusiCare</b><div style="font-size:11px;letter-spacing:1.5px;color:#66758a;font-weight:700">BUSINESS WORKSPACE</div></div>
+        </div>
+        <h1 style="margin:0 0 8px;font-size:26px;color:#102542">Login / Sign up</h1>
+        <p style="margin:0 0 18px;color:#526176;line-height:1.5">Your secure account access will appear here. Authentication is not connected in this build.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+          <button type="button" disabled style="min-height:46px;border:1px solid #d3ad5e;border-radius:11px;background:#f4e2b1;color:#102542;font-weight:700">Login</button>
+          <button type="button" disabled style="min-height:46px;border:1px solid #dfe5ee;border-radius:11px;background:#f3f6fa;color:#102542;font-weight:700">Create Account</button>
+        </div>
+        <div role="status" style="padding:14px;border:1px solid #e7c979;border-radius:12px;background:#fff9e9;color:#624b17;line-height:1.5">
+          <b>Setup required</b><br>
+          Supabase URL and Anon Key are not configured for this app build. Login, Signup and Logout cannot work until the authorized project configuration is added securely.
+        </div>
+        <p style="margin:16px 0 0;color:#7b8797;font-size:12px">Do not enter or share passwords or API keys on this screen.</p>
+      </div>`;
+    document.body.appendChild(gate);
+    throw new Error('BK-BusiCare authentication setup required: Supabase environment configuration is missing.');
+  }
   const supabase = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
   const root = document.createElement('section');
   root.id = 'bk-secure-gate';
