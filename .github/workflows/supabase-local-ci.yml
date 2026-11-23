@@ -37,6 +37,9 @@ jobs:
         with:
           deno-version: 2.9.8
 
+      - name: Install package.json dependencies for Deno node_modules resolution
+        run: deno install
+
       - name: Type-check every Supabase Edge Function
         run: |
           deno check supabase/functions/manage-workspace-member/index.ts
