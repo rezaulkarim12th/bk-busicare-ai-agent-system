@@ -9,3 +9,11 @@ verify_jwt = true
 [functions.ai-content]
 # AI generation is user-authenticated and additionally validates the JWT in the handler.
 verify_jwt = true
+
+[functions.sslcommerz-create-session]
+# Customer checkout session creation requires a valid Supabase JWT.
+verify_jwt = true
+
+[functions.sslcommerz-ipn]
+# SSLCOMMERZ sends a provider webhook without a Supabase JWT; handler validates every event against the provider API.
+verify_jwt = false
