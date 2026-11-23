@@ -21,11 +21,14 @@ Deno.serve(async (req) => {
     const params = new URLSearchParams(raw);
     const tranId = params.get("tran_id") ?? "";
     const valId = params.get("val_id") ?? "";
-    if (!tranId || !valId || tranId.length > 50 || valId.length > 50 || params.get("store_id") !== storeId) return reply(400);
+    if (!tranId || !valId || tranId.length > 50 || valId.length > 50 ||
+        params.get("store_id") !== storeId) return reply(400);
 
-    const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const admin = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
     const { data: tx, error: txError } = await admin.from("payment_transactions")
-      .select("id,order_id,tran_id,amount,currency,status")
+      .select("id,order_id,tran_id,amount,currency,status,val_id,risk_level")
       .eq("tran_id", tranId).maybeSingle();
     if (txError) throw txError;
     if (!tx) return reply(404);
@@ -36,36 +39,69 @@ Deno.serve(async (req) => {
     }).toString();
     const validationResponse = await fetch(validationUrl, { signal: AbortSignal.timeout(15000) });
     const validation = await validationResponse.json().catch(() => ({}));
-    const valid = validationResponse.ok && (validation.status === "VALID" || validation.status === "VALIDATED") &&
-      String(validation.tran_id) === tranId && String(validation.val_id) === valId &&
+    const valid = validationResponse.ok &&
+      (validation.status === "VALID" || validation.status === "VALIDATED") &&
+      String(validation.tran_id) === tranId &&
+      String(validation.val_id) === valId &&
+      Number.isFinite(Number(validation.amount)) &&
       Number(validation.amount).toFixed(2) === Number(tx.amount).toFixed(2) &&
       String(validation.currency_type) === tx.currency;
     if (!valid) {
       if (tx.status === "initiated" || tx.status === "pending") {
-        await admin.from("payment_transactions").update({
+        const { error } = await admin.from("payment_transactions").update({
           status: "failed", provider_status: "VALIDATION_MISMATCH",
         }).eq("id", tx.id).in("status", ["initiated", "pending"]);
+        if (error) throw error;
       }
       return reply(400);
     }
 
+    // A failed, cancelled, or refunded attempt is terminal. Never let a late IPN
+    // turn it into a paid order. Repeated callbacks are accepted only for the
+    // same provider validation ID.
+    if (["failed", "cancelled", "refunded"].includes(tx.status)) return reply(409);
+    if (["validated", "manual_review"].includes(tx.status) && tx.val_id !== valId) return reply(409);
+
     const riskLevel = Number(validation.risk_level ?? 0);
     const needsReview = riskLevel === 1;
-    const finalStatus = needsReview ? "manual_review" : "validated";
-    if (tx.status !== "validated" && tx.status !== "manual_review") {
-      const { error: updateTxError } = await admin.from("payment_transactions").update({
-        status: finalStatus, val_id: valId, risk_level: riskLevel,
-        provider_status: String(validation.status).slice(0, 80),
-        validation_payload: {
-          tran_id: tranId, val_id: valId, amount: validation.amount,
-          currency_type: validation.currency_type, risk_level: riskLevel,
-        },
-      }).eq("id", tx.id).in("status", ["initiated", "pending"]);
+    let effectiveStatus: string;
+    let effectiveRiskLevel: number;
+
+    if (tx.status === "validated" || tx.status === "manual_review") {
+      effectiveStatus = tx.status;
+      effectiveRiskLevel = Number(tx.risk_level ?? riskLevel);
+    } else {
+      const finalStatus = needsReview ? "manual_review" : "validated";
+      const { data: updated, error: updateTxError } = await admin.from("payment_transactions")
+        .update({
+          status: finalStatus, val_id: valId, risk_level: riskLevel,
+          provider_status: String(validation.status).slice(0, 80),
+          validation_payload: {
+            tran_id: tranId, val_id: valId, amount: validation.amount,
+            currency_type: validation.currency_type, risk_level: riskLevel,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", tx.id).in("status", ["initiated", "pending"])
+        .select("status,val_id,risk_level").maybeSingle();
       if (updateTxError) throw updateTxError;
+
+      // If another IPN won the race, read its committed state before reconciling.
+      let committed = updated;
+      if (!committed) {
+        const { data, error } = await admin.from("payment_transactions")
+          .select("status,val_id,risk_level").eq("id", tx.id).maybeSingle();
+        if (error) throw error;
+        committed = data;
+      }
+      if (!committed || ["failed", "cancelled", "refunded"].includes(committed.status) ||
+          committed.val_id !== valId) return reply(409);
+      effectiveStatus = committed.status;
+      effectiveRiskLevel = Number(committed.risk_level ?? riskLevel);
     }
 
-    // Reconcile the order on duplicate IPNs too, so a retry repairs a prior partial update.
-    const orderStatus = (tx.status === "manual_review" || needsReview) ? "manual_review" : "paid";
+    const orderStatus = effectiveStatus === "manual_review" || effectiveRiskLevel === 1
+      ? "manual_review" : "paid";
     const { error: orderUpdateError } = await admin.from("orders").update({
       status: orderStatus, updated_at: new Date().toISOString(),
     }).eq("id", tx.order_id).eq("status", "pending");
