@@ -2,25 +2,25 @@
 
 ## TEST deployment state (2026-11-23)
 
-- Supabase TEST migration `sslcommerz_payment_foundation` applied successfully.
-- Supabase TEST migration `deny_browser_access_payment_tables` applied successfully.
+- Supabase TEST migrations `sslcommerz_payment_foundation` and `deny_browser_access_payment_tables` are applied.
 - Tables `product_catalog`, `orders`, and `payment_transactions` exist. RLS is enabled on all three; explicit deny-all policies and revoked browser-role grants prevent direct client access.
 - Verified table counts are currently zero. No real product or price has been entered.
 - Three Edge Functions are deployed and ACTIVE:
   - `busicare-create-order` — JWT required; derives totals from active server-side catalogue rows.
   - `sslcommerz-create-session` — JWT required; verifies order ownership and creates a hosted sandbox session.
   - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state. TEST deployment version 2 adds terminal-state protection, same-validation-ID idempotency, conditional transaction updates, and race-aware reconciliation.
-- GitHub Actions verification completed successfully for the payment branch: application/static tests, Deno type-check of Edge Functions, disposable local Supabase migration application, and pgTAP RLS isolation tests.
+- Database permission check confirms RLS enabled, `anon` and `authenticated` cannot SELECT the three payment tables, and `service_role` has server-side SELECT permission.
+- CI workflows now type-check all five Edge Functions, including the three payment functions, in both the build workflow and isolated local Supabase workflow. CI for the workflow-file update must be checked on the latest PR commit before merge.
 - No merchant credentials have been configured and no sandbox payment has been initiated or validated.
 - Store UI remains a demo catalogue; checkout remains disabled.
 
-## Important integration blocker
+## Data API configuration
 
-Supabase's 2026-10-30 Data API change means new public tables may not be exposed to the Data API automatically. The project owner must verify that `public` is listed in Settings → API → Exposed schemas, or the Edge Functions' server-side PostgREST calls will not reach these tables. Do not expose any additional schema unnecessarily. Documentation: https://supabase.com/changelog?types=breaking-change
+Supabase's 2026-10-30 Data API change means new public tables may not be exposed to the Data API automatically. Table grants for `service_role` are present, but the project's exposed-schema configuration could not be read from SQL. The project owner must verify that `public` is listed in Settings → API → Exposed schemas. Do not expose any additional schema unnecessarily. Documentation: https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically
 
 ## Server-side order flow
 
-1. An authenticated customer submits product IDs, quantities, and their delivery/contact details to `busicare-create-order`.
+1. An authenticated customer submits product IDs, quantities, and delivery/contact details to `busicare-create-order`.
 2. The function reads only active products from `product_catalog`; it ignores client prices and computes the BDT total on the server.
 3. It stores an item snapshot and creates a pending order.
 4. The authenticated customer can then request `sslcommerz-create-session` for that order.
@@ -30,34 +30,34 @@ Supabase's 2026-10-30 Data API change means new public tables may not be exposed
 
 ## Required owner configuration
 
-The responsible adult business owner must complete merchant onboarding, business/identity checks, and provider authorization. Do not bypass age, identity, or legal requirements.
+A responsible adult business owner must complete any merchant onboarding, business/identity checks, and provider authorization. Do not bypass age, identity, or legal requirements.
 
-Set the following only in Supabase Edge Function Secrets, never in chat, GitHub, frontend variables, or logs:
+The owner must configure the following only in Supabase Edge Function Secrets, never in chat, GitHub, frontend variables, or logs:
 - `SSLCOMMERZ_MODE=sandbox`
 - `SSLCOMMERZ_STORE_ID`
 - `SSLCOMMERZ_STORE_PASSWORD`
 - `APP_PUBLIC_URL` (exact approved HTTPS origin)
 - `APP_ALLOWED_ORIGINS` (comma-separated exact HTTPS origins)
 
-Supabase runtime values must remain server-side. Never expose the service-role/secret key to a browser or mobile package.
+Supabase runtime secret keys must remain server-side. Never expose the service-role/secret key to a browser or mobile package.
 
 ## Remaining release gates
 
-- Confirm Data API exposure for the required schema.
-- Have the responsible adult owner add approved catalogue entries with real product names, prices, and service terms. Current catalogue is empty by design.
-- Wire the authenticated Store UI to order creation and payment session functions; keep checkout disabled until the UI is reviewed.
-- Configure sandbox secrets and provider IPN URL under adult-owner supervision.
-- Run provider-backed success, failure, cancellation, pending, timeout, duplicate IPN, invalid val_id, wrong transaction/store, amount/currency mismatch, and risk-hold tests.
-- Run authenticated ownership, RLS, rate-limit, and abuse tests against the deployed TEST project.
-- Add refund, reconciliation, receipts, fulfilment, and audit workflow.
-- Enable Supabase Leaked Password Protection in Auth settings; current Security Advisor still reports it disabled.
+- Project owner verifies Data API schema exposure.
+- Authorized business owner approves and enters real catalogue names, prices, and service terms. Catalogue is currently empty by design.
+- Store UI is connected to order creation and payment session functions only after the authenticated UI has been independently reviewed.
+- Adult owner configures sandbox secrets and provider IPN URL.
+- Run provider-backed success, failure, cancellation, pending, timeout, duplicate IPN, invalid validation ID, wrong transaction/store, amount/currency mismatch, and risk-hold tests.
+- Run authenticated ownership, RLS, rate-limit, and abuse tests against deployed TEST.
+- Implement and review refund, reconciliation, receipts, fulfilment, and audit workflow.
+- Project owner enables Supabase Leaked Password Protection in Auth settings; Security Advisor still reports it disabled.
 - Run full end-to-end regression and independent security review before merging PR #14.
 
 ## Official references
 
 - SSLCOMMERZ v4 guide: https://developer.sslcommerz.com/doc/v4/
 - Supabase Edge Function secrets: https://supabase.com/docs/guides/functions/secrets
-- Supabase breaking changes: https://supabase.com/changelog?types=breaking-change
-- Leaked password protection: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+- Supabase Data API security: https://supabase.com/docs/guides/api/securing-your-api
+- Supabase leaked password protection: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
 This is a deployed TEST backend foundation, not a completed payment integration. No sandbox transaction or live payment has been tested.
