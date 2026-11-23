@@ -9,7 +9,8 @@
 - Three Edge Functions are deployed and ACTIVE:
   - `busicare-create-order` — JWT required; derives totals from active server-side catalogue rows.
   - `sslcommerz-create-session` — JWT required; verifies order ownership and creates a hosted sandbox session.
-  - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state.
+  - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state. TEST deployment version 2 adds terminal-state protection, same-validation-ID idempotency, conditional transaction updates, and race-aware reconciliation.
+- GitHub Actions verification completed successfully for the payment branch: application/static tests, Deno type-check of Edge Functions, disposable local Supabase migration application, and pgTAP RLS isolation tests.
 - No merchant credentials have been configured and no sandbox payment has been initiated or validated.
 - Store UI remains a demo catalogue; checkout remains disabled.
 
@@ -21,10 +22,11 @@ Supabase's 2026-10-30 Data API change means new public tables may not be exposed
 
 1. An authenticated customer submits product IDs, quantities, and their delivery/contact details to `busicare-create-order`.
 2. The function reads only active products from `product_catalog`; it ignores client prices and computes the BDT total on the server.
-3. It stores an immutable item snapshot and creates a pending order.
+3. It stores an item snapshot and creates a pending order.
 4. The authenticated customer can then request `sslcommerz-create-session` for that order.
 5. SSLCOMMERZ IPN is validated server-to-server. Browser redirects are never proof of payment.
-6. A risk_level=1 transaction is held for manual review.
+6. A `risk_level=1` transaction is held for manual review.
+7. Duplicate callbacks for the same validation ID can safely reconcile a previously partial order update. Failed, cancelled, and refunded transaction states cannot be promoted to paid by a late callback.
 
 ## Required owner configuration
 
@@ -45,10 +47,11 @@ Supabase runtime values must remain server-side. Never expose the service-role/s
 - Have the responsible adult owner add approved catalogue entries with real product names, prices, and service terms. Current catalogue is empty by design.
 - Wire the authenticated Store UI to order creation and payment session functions; keep checkout disabled until the UI is reviewed.
 - Configure sandbox secrets and provider IPN URL under adult-owner supervision.
-- Run success, failure, cancellation, pending, timeout, duplicate IPN, invalid val_id, wrong transaction/store, amount/currency mismatch, risk hold, ownership, RLS, and abuse/rate-limit tests.
+- Run provider-backed success, failure, cancellation, pending, timeout, duplicate IPN, invalid val_id, wrong transaction/store, amount/currency mismatch, and risk-hold tests.
+- Run authenticated ownership, RLS, rate-limit, and abuse tests against the deployed TEST project.
 - Add refund, reconciliation, receipts, fulfilment, and audit workflow.
 - Enable Supabase Leaked Password Protection in Auth settings; current Security Advisor still reports it disabled.
-- Run full end-to-end regression and security review before merging PR #14.
+- Run full end-to-end regression and independent security review before merging PR #14.
 
 ## Official references
 
