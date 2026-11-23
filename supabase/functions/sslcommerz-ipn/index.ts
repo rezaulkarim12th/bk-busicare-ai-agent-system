@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     const params = new URLSearchParams(raw);
     const tranId = params.get("tran_id") ?? "";
     const valId = params.get("val_id") ?? "";
-    if (!tranId || !valId || tranId.length > 50 || valId.length > 50) return reply(400);
+    if (!tranId || !valId || tranId.length > 50 || valId.length > 50 || params.get("store_id") !== storeId) return reply(400);
 
     const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const { data: tx, error: txError } = await admin.from("payment_transactions")
@@ -38,7 +38,6 @@ Deno.serve(async (req) => {
     const validation = await validationResponse.json().catch(() => ({}));
     const valid = validationResponse.ok && (validation.status === "VALID" || validation.status === "VALIDATED") &&
       String(validation.tran_id) === tranId && String(validation.val_id) === valId &&
-      String(validation.store_id) === storeId &&
       Number(validation.amount).toFixed(2) === Number(tx.amount).toFixed(2) &&
       String(validation.currency_type) === tx.currency;
     if (!valid) {
