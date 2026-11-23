@@ -50,6 +50,15 @@ jobs:
         with:
           version: 3.2.0
 
+      - name: Generate an ephemeral payment migration for clean-database validation
+        shell: bash
+        run: |
+          supabase migration new sslcommerz_payment_ci
+          migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_sslcommerz_payment_ci.sql' -print -quit)"
+          test -n "$migration_file"
+          cp supabase/sql/sslcommerz_payment_schema.sql "$migration_file"
+          echo "Generated payment schema migration: $migration_file"
+
       - name: Start isolated local Supabase stack
         id: start-supabase
         shell: bash
