@@ -17,3 +17,7 @@ verify_jwt = true
 [functions.sslcommerz-ipn]
 # SSLCOMMERZ sends a provider webhook without a Supabase JWT; handler validates every event against the provider API.
 verify_jwt = false
+
+[functions.busicare-create-order]
+# Authenticated order creation; product prices are read from the server-side catalogue.
+verify_jwt = true
