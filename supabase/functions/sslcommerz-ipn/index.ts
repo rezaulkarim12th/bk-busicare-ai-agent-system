@@ -46,15 +46,10 @@ Deno.serve(async (req) => {
       Number.isFinite(Number(validation.amount)) &&
       Number(validation.amount).toFixed(2) === Number(tx.amount).toFixed(2) &&
       String(validation.currency_type) === tx.currency;
-    if (!valid) {
-      if (tx.status === "initiated" || tx.status === "pending") {
-        const { error } = await admin.from("payment_transactions").update({
-          status: "failed", provider_status: "VALIDATION_MISMATCH",
-        }).eq("id", tx.id).in("status", ["initiated", "pending"]);
-        if (error) throw error;
-      }
-      return reply(400);
-    }
+    // Do not mutate transaction state for an untrusted or mismatched callback.
+    // Otherwise, anyone who learns a transaction ID could poison a pending payment
+    // by sending an arbitrary validation ID before the genuine provider IPN arrives.
+    if (!valid) return reply(400);
 
     // A failed, cancelled, or refunded attempt is terminal. Never let a late IPN
     // turn it into a paid order. Repeated callbacks are accepted only for the
