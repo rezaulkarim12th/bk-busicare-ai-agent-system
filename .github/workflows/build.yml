@@ -37,11 +37,11 @@ jobs:
 
       - name: Type-check every Supabase Edge Function
         run: |
-          deno check supabase/functions/manage-workspace-member/index.ts
-          deno check supabase/functions/ai-content/index.ts
-          deno check supabase/functions/busicare-create-order/index.ts
-          deno check supabase/functions/sslcommerz-create-session/index.ts
-          deno check supabase/functions/sslcommerz-ipn/index.ts
+          deno check --node-modules-dir=auto supabase/functions/manage-workspace-member/index.ts
+          deno check --node-modules-dir=auto supabase/functions/ai-content/index.ts
+          deno check --node-modules-dir=auto supabase/functions/busicare-create-order/index.ts
+          deno check --node-modules-dir=auto supabase/functions/sslcommerz-create-session/index.ts
+          deno check --node-modules-dir=auto supabase/functions/sslcommerz-ipn/index.ts
       - name: Run migration safety checks
         run: npm test
       - name: Check application JavaScript syntax
