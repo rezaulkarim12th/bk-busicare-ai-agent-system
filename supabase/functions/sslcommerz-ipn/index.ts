@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }).toString();
     const validationResponse = await fetch(validationUrl, { signal: AbortSignal.timeout(15000) });
     const validation = await validationResponse.json().catch(() => ({}));
-    const valid = validationResponse.ok && validation.status === "VALID" &&
+    const valid = validationResponse.ok && (validation.status === "VALID" || validation.status === "VALIDATED") &&
       String(validation.tran_id) === tranId && String(validation.val_id) === valId &&
       String(validation.store_id) === storeId &&
       Number(validation.amount).toFixed(2) === Number(tx.amount).toFixed(2) &&
