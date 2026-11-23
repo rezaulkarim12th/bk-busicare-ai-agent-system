@@ -1,73 +1,60 @@
 # BK-BusiCare — SSLCOMMERZ Payment Readiness
 
-## Verified implementation state (2026-11-23)
+## TEST deployment state (2026-11-23)
 
-- Store UI remains a sample catalogue and browser-session demo cart; checkout is disabled.
-- SSLCOMMERZ payment methods are displayed as planned: bKash, Rocket, cards, and bank payment. Actual channel availability depends on merchant approval and configuration.
-- Added server-side Edge Function source on branch `feature/sslcommerz-sandbox-readiness`:
-  - `sslcommerz-create-session`: JWT-authenticated; reads a server-owned pending order, verifies ownership and BDT amount, then requests a hosted sandbox session.
-  - `sslcommerz-ipn`: public webhook endpoint; validates the val_id against the official sandbox Order Validation API, checks transaction ID, store ID, amount and currency, and holds risk_level=1 for manual review.
-- Added `supabase/sql/sslcommerz_payment_schema.sql` as a reviewed-schema proposal. It creates server-owned orders and payment transaction records, enables RLS, and revokes browser-role table privileges.
-- Added function JWT configuration: checkout requires JWT; IPN disables gateway JWT because the provider cannot supply a Supabase token, and the handler validates the notification with SSLCOMMERZ.
-- The SQL proposal has NOT been applied to Supabase TEST. The functions have NOT been deployed. No credentials were configured. No sandbox payment session or transaction has been tested.
+- Supabase TEST migration `sslcommerz_payment_foundation` applied successfully.
+- Supabase TEST migration `deny_browser_access_payment_tables` applied successfully.
+- Tables `product_catalog`, `orders`, and `payment_transactions` exist. RLS is enabled on all three; explicit deny-all policies and revoked browser-role grants prevent direct client access.
+- Verified table counts are currently zero. No real product or price has been entered.
+- Three Edge Functions are deployed and ACTIVE:
+  - `busicare-create-order` — JWT required; derives totals from active server-side catalogue rows.
+  - `sslcommerz-create-session` — JWT required; verifies order ownership and creates a hosted sandbox session.
+  - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state.
+- No merchant credentials have been configured and no sandbox payment has been initiated or validated.
+- Store UI remains a demo catalogue; checkout remains disabled.
 
-## Remaining implementation blockers
+## Important integration blocker
 
-1. The existing store catalogue and cart are demo-only. There is no server-owned product catalogue or order-creation endpoint yet. Therefore no legitimate pending order can currently be created for the session function.
-2. A trusted order-creation flow must derive prices and totals from a server-controlled catalogue and store a customer contact/address snapshot. Never accept a browser-supplied amount or product price.
-3. Customer return/result UI must display payment status from the server, not from URL query parameters.
-4. Add provider-approved IPN settings, refund/reconciliation workflow, operational rate limiting, and full audit trail before any production release.
-5. Complete the sandbox test matrix below before merging or enabling checkout.
+Supabase's 2026-10-30 Data API change means new public tables may not be exposed to the Data API automatically. The project owner must verify that `public` is listed in Settings → API → Exposed schemas, or the Edge Functions' server-side PostgREST calls will not reach these tables. Do not expose any additional schema unnecessarily. Documentation: https://supabase.com/changelog?types=breaking-change
 
-## Required server-side secrets and settings
+## Server-side order flow
 
-Set these directly in Supabase Edge Function Secrets under the supervision of the responsible adult business owner. Never paste them into chat, source files, browser variables, GitHub, or logs.
+1. An authenticated customer submits product IDs, quantities, and their delivery/contact details to `busicare-create-order`.
+2. The function reads only active products from `product_catalog`; it ignores client prices and computes the BDT total on the server.
+3. It stores an immutable item snapshot and creates a pending order.
+4. The authenticated customer can then request `sslcommerz-create-session` for that order.
+5. SSLCOMMERZ IPN is validated server-to-server. Browser redirects are never proof of payment.
+6. A risk_level=1 transaction is held for manual review.
 
+## Required owner configuration
+
+The responsible adult business owner must complete merchant onboarding, business/identity checks, and provider authorization. Do not bypass age, identity, or legal requirements.
+
+Set the following only in Supabase Edge Function Secrets, never in chat, GitHub, frontend variables, or logs:
 - `SSLCOMMERZ_MODE=sandbox`
 - `SSLCOMMERZ_STORE_ID`
 - `SSLCOMMERZ_STORE_PASSWORD`
-- `APP_PUBLIC_URL` — exact HTTPS origin approved in `APP_ALLOWED_ORIGINS`
-- `APP_ALLOWED_ORIGINS` — comma-separated exact HTTPS app origins
-- Supabase runtime values used by the functions: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` (server-side only)
+- `APP_PUBLIC_URL` (exact approved HTTPS origin)
+- `APP_ALLOWED_ORIGINS` (comma-separated exact HTTPS origins)
 
-Provider IPN URL after TEST deployment:
-`https://<TEST_PROJECT_REF>.supabase.co/functions/v1/sslcommerz-ipn`
+Supabase runtime values must remain server-side. Never expose the service-role/secret key to a browser or mobile package.
 
-The session function is hard-locked to sandbox endpoints and returns 503 unless sandbox mode and server secrets are configured. Do not set a live mode or live credentials in this branch.
+## Remaining release gates
 
-## Security controls in the source
-
-- Checkout function requires a valid Supabase JWT and checks order ownership.
-- Order total is read from a server-owned order row; it is never taken from the browser request.
-- Customer details must be present in the order snapshot; no placeholder phone or address is sent to the provider.
-- Only provider-hosted checkout is used; do not collect card numbers, CVV, PINs, or OTPs.
-- Browser roles have no direct access to order/payment tables; RLS is enabled.
-- IPN is not trusted until provider-side validation succeeds.
-- Transaction IDs are unique; repeated IPNs reconcile the order status; risky transactions are held.
-- No payment secrets are stored in the client bundle.
-
-## Required sandbox test matrix
-
-- Valid payment and validated order status
-- Failed and cancelled payments
-- Pending/timeout and gateway unavailable
-- Duplicate IPN and retry after partial database update
-- Invalid val_id / transaction ID / store ID
-- Amount mismatch and currency mismatch
-- Risk level 1 → manual_review, never automatic fulfilment
-- Unauthorized user, wrong order owner, invalid order status
-- Missing customer data, invalid origin, oversized request
-- RLS/privilege isolation and duplicate transaction ID
-- Refund and reconciliation (not implemented yet)
-
-## Release and account requirements
-
-A responsible adult business owner must handle merchant onboarding, required business/identity checks, provider agreement, and any account credentials. Do not bypass age, identity, or legal requirements. Production credentials, live payment activation, app publication, and customer fulfilment require separate adult-owner approval and reviewed release.
+- Confirm Data API exposure for the required schema.
+- Have the responsible adult owner add approved catalogue entries with real product names, prices, and service terms. Current catalogue is empty by design.
+- Wire the authenticated Store UI to order creation and payment session functions; keep checkout disabled until the UI is reviewed.
+- Configure sandbox secrets and provider IPN URL under adult-owner supervision.
+- Run success, failure, cancellation, pending, timeout, duplicate IPN, invalid val_id, wrong transaction/store, amount/currency mismatch, risk hold, ownership, RLS, and abuse/rate-limit tests.
+- Add refund, reconciliation, receipts, fulfilment, and audit workflow.
+- Enable Supabase Leaked Password Protection in Auth settings; current Security Advisor still reports it disabled.
+- Run full end-to-end regression and security review before merging PR #14.
 
 ## Official references
 
-- SSLCOMMERZ v4 integration guide: https://developer.sslcommerz.com/doc/v4/
-- SSLCOMMERZ Order Validation API: https://sandbox-gw.sslcommerz.com/doc/v4/order-validation.html
-- SSLCOMMERZ amount limits and session API: https://developer.sslcommerz.com/doc/v4/
+- SSLCOMMERZ v4 guide: https://developer.sslcommerz.com/doc/v4/
+- Supabase Edge Function secrets: https://supabase.com/docs/guides/functions/secrets
+- Supabase breaking changes: https://supabase.com/changelog?types=breaking-change
+- Leaked password protection: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
-This branch contains a sandbox-oriented backend scaffold, not a completed or tested payment integration. Do not claim that live payments or sandbox transactions are operational.
+This is a deployed TEST backend foundation, not a completed payment integration. No sandbox transaction or live payment has been tested.
