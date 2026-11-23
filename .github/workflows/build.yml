@@ -32,16 +32,13 @@ jobs:
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: 2.9.8
-      - name: Install package.json dependencies for Deno node_modules resolution
-        run: deno install
-
       - name: Type-check every Supabase Edge Function
         run: |
-          deno check --node-modules-dir=auto supabase/functions/manage-workspace-member/index.ts
-          deno check --node-modules-dir=auto supabase/functions/ai-content/index.ts
-          deno check --node-modules-dir=auto supabase/functions/busicare-create-order/index.ts
-          deno check --node-modules-dir=auto supabase/functions/sslcommerz-create-session/index.ts
-          deno check --node-modules-dir=auto supabase/functions/sslcommerz-ipn/index.ts
+          deno check --node-modules-dir=none supabase/functions/manage-workspace-member/index.ts
+          deno check --node-modules-dir=none supabase/functions/ai-content/index.ts
+          deno check --node-modules-dir=none supabase/functions/busicare-create-order/index.ts
+          deno check --node-modules-dir=none supabase/functions/sslcommerz-create-session/index.ts
+          deno check --node-modules-dir=none supabase/functions/sslcommerz-ipn/index.ts
       - name: Run migration safety checks
         run: npm test
       - name: Check application JavaScript syntax
