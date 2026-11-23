@@ -8,9 +8,10 @@
 - Three Edge Functions are deployed and ACTIVE:
   - `busicare-create-order` — JWT required; derives totals from active server-side catalogue rows.
   - `sslcommerz-create-session` — JWT required; verifies order ownership and creates a hosted sandbox session.
-  - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state. TEST deployment version 2 adds terminal-state protection, same-validation-ID idempotency, conditional transaction updates, and race-aware reconciliation.
+  - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state. TEST deployment version 3 adds terminal-state protection, same-validation-ID idempotency, conditional transaction updates, race-aware reconciliation, and prevents invalid callbacks from changing transaction state.
 - Database permission check confirms RLS enabled, `anon` and `authenticated` cannot SELECT the three payment tables, and `service_role` has server-side SELECT permission.
-- CI workflows now type-check all five Edge Functions, including the three payment functions, in both the build workflow and isolated local Supabase workflow. CI for the workflow-file update must be checked on the latest PR commit before merge.
+- Build CI now type-checks all five Edge Functions, runs the 64 existing application/migration tests, checks JavaScript syntax, audits dependencies, and builds the production bundle. Latest confirmed build CI succeeded before the IPN v3 commit; CI for the latest commit is running.
+- Local Supabase CI now generates a temporary migration using the Supabase CLI from `supabase/sql/sslcommerz_payment_schema.sql`, then applies it to a disposable local database and runs pgTAP. A dedicated 18-assertion pgTAP file checks payment-table existence, RLS, browser-role denial, service-role access, and deny policies. The latest local run is still in progress; its result is not yet confirmed.
 - No merchant credentials have been configured and no sandbox payment has been initiated or validated.
 - Store UI remains a demo catalogue; checkout remains disabled.
 
@@ -27,6 +28,7 @@ Supabase's 2026-10-30 Data API change means new public tables may not be exposed
 5. SSLCOMMERZ IPN is validated server-to-server. Browser redirects are never proof of payment.
 6. A `risk_level=1` transaction is held for manual review.
 7. Duplicate callbacks for the same validation ID can safely reconcile a previously partial order update. Failed, cancelled, and refunded transaction states cannot be promoted to paid by a late callback.
+8. Invalid or mismatched callbacks are rejected without mutating a pending transaction, preventing transaction-state poisoning.
 
 ## Required owner configuration
 
