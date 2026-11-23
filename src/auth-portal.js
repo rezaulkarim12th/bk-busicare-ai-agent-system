@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+// Public client configuration for the isolated BK-BusiCare-TEST project.
+// Supabase publishable keys are intended for browser/mobile clients; never put service-role keys here.
+const url = import.meta.env.VITE_SUPABASE_URL?.trim() || 'https://rmnoiwzkhjwmgxwkfdzb.supabase.co';
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || 'sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw';
 const hasUrl = Boolean(url);
 const hasKey = Boolean(key);
 
