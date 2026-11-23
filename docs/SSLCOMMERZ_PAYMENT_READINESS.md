@@ -10,10 +10,11 @@
   - `sslcommerz-create-session` — JWT required; verifies order ownership and creates a hosted sandbox session.
   - `sslcommerz-ipn` — provider webhook, JWT disabled at gateway; validates the transaction against SSLCOMMERZ before updating order state. TEST deployment version 3 adds terminal-state protection, same-validation-ID idempotency, conditional transaction updates, race-aware reconciliation, and prevents invalid callbacks from changing transaction state.
 - Database permission check confirms RLS enabled, `anon` and `authenticated` cannot SELECT the three payment tables, and `service_role` has server-side SELECT permission.
-- Build CI now type-checks all five Edge Functions, runs the 64 existing application/migration tests, checks JavaScript syntax, audits dependencies, and builds the production bundle. Latest confirmed build CI succeeded before the IPN v3 commit; CI for the latest commit is running.
-- Local Supabase CI now generates a temporary migration using the Supabase CLI from `supabase/sql/sslcommerz_payment_schema.sql`, then applies it to a disposable local database and runs pgTAP. A dedicated 18-assertion pgTAP file checks payment-table existence, RLS, browser-role denial, service-role access, and deny policies. The latest local run is still in progress; its result is not yet confirmed.
+- Latest commit `2fa4a70aa5e5e962db092f7e4bb190af2cd12da0` has three successful GitHub Actions workflows: Build (dependency audit, all five Edge Function type checks, migration safety checks, JavaScript syntax and production bundle), Android APK (debug APK artifact uploaded), and local Supabase migration test (fresh disposable database plus the 18-assertion payment RLS pgTAP suite). The Pages deploy job was skipped because this is a pull-request branch; no site deployment occurred.
+- The Android artifact is a DEBUG APK, not a signed release APK and not Play Store-ready. It has not yet passed physical Android device QA.
 - No merchant credentials have been configured and no sandbox payment has been initiated or validated.
 - Store UI remains a demo catalogue; checkout remains disabled.
+- Supabase Security Advisor currently reports one warning: Leaked Password Protection is disabled. Performance Advisor reports six unused-index informational findings; these are expected to be inconclusive while the relevant tables are empty/new, and indexes should not be dropped without workload evidence.
 
 ## Data API configuration
 
@@ -54,6 +55,7 @@ Supabase runtime secret keys must remain server-side. Never expose the service-r
 - Implement and review refund, reconciliation, receipts, fulfilment, and audit workflow.
 - Project owner enables Supabase Leaked Password Protection in Auth settings; Security Advisor still reports it disabled.
 - Run full end-to-end regression and independent security review before merging PR #14.
+- Complete physical Android device QA and produce a signed release build only after the owner gates and review pass.
 
 ## Official references
 
