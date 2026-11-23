@@ -10,5 +10,5 @@ test('dashboard imports and renders the sales operations core', async () => {
   assert.match(source, /recommendNextAction\(lead\)/);
   assert.match(source, /Won Revenue/);
   assert.match(source, /Win Rate/);
-  assert.match(source, /Today's Follow-ups/);
+  assert.match(source, /<h3>Follow-ups<\/h3>/);
 });
