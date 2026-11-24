@@ -65,3 +65,16 @@ Supabase runtime secret keys must remain server-side. Never expose the service-r
 - Supabase leaked password protection: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
 This is a deployed TEST backend foundation, not a completed payment integration. No sandbox transaction or live payment has been tested.
+
+
+## 2026-11-24 security and reproducibility follow-up
+
+- A source-to-deployment comparison confirmed that all three active TEST payment/order functions exactly matched the source files on this feature branch.
+- The three functions originally buffered request bodies with `req.text()` before checking their size limits. A shared streaming byte-limited reader has now been added and wired into all three functions.
+- Five Deno tests cover normal bodies, UTF-8 byte counting, oversized chunked bodies, early rejection from an oversized Content-Length, and empty bodies.
+- The Deno test file was renamed to `read-limited-body.deno.ts` after the first CI run showed that Node's automatic `node --test` discovery also picked up the Deno-specific test file. The five Deno tests passed in that run; the Node test step failed because of the runner mismatch. The rename and CI path updates are committed, but a subsequent CI run has not yet been confirmed.
+- The two TEST payment migrations are now committed on this branch as `supabase/migrations/20261123094545_sslcommerz_payment_foundation.sql` and `supabase/migrations/20261123094616_deny_browser_access_payment_tables.sql`. The local Supabase workflow was changed to apply these committed migrations directly instead of generating an ephemeral migration. A fresh-database CI run remains pending.
+- No request-body fix has been deployed to Supabase TEST. No merchant credentials were configured and no sandbox transaction was initiated.
+- Android workflow run [45426215584](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426215584) successfully uploaded artifact `BK-BusiCare-Android-debug` (artifact ID 14936204125). This is a debug APK from commit `7e2bb03779f32f1ba3374143ba0e21e537758358`, before the latest streaming-reader and migration commits. It is not a signed release APK and has not passed physical-device QA.
+
+Keep PR #14 unmerged and checkout/payment disabled until the updated CI passes, the bounded-reader fix is deployed and verified in TEST, all provider-backed sandbox scenarios pass, and the authorized owner gates are complete.
