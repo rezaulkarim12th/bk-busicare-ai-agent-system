@@ -122,12 +122,18 @@ jobs:
                       check=True,
                   )
 
+          foreground = res / "drawable-nodpi"
+          foreground.mkdir(parents=True, exist_ok=True)
+          subprocess.run(
+              ["rsvg-convert", "-w", "432", "-h", "432", "-o", str(foreground / "ic_launcher_foreground.png"), str(source)],
+              check=True,
+          )
           anydpi = res / "mipmap-anydpi-v26"
           anydpi.mkdir(parents=True, exist_ok=True)
           adaptive = """<?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
               <background android:drawable="@color/ic_launcher_background"/>
-              <foreground android:drawable="@mipmap/ic_launcher"/>
+              <foreground android:drawable="@drawable/ic_launcher_foreground"/>
           </adaptive-icon>
           """
           (anydpi / "ic_launcher.xml").write_text(adaptive)
