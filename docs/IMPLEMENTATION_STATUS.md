@@ -85,8 +85,9 @@ These are informational, not proof of a defect. Do not drop indexes based only o
 - This status refresh records the current TEST migration, table and Edge Function inventory.
 - The three payment/order function sources are absent from `main`; they are on `feature/sslcommerz-sandbox-readiness`, which is 33 commits ahead of `main` and is tracked by open Draft PR #14.
 - The three deployed TEST payment/order functions exactly match the source files on that feature branch as inspected on 2026-11-24.
-- Each of those three functions originally called `req.text()` before enforcing its byte limit. A streaming byte-limited reader, five Deno tests and CI test steps have now been pushed to the feature branch. **This patch is not deployed to TEST; CI results are pending.**
-- The payment schema is stored as `supabase/sql/sslcommerz_payment_schema.sql` on the feature branch, not as a timestamped file in `supabase/migrations`. Current local CI generates an ephemeral migration from that SQL file. Add a reproducible versioned migration before merge/release.
+- Each of those three functions originally called `req.text()` before enforcing its byte limit. A shared streaming byte-limited reader is now wired into all three functions. Five Deno tests passed in the first CI run, but Node's `npm test` also auto-discovered the Deno-specific test file and failed; the test file has since been renamed to `read-limited-body.deno.ts` and CI paths updated. **A subsequent CI run is still pending; the fix is not deployed to TEST.**
+- The two versioned payment migration files are now committed on the feature branch as `20261123094545_sslcommerz_payment_foundation.sql` and `20261123094616_deny_browser_access_payment_tables.sql`. Local CI now applies the committed migration files directly rather than generating an ephemeral migration. A fresh-database CI result is pending.
+- Android Workflow run [45426215584](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426215584) successfully uploaded a DEBUG APK artifact (`BK-BusiCare-Android-debug`, artifact ID `14936204125`) from commit `7e2bb03`. It is not a signed release APK and has not passed physical Android device QA.
 
 ### 2. Authentication and tenancy
 - Verify TEST Auth Site URL, redirect URLs, email confirmation and SMTP delivery.
