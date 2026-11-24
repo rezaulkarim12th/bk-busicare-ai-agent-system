@@ -84,12 +84,32 @@ Deno.serve(async (req) => {
       return json({ error: "App return URL must match the approved HTTPS origin" }, 503, origin);
     }
 
+    // Do not create another provider session while this order already has
+    // an initiated or pending transaction. The partial unique index below is
+    // the concurrency-safe guard; this read gives the normal retry a clear 409.
+    const { data: activeTransaction, error: activeTransactionError } = await admin
+      .from("payment_transactions")
+      .select("id,status")
+      .eq("order_id", order.id)
+      .in("status", ["initiated", "pending"])
+      .limit(1)
+      .maybeSingle();
+    if (activeTransactionError) throw activeTransactionError;
+    if (activeTransaction) {
+      return json({ error: "A payment session is already active for this order" }, 409, origin);
+    }
+
     const tranId = "BKC" + Date.now().toString(36).toUpperCase() +
       crypto.randomUUID().replaceAll("-", "").slice(0, 10).toUpperCase();
     const amount = amountNumber.toFixed(2);
     const { error: insertError } = await admin.from("payment_transactions").insert({
       order_id: order.id, tran_id: tranId, amount, currency: "BDT", status: "initiated",
     });
+    // 23505 is expected if two requests race; the database index guarantees
+    // that only one request can own an active transaction for this order.
+    if (insertError?.code === "23505") {
+      return json({ error: "A payment session is already active for this order" }, 409, origin);
+    }
     if (insertError) throw insertError;
 
     const supabaseBase = supabaseUrl.replace(/\/$/, "");
@@ -106,10 +126,18 @@ Deno.serve(async (req) => {
       ipn_url: supabaseBase + "/functions/v1/sslcommerz-ipn",
       shipping_method: "NO", num_of_item: String(order.items_snapshot.length),
     });
-    const gateway = await fetch("https://sandbox.sslcommerz.com/gwprocess/v4/api.php", {
-      method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: form, signal: AbortSignal.timeout(15000),
-    });
+    let gateway: Response;
+    try {
+      gateway = await fetch("https://sandbox.sslcommerz.com/gwprocess/v4/api.php", {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: form, signal: AbortSignal.timeout(15000),
+      });
+    } catch {
+      await admin.from("payment_transactions").update({
+        status: "failed", provider_status: "GATEWAY_REQUEST_FAILED",
+      }).eq("tran_id", tranId).eq("status", "initiated");
+      return json({ error: "Payment provider could not be reached; you may retry" }, 502, origin);
+    }
     const gatewayData = await gateway.json().catch(() => ({}));
     if (!gateway.ok || gatewayData.status !== "SUCCESS" ||
         typeof gatewayData.GatewayPageURL !== "string" ||
