@@ -7,5 +7,5 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ai-content]
-# AI generation is user-authenticated and additionally validates the JWT in the handler.
-verify_jwt = true
+# The handler validates the caller JWT and workspace membership itself; disable the gateway check so browser OPTIONS preflight can reach the CORS handler.
+verify_jwt = false
