@@ -336,6 +336,58 @@ if (hasUrl !== hasKey) {
       // Ignore malformed or unavailable session storage; the form remains usable.
     }
   }
+
+  // Preserve unfinished lead entries when the user switches apps or pages.
+  // Drafts are scoped to the authenticated user and workspace and remain in this tab session.
+  function leadFormDraftKey() {
+    return session?.user?.id && activeId ? 'bkbusicare-lead-form-v1:' + session.user.id + ':' + activeId : '';
+  }
+  function persistLeadFormDraft(form) {
+    const key = leadFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const values = Object.fromEntries(new FormData(form).entries());
+      sessionStorage.setItem(key, JSON.stringify({ values, savedAt: Date.now() }));
+    } catch {
+      note('Lead draft could not be temporarily saved in this browser.', true);
+    }
+  }
+  function restoreLeadFormDraft(form) {
+    const key = leadFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+      if (!saved || typeof saved !== 'object' || !saved.values || typeof saved.values !== 'object') return;
+      const limits = { name:160, company:160, service:120, phone:40, email:254, value:24, follow_up:10, notes:4000 };
+      for (const [name, max] of Object.entries(limits)) {
+        const control = form.elements.namedItem(name);
+        const value = saved.values[name];
+        if (control && typeof value === 'string' && value.length <= max) control.value = value;
+      }
+      if (Object.values(saved.values).some(value => typeof value === 'string' && value.length > 0)) {
+        note('Unfinished Lead draft restored. Review it and select Add Lead to save.', false);
+      }
+    } catch {
+      // Ignore malformed or unavailable session storage; the form remains usable.
+    }
+  }
+  function clearLeadFormDraft() {
+    const key = leadFormDraftKey();
+    if (!key) return;
+    try { sessionStorage.removeItem(key); } catch { /* storage may be unavailable */ }
+  }
+  function clearLeadFormDraftsForUser(userId) {
+    if (!userId) return;
+    const prefix = 'bkbusicare-lead-form-v1:' + userId + ':';
+    try {
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith(prefix)) sessionStorage.removeItem(key);
+      }
+    } catch {
+      // Session storage may be unavailable; authentication still signs out safely.
+    }
+  }
   function authView(mode) {
     card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>Securely access your workspace.</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
     root.querySelector('#auth-form').onsubmit = async e => {
@@ -383,6 +435,9 @@ if (hasUrl !== hasKey) {
   function leadRows() {
     return leads.map(l => '<tr><td data-label="Name"><b>' + safe(l.name) + '</b><br><small>' + safe(l.company) + ' · ' + safe(l.phone) + ' · ' + safe(l.email) + '</small></td><td data-label="Service">' + safe(l.service) + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(l.status):'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Value">BDT ' + Number(l.value || 0).toLocaleString('en-BD') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">No leads yet.</td></tr>';
   }
+  function leadCards() {
+    return leads.map(l => '<article class="portal-lead-card"><div class="portal-lead-card-head"><div><span class="portal-lead-label">NAME</span><h3>' + safe(l.name) + '</h3><p>' + safe(l.company || 'No company') + ' · ' + safe(l.phone || 'No phone') + '</p><p>' + safe(l.email || 'No email') + '</p></div><span class="portal-lead-status">' + safe(l.status) + '</span></div><div class="portal-lead-card-grid"><div><span class="portal-lead-label">SERVICE</span><b>' + safe(l.service) + '</b></div><div><span class="portal-lead-label">VALUE</span><b>BDT ' + Number(l.value || 0).toLocaleString('en-BD') + '</b></div><div><span class="portal-lead-label">FOLLOW-UP</span><b>' + safe(l.follow_up || 'Not set') + '</b></div></div><div class="portal-lead-card-controls"><label>STATUS' + (activeRole==='viewer'?'<b>' + safe(l.status) + '</b>':'<select data-lead-status="' + safe(l.id) + '">' + ['New','Contacted','Proposal','Won','Lost'].map(s => '<option' + (l.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</label><div class="portal-lead-actions">' + (activeRole==='viewer'?'':button('Edit','edit-lead',' data-id="' + safe(l.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-lead',' data-id="' + safe(l.id) + '"'):'') + '</div></div></article>').join('') || '<p class="portal-lead-empty">No leads yet.</p>';
+  }
   function contentRows() {
     return contentItems.map(c => '<tr><td data-label="Title"><b>' + safe(c.title) + '</b><br><small>' + safe(c.body) + '</small></td><td data-label="Platform">' + safe(c.platform) + '</td><td data-label="Schedule">' + safe(c.scheduled_at || 'Not scheduled') + '</td><td data-label="Status">' + (activeRole==='viewer'?safe(c.status):'<select data-content-status="' + safe(c.id) + '">' + ['Draft','Needs approval','Approved','Scheduled','Published','Failed'].map(s => '<option' + (c.status===s?' selected':'') + '>' + s + '</option>').join('') + '</select>') + '</td><td data-label="Actions">' + (activeRole==='viewer'?'':button('Edit','edit-content',' data-id="' + safe(c.id) + '"')) + ((activeRole==='owner'||activeRole==='admin')?button('Delete','delete-content',' data-id="' + safe(c.id) + '"'):'') + '</td></tr>').join('') || '<tr><td colspan="5">No content items yet.</td></tr>';
   }
@@ -390,23 +445,140 @@ if (hasUrl !== hasKey) {
     const w = workspaces.find(x => x.id === activeId);
     if (!w) return;
     activeRole = w.role;
-    const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team'];
+    const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team','Settings'];
     let body = '';
     if (page === 'Dashboard') {
       body = '<h2>Workspace Overview</h2><div style="display:flex;gap:14px;flex-wrap:wrap"><div style="padding:18px;background:#edf5f0;border-radius:10px">Total Leads<br><strong style="font-size:28px">' + leads.length + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Open Pipeline<br><strong style="font-size:28px">BDT ' + leads.filter(x=>!['Won','Lost'].includes(x.status)).reduce((a,x)=>a+Number(x.value||0),0).toLocaleString('en-BD') + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Content Items<br><strong style="font-size:28px">' + contentItems.length + '</strong></div></div><p>Your data is isolated in Supabase Cloud by workspace-level Row Level Security (RLS).</p>';
     } else if (page === 'Leads') {
-      body = '<h2>Lead Management</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="lead-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Name','name','text',true,'') + field('Company','company','text',false,'') + field('Service','service','text',false,'Digital Marketing') + field('Phone','phone','tel',false,'') + field('Email','email','email',false,'') + field('Value (BDT)','value','number',false,'0') + field('Follow-up date','follow_up','date',false,'') + '<label style="grid-column:1/-1">Notes<textarea name="notes" maxlength="4000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Lead</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>' + leadRows() + '</tbody></table></div>';
+      body = '<h2>Lead Management</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="lead-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Name','name','text',true,'') + field('Company','company','text',false,'') + field('Service','service','text',false,'Digital Marketing') + field('Phone','phone','tel',false,'') + field('Email','email','email',false,'') + field('Value (BDT)','value','number',false,'0') + field('Follow-up date','follow_up','date',false,'') + '<label style="grid-column:1/-1">Notes<textarea name="notes" maxlength="4000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Lead</button></form>') + '<div class="portal-leads-table" style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>' + leadRows() + '</tbody></table></div><div class="portal-lead-cards">' + leadCards() + '</div>';
     } else if (page === 'Content Planner') {
       body = '<h2>Content Planner</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Title','title','text',true,'') + field('Platform','platform','text',true,'Facebook') + field('Schedule (ISO date/time)','scheduled_at','datetime-local',false,'') + '<label style="grid-column:1/-1">Content<textarea name="body" maxlength="10000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Content</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div><p>Content plans are saved here; they are not automatically published to social media.</p>';
     } else if (page === 'AI Content Studio') {
       body = '<h2>AI Content Studio</h2><p>Only authenticated workspace members can create drafts. AI does not publish posts or send messages to anyone.</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><label>Topic *<input name="topic" maxlength="500" required style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Platform<select name="platform" style="display:block;width:100%;padding:10px;margin-top:5px"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label style="grid-column:1/-1">Offer / verified facts<textarea name="offer" maxlength="300" style="display:block;width:100%;padding:10px;margin-top:5px"></textarea></label><button style="grid-column:1/-1">Generate AI draft</button></form>') + '<label style="display:block;margin-top:16px">Generated draft<textarea id="ai-draft-output" rows="12" readonly style="display:block;width:100%;padding:12px;margin-top:5px;box-sizing:border-box">' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output is a draft. Verify the information and obtain human approval before publishing.</p>';
+    } else if (page === 'Settings') {
+      let prefs = {};
+      try { prefs = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { prefs = {}; }
+      const checked = key => prefs[key] === true ? ' checked' : '';
+      const canManageWorkspace = activeRole === 'owner' || activeRole === 'admin';
+      body = '<h2>Settings & Control Center</h2><p>Account, workspace, preferences, notifications, security, backup and application information.</p>' +
+        '<div class="settings-grid">' +
+        '<section class="settings-panel"><h3>1. Account & Profile</h3><p><b>Signed-in email:</b> ' + safe(session.user.email) + '</p><p><b>Account ID:</b> <code>' + safe(session.user.id) + '</code></p><p><b>Workspace role:</b> ' + safe(activeRole) + '</p><p class="settings-help">Email and identity are managed by Supabase Authentication. Profile name/photo editing is not connected in this MVP.</p><button type="button" id="settings-reset-password">Request password reset</button></section>' +
+        '<section class="settings-panel"><h3>2. Workspace Settings</h3><form id="settings-workspace"><label>Workspace name<input name="workspaceName" maxlength="80" required value="' + safe(w.name) + '"' + (canManageWorkspace?'':' disabled') + '></label><button type="submit"' + (canManageWorkspace?'':' disabled') + '>Save workspace name</button></form><p class="settings-help">' + (canManageWorkspace?'Owners and admins can update this workspace name.':'Only workspace owners/admins can change workspace details.') + '</p><button type="button" data-settings-go="Team">Open team management</button></section>' +
+        '<section class="settings-panel"><h3>3. Preferences</h3><form id="settings-preferences"><label>Language<select name="language"><option value="en"' + (prefs.language !== 'bn' ? ' selected' : '') + '>English</option><option value="bn"' + (prefs.language === 'bn' ? ' selected' : '') + '>বাংলা</option></select></label><label>Time zone<select name="timezone"><option value="Asia/Dhaka"' + ((prefs.timezone || 'Asia/Dhaka') === 'Asia/Dhaka' ? ' selected' : '') + '>Asia/Dhaka</option><option value="UTC"' + (prefs.timezone === 'UTC' ? ' selected' : '') + '>UTC</option><option value="Asia/Kolkata"' + (prefs.timezone === 'Asia/Kolkata' ? ' selected' : '') + '>Asia/Kolkata</option></select></label><label>Date format<select name="dateFormat"><option value="DD MMM YYYY"' + ((prefs.dateFormat || 'DD MMM YYYY') === 'DD MMM YYYY' ? ' selected' : '') + '>25 Nov 2026</option><option value="YYYY-MM-DD"' + (prefs.dateFormat === 'YYYY-MM-DD' ? ' selected' : '') + '>2026-11-25</option><option value="MM/DD/YYYY"' + (prefs.dateFormat === 'MM/DD/YYYY' ? ' selected' : '') + '>11/25/2026</option></select></label><button type="submit">Save preferences</button></form><p class="settings-help">Preferences are stored on this device. Language/date/time preferences are not yet applied across every screen.</p></section>' +
+        '<section class="settings-panel"><h3>4. Notifications</h3><form id="settings-notifications"><label class="settings-check"><input type="checkbox" name="leadAlerts"' + checked('leadAlerts') + '> Lead updates</label><label class="settings-check"><input type="checkbox" name="followUpAlerts"' + checked('followUpAlerts') + '> Follow-up reminders</label><label class="settings-check"><input type="checkbox" name="contentAlerts"' + checked('contentAlerts') + '> Content planner updates</label><label class="settings-check"><input type="checkbox" name="securityAlerts"' + checked('securityAlerts') + '> Security notices preference</label><button type="submit">Save notification preferences</button></form><p class="settings-help">These are preference flags only. Push, email and scheduled notification delivery are not connected.</p></section>' +
+        '<section class="settings-panel"><h3>5. Data Backup & Restore</h3><p>Export the current workspace Leads and Content Planner records as a JSON backup. Restore adds or updates matching records in this workspace; it does not delete existing records.</p><div class="settings-actions"><button type="button" id="settings-export">JSON Backup Export</button><label class="settings-file-label">Choose backup JSON<input type="file" id="settings-import-file" accept=".json,application/json"></label><button type="button" id="settings-import" disabled>Restore JSON Backup</button></div><p class="settings-help">Keep backup files private. Restore accepts BK-BusiCare One backups for this same workspace only. Cloud-wide scheduled backups are not enabled.</p></section>' +
+        '<section class="settings-panel"><h3>6. Security & Sessions</h3><p><b>Authentication:</b> Supabase secure sign-in</p><p><b>Workspace access:</b> Role-based permissions with Row Level Security</p><button type="button" id="settings-signout-all">Sign out all sessions</button><p class="settings-help">This signs this account out across devices. You will need to sign in again. Two-factor authentication controls are not configured in this MVP.</p></section>' +
+        '<section class="settings-panel"><h3>7. Team & Access</h3><p>Manage workspace members and available roles. Member actions depend on your current role.</p><button type="button" data-settings-go="Team">Manage team access</button></section>' +
+        '<section class="settings-panel" id="settings-about"><h3>8. About BK-BusiCare One</h3><p><b>Application:</b> BK-BusiCare One</p><p><b>Brand:</b> BK-BusiCare</p><p><b>Version:</b> 0.2.0 MVP</p><p><b>Build channel:</b> Android Debug / Web MVP</p><p><b>Website:</b> <a href="https://busicarecom.wordpress.com/" target="_blank" rel="noopener noreferrer">busicarecom.wordpress.com</a></p><p><b>Workspace data:</b> Leads and Content Planner</p><p class="settings-help">This is the MVP information page. Social publishing, push notifications, automated cloud backup, billing, analytics and some AI integrations are not confirmed as production-enabled. Play Store release status: not published.</p></section>' +
+        '<section class="settings-panel"><h3>9. Help & Support</h3><p>For app information and service details, visit the BK-BusiCare website.</p><a href="https://busicarecom.wordpress.com/" target="_blank" rel="noopener noreferrer">Open BK-BusiCare Website</a><p class="settings-help">Do not share passwords, access tokens or private customer data in support requests.</p></section>' +
+        '<section class="settings-panel"><h3>10. Planned SaaS Capabilities</h3><ul><li>Separate organization workspaces</li><li>Role-based team access</li><li>Subscription, billing and usage limits</li><li>Secure cloud database and audit logs</li><li>Cross-device sync and automated backups</li></ul><p class="settings-help">These are roadmap items, not active features unless separately enabled and tested.</p></section></div>';
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
     card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section><nav class="busicare-bottom-nav" aria-label="Quick navigation">' + [['Dashboard','⌂'],['Leads','◎'],['Content Planner','▤'],['AI Content Studio','✦'],['Team','♙']].map(([n,i]) => '<button type="button" data-page="' + n + '" class="' + (page===n?'active':'') + '"><span>' + i + '</span><small>' + (n==='Content Planner'?'Planner':n==='AI Content Studio'?'AI Studio':n) + '</small></button>').join('') + '</nav>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
+    root.querySelectorAll('[data-settings-go]').forEach(b => b.onclick = () => { page=b.dataset.settingsGo; portalView(); bindDataActions(); });
+    const preferencesForm = root.querySelector('#settings-preferences');
+    if (preferencesForm) preferencesForm.onsubmit = e => {
+      e.preventDefault();
+      const values = new FormData(preferencesForm);
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { current = {}; }
+      current.language = String(values.get('language') || 'en');
+      current.timezone = String(values.get('timezone') || 'Asia/Dhaka');
+      current.dateFormat = String(values.get('dateFormat') || 'DD MMM YYYY');
+      try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Preferences saved on this device.', false); }
+      catch { note('Could not save preferences on this device.', true); }
+    };
+    const workspaceSettingsForm = root.querySelector('#settings-workspace');
+    if (workspaceSettingsForm) workspaceSettingsForm.onsubmit = async e => {
+      e.preventDefault();
+      if (activeRole !== 'owner' && activeRole !== 'admin') return;
+      const name = String(new FormData(workspaceSettingsForm).get('workspaceName') || '').trim();
+      if (!name || name.length > 80) { note('Enter a workspace name between 1 and 80 characters.', true); return; }
+      const save = workspaceSettingsForm.querySelector('button[type="submit"]');
+      save.disabled = true;
+      const result = await supabase.from('workspaces').update({ name }).eq('id', activeId).select('id,name').single();
+      save.disabled = false;
+      if (result.error) { note(result.error.message || 'Workspace update failed. Check your role permissions.', true); return; }
+      const current = workspaces.find(x => x.id === activeId);
+      if (current) current.name = result.data.name;
+      await refresh();
+      note('Workspace name updated.', false);
+    };
+    const notificationsForm = root.querySelector('#settings-notifications');
+    if (notificationsForm) notificationsForm.onsubmit = e => {
+      e.preventDefault();
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { current = {}; }
+      for (const key of ['leadAlerts','followUpAlerts','contentAlerts','securityAlerts']) current[key] = notificationsForm.elements.namedItem(key).checked;
+      try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Notification preferences saved on this device. Delivery is not enabled yet.', false); }
+      catch { note('Could not save notification preferences on this device.', true); }
+    };
+    const backupFileInput = root.querySelector('#settings-import-file');
+    const restoreButton = root.querySelector('#settings-import');
+    let selectedBackup = null;
+    if (backupFileInput && restoreButton) {
+      backupFileInput.onchange = async () => {
+        selectedBackup = backupFileInput.files?.[0] || null;
+        restoreButton.disabled = !selectedBackup;
+      };
+      restoreButton.onclick = async () => {
+        if (!selectedBackup) return;
+        if (selectedBackup.size > 5 * 1024 * 1024) { note('Backup file exceeds the 5 MB limit.', true); return; }
+        let backup;
+        try { backup = JSON.parse(await selectedBackup.text()); } catch { note('This file is not valid JSON.', true); return; }
+        if (backup?.app !== 'BK-BusiCare One' || backup?.schemaVersion !== 1 || backup?.workspace?.id !== activeId || !Array.isArray(backup.leads) || !Array.isArray(backup.contentItems)) {
+          note('Backup format or workspace does not match this account.', true); return;
+        }
+        if (backup.leads.length > 5000 || backup.contentItems.length > 5000) { note('Backup contains too many records.', true); return; }
+        if (!confirm('Restore this backup into the current workspace? Existing matching records will be updated; other records will remain.')) return;
+        restoreButton.disabled = true;
+        try {
+          const leadRows = backup.leads.map(row => {
+            if (!row || typeof row.id !== 'string' || typeof row.name !== 'string') throw new Error('Backup contains an invalid Lead record.');
+            const { id,name,company,service,phone,email,status,value,follow_up,notes,created_at,updated_at } = row;
+            return { id,workspace_id:activeId,name,company,service,phone,email,status,value,follow_up,notes,created_at,updated_at };
+          });
+          const contentRows = backup.contentItems.map(row => {
+            if (!row || typeof row.id !== 'string' || typeof row.title !== 'string') throw new Error('Backup contains an invalid Content record.');
+            const { id,title,platform,body,scheduled_at,status,created_at,updated_at } = row;
+            return { id,workspace_id:activeId,title,platform,body,scheduled_at,status,created_at,updated_at };
+          });
+          if (leadRows.length) { const result = await supabase.from('leads').upsert(leadRows,{onConflict:'id'}); if (result.error) throw result.error; }
+          if (contentRows.length) { const result = await supabase.from('content_items').upsert(contentRows,{onConflict:'id'}); if (result.error) throw result.error; }
+          selectedBackup = null; backupFileInput.value = ''; restoreButton.disabled = true;
+          await refresh(); note('Backup restore completed. Existing unmatched records were kept.', false);
+        } catch (err) { note(err.message || 'Backup restore failed.', true); restoreButton.disabled = false; }
+      };
+    }
+    const resetPasswordButton = root.querySelector('#settings-reset-password');
+    if (resetPasswordButton) resetPasswordButton.onclick = async () => {
+      resetPasswordButton.disabled = true;
+      const { error } = await supabase.auth.resetPasswordForEmail(session.user.email);
+      resetPasswordButton.disabled = false;
+      note(error ? error.message : 'Password reset email requested. Check your inbox if email delivery is configured.', !!error);
+    };
+    const exportButton = root.querySelector('#settings-export');
+    if (exportButton) exportButton.onclick = () => {
+      const payload = { app: 'BK-BusiCare One', schemaVersion: 1, exportedAt: new Date().toISOString(), workspace: { id: activeId, name: w.name }, leads, contentItems };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'bkbusicare-workspace-backup.json'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      note('Workspace JSON backup downloaded.', false);
+    };
+    const signOutAllButton = root.querySelector('#settings-signout-all');
+    if (signOutAllButton) signOutAllButton.onclick = async () => {
+      if (!confirm('Sign out this account from all active sessions?')) return;
+      signOutAllButton.disabled = true;
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) { signOutAllButton.disabled = false; note(error.message || 'Could not sign out all sessions.', true); }
+      else { clearLeadFormDraftsForUser(session?.user?.id); const draftKey = aiFormDraftKey(); if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } } session = null; authView('login'); }
+    };
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
+      persistLeadFormDraft(root.querySelector('#lead-form'));
       activeId=e.target.value;
       aiDraft = null;
       await refresh();
@@ -417,8 +589,15 @@ if (hasUrl !== hasKey) {
       currentAiForm.addEventListener('input', () => persistAiFormDraft(currentAiForm));
       currentAiForm.addEventListener('change', () => persistAiFormDraft(currentAiForm));
     }
+    const currentLeadForm = root.querySelector('#lead-form');
+    if (currentLeadForm) {
+      restoreLeadFormDraft(currentLeadForm);
+      currentLeadForm.addEventListener('input', () => persistLeadFormDraft(currentLeadForm));
+      currentLeadForm.addEventListener('change', () => persistLeadFormDraft(currentLeadForm));
+    }
     root.querySelectorAll('[data-page]').forEach(b => b.onclick = () => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
+      persistLeadFormDraft(root.querySelector('#lead-form'));
       page=b.dataset.page;
       portalView();
       bindDataActions();
@@ -513,6 +692,7 @@ if (hasUrl !== hasKey) {
       if (!payload.name || !Number.isFinite(payload.value)) return note('Enter a name and a valid value.',true);
       const r = await supabase.from('leads').insert(payload);
       if (r.error) return note(r.error.message,true);
+      clearLeadFormDraft();
       await refresh();
     };
     const cf = root.querySelector('#content-form');
@@ -594,12 +774,14 @@ if (hasUrl !== hasKey) {
   async function logout() {
     const r = await supabase.auth.signOut();
     if (r.error) { note(r.error.message,true); return; }
+    clearLeadFormDraftsForUser(session?.user?.id);
     const draftKey = aiFormDraftKey();
     if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
     session = null; workspaces = []; activeId = ''; leads = []; contentItems = []; aiDraft = null; authView('login');
   }
   let passwordRecoveryPending = false;
   supabase.auth.onAuthStateChange((event,next) => {
+    const previousUserId = session?.user?.id;
     session = next;
     if (event === 'PASSWORD_RECOVERY') {
       passwordRecoveryPending = true;
@@ -607,6 +789,7 @@ if (hasUrl !== hasKey) {
       return;
     }
     if (event === 'SIGNED_OUT') {
+      clearLeadFormDraftsForUser(previousUserId);
       session = null; workspaces=[]; activeId=''; leads=[]; contentItems=[]; authView('login');
       return;
     }

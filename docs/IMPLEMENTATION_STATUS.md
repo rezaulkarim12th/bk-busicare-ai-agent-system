@@ -93,3 +93,29 @@ Do not load real customer data, enable checkout/payment, publish social content 
 - [Security audit](SECURITY_AUDIT.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
 - [Media integration plan](MEDIA_INTEGRATION_PLAN.md)
+
+
+## SaaS capabilities review — 2026-11-25
+
+The Settings > Planned SaaS Capabilities screen now distinguishes implemented source-code foundations from unverified or unimplemented release gates. This is a documentation/UI status update, not evidence that the outstanding live tests or provider setup have passed.
+
+- Source-code foundations documented: workspace tenancy, workspace-scoped Leads/Content, role model, RLS, team administration functions, audit events and authenticated quota-limited AI draft generation.
+- Still outstanding: live Auth/email acceptance, two-user/two-workspace direct API isolation tests, subscription and billing, scheduled cloud backup and restore drills, production monitoring/incident response, external provider integrations, independent security review and production release approval.
+- Local browser JSON backup is not cloud backup. It does not provide cross-device synchronization.
+- No Production Supabase changes, payment-provider connections, live publishing or customer-data migration were performed for this update.
+
+The live TEST project state, deployed function versions and provider configuration were not re-queried as part of this source review. Refer to the evidence and limitations above; do not infer current runtime readiness from the UI status page.
+
+
+## Latest Settings/SaaS UI build verification — 2026-11-24
+
+Commit: `df6f975c379628fc5527fcd2b24d9c6b63d87689`
+
+- Android APK workflow [45473541827](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45473541827): successful. Dependency install, Vite build, Capacitor generation/sync, Android SDK setup, official icon application, debug APK build and artifact upload all passed.
+- Android artifact: `BK-BusiCare-Android-debug`, artifact ID `14958706897`, expires 2026-12-08. ZIP SHA-256: `db66233f18702162404a63dc779cba40527a07621214c958550c3479c5b6b2fd`.
+- Web workflow [45473541727](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45473541727): build job passed (dependency audit, Deno type-check, migration safety, JS syntax and production bundle). Artifact upload and Pages deploy were skipped for this pull-request event; this is not a live Pages deployment.
+- Disposable local Supabase migration/RLS workflow [45473541692](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45473541692): passed, including applying migrations to isolated local Supabase and pgTAP RLS tests. This does not apply migrations to hosted TEST or Production.
+- PR #16 remains open and unmerged. No Production Supabase changes were made.
+- Physical Android installation/interaction testing has not been completed. This is a debug APK, not a Play Store release build.
+
+These checks verify the build and isolated local database test paths only. They do not close the live Auth/email, remote tenant-isolation, AI-provider, billing, cloud-backup, monitoring, external-integration or production-approval gates listed above.
