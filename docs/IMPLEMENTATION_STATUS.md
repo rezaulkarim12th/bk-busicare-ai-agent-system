@@ -1,95 +1,138 @@
 # BK-BusiCare — Implementation & Release Status
 
-Last verified: 2026-11-21 (refreshed after successful build/deploy and Supabase advisor review)
+Last verified: 2026-11-24 (GitHub main and Supabase TEST read-only inspection)
+Status: Published browser MVP + expanded TEST backend foundation. **Not production-certified; no APK release is certified.**
 
-## Release summary
+## Environment snapshot
 
-**Status: Published browser MVP + active TEST backend foundation. Not certified as a complete production SaaS.**
-
-- Live application: https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/
+- Live browser application: https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/
 - Repository: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system
-- TEST Supabase project: BK-BusiCare-TEST (`rmnoiwzkhjwmgxwkfdzb`), ACTIVE_HEALTHY.
-- Production Supabase project: not modified.
+- Latest main commit observed: [5b8b534](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/commit/5b8b5345934fd636f2f8d6fe9b7b984a8d6f6be9), responsive mobile bottom navigation (2026-11-22).
+- TEST Supabase: BK-BusiCare-TEST (`rmnoiwzkhjwmgxwkfdzb`), ACTIVE_HEALTHY.
+- Production Supabase: BK-BusiCare (`ekznyijmghrjtovbbgun`), ACTIVE_HEALTHY. **Not modified during this review.**
+- The two Supabase projects are separate. Current development and validation must remain in TEST until an explicitly approved release plan exists.
 
-## Current TEST Edge Functions
+## Current TEST backend — verified 2026-11-24
 
-Verified from Supabase on 2026-11-21. All three are ACTIVE with gateway JWT verification enabled.
+### Database
 
-| Function | Status | Version | Gateway JWT |
-|---|---|---:|---|
-| create-workspace | ACTIVE | 11 | Required |
-| manage-workspace-member | ACTIVE | 13 | Required |
-| ai-content | ACTIVE | 7 | Required |
+- 10 migrations are applied, through:
+  - `20261123094545_sslcommerz_payment_foundation`
+  - `20261123094616_deny_browser_access_payment_tables`
+- Eight public tables were returned by Supabase; RLS is enabled on all eight:
+  - `workspaces`
+  - `workspace_members`
+  - `leads`
+  - `content_items`
+  - `audit_events`
+  - `product_catalog`
+  - `orders`
+  - `payment_transactions`
+- `product_catalog`, `orders` and `payment_transactions` are protected against direct browser-role access by deny policies. Their intended access path is server-side.
+- The TEST project contains one workspace and one workspace-member row at the time of inspection; lead, content, audit, product, order and payment tables returned zero rows. This is a point-in-time observation, not an acceptance test.
 
-The workspace functions use bounded request-body parsing and configured exact-origin allowlisting. The owner saved the TEST `APP_ALLOWED_ORIGINS` secret through the Supabase dashboard. Its stored value is not readable through the available management interface; confirm it remains exactly `https://rezaulkarim12th.github.io`.
+### Edge Functions
 
-The AI function validates the caller JWT, requires a valid workspace UUID, checks the authenticated user's membership and role server-side, applies bounded JSON parsing and usage quotas, and returns draft-only content. It does not publish content or send messages.
+All six functions are ACTIVE:
 
-## Implemented and published
+| Function | Version | Gateway JWT |
+|---|---:|---|
+| `create-workspace` | 11 | Required |
+| `manage-workspace-member` | 13 | Required |
+| `ai-content` | 9 | Required |
+| `busicare-create-order` | 1 | Required |
+| `sslcommerz-create-session` | 1 | Required |
+| `sslcommerz-ipn` | 3 | Not required at gateway; provider callback is validated server-side |
 
-- Responsive Vite browser MVP with dashboard, Leads, sales pipeline, Content Planner, authenticated AI Content Studio, Store catalogue preview, reports, CSV export and JSON backup/restore.
-- Supabase Auth portal source supports email/password sign-in, registration, password recovery and workspace selection. Live email delivery and the complete signed-in journey remain unverified.
+Function status means deployed and active; it does not prove that provider credentials, callback URLs, email delivery or end-to-end user journeys are configured and working.
+
+## Implemented foundation
+
+- Responsive Vite browser MVP with dashboard, Leads, sales pipeline, Content Planner, authenticated AI Content Studio, catalogue preview, reports, CSV export and JSON backup/restore.
+- Mobile UI and bottom navigation changes are present on main through the latest observed commit.
+- Supabase Auth portal source supports email/password sign-in, registration, password recovery and workspace selection. Live email delivery and full Auth journeys remain unverified.
 - Workspace-scoped cloud Leads and Content CRUD with PostgreSQL RLS.
-- Workspace/team role and membership authorization foundations.
-- AI Content Studio sends the active workspace ID, displays returned draft text and allows non-viewer members to save a draft to Content Planner.
-- AI output is draft-only; no automatic publishing, messaging, external writes or ad spend.
-- Request-body limits and JSON object validation are applied to workspace creation and member-management endpoints.
-- Regression tests cover AI portal wiring, server-side workspace authorization logic and bounded request parsing.
-- TEST database has eight migrations applied.
-- Latest verified GitHub Actions run [44886113136](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886113136) completed successfully after the implementation-status refresh. Both build and deploy jobs passed, including dependency audit, Deno type-check, migration safety checks, JavaScript syntax validation, production bundle build, artifact upload and GitHub Pages deployment.
-- Supabase Security Advisor currently reports one WARN: leaked-password protection is disabled. The BK-BusiCare Supabase organization is on the Free plan; Supabase documents this control as available on Pro and above. This is a provider-level Auth setting and cannot be cleared by a SQL migration or client-side check. Upgrade decision and dashboard enablement remain owner actions.
+- Workspace/team membership and role authorization foundations.
+- AI Content Studio is wired to the authenticated portal; the Edge Function validates JWT, workspace membership/role and quota, and is designed to return draft-only content. Successful live provider generation is not yet demonstrated.
+- Commerce database foundation and server-side order/payment functions have been deployed to TEST. This is not proof of a completed storefront, successful order lifecycle, successful SSLCommerz sandbox transaction, or readiness to accept real orders.
+- No automatic social publishing, customer messaging, advertising spend or other external write action is approved.
 
-## Security and database observations
+## Current Supabase advisor results — 2026-11-24
 
-- All three deployed TEST Edge Functions have gateway JWT verification enabled.
-- Security Advisor reports one WARN for disabled leaked-password protection. The organization is currently on the Free plan; Supabase documents this feature as available on Pro and above. No SQL or browser-side change can truthfully substitute for this provider-level control.
-- Performance Advisor reports three INFO-level unused-index notices (`audit_events_actor_idx`, `leads_workspace_status_idx`, `audit_workspace_created_idx`). They were not removed because usage evidence is insufficient to justify a potentially harmful index change.
-- Source-level and CI regression checks do not substitute for live API authorization tests or independent penetration testing.
-- No live two-user/two-workspace API isolation test has been completed.
-- No live signup, login, password recovery or invitation-email delivery test has been completed.
-- No successful authenticated AI generation has been demonstrated. The function requires owner-configured `OPENAI_API_KEY` and `OPENAI_MODEL` as TEST server-side secrets. Never place these in browser variables, source control or chat.
-- A controlled Load Test has not been run.
+### Security Advisor
 
-## Remaining release gates
+One WARN remains:
+- `auth_leaked_password_protection` — Leaked Password Protection Disabled.
+- Supabase documents this HaveIBeenPwned password check as available on Pro and above. The organization was previously verified as Free tier.
+- This is a provider-level Auth control; it cannot be enabled by a SQL migration or frontend code. An authorized adult account owner must decide whether to change the plan and then enable the setting in the dashboard.
+- Documentation: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
-### 1. Authentication and tenancy
-- Verify TEST Auth Site URL, redirect URLs and SMTP/email delivery.
-- Test signup, login, logout, password recovery and workspace creation with test accounts.
-- Run two-user/two-workspace direct API isolation and role-boundary tests, including viewer restrictions and non-member denial.
+### Performance Advisor
 
-### 2. AI provider activation
-- Owner configures `OPENAI_API_KEY` and `OPENAI_MODEL` as Supabase TEST server-side secrets.
+Six INFO-level unused-index notices were returned:
+- `orders_user_created_idx`
+- `payment_transactions_order_idx`
+- `product_catalog_active_idx`
+- `audit_events_actor_idx`
+- `leads_workspace_status_idx`
+- `audit_workspace_created_idx`
+
+These are informational, not proof of a defect. Do not drop indexes based only on low/no observed use in a newly created TEST environment; collect representative query/workload evidence first.
+
+## Outstanding release gates
+
+### 1. Documentation and source alignment
+- This status refresh records the current TEST migration, table and Edge Function inventory.
+- Review code and deployment configuration against the live deployed functions; confirm the repository source matches each deployed version.
+- Inspect and fix the order endpoint's request-size handling if it still buffers the entire body before enforcing its limit. Do not deploy an uncompiled/unverified patch.
+
+### 2. Authentication and tenancy
+- Verify TEST Auth Site URL, redirect URLs, email confirmation and SMTP delivery.
+- Test signup, login, logout, password recovery and workspace creation using separate test accounts.
+- Run live two-user/two-workspace direct API isolation and role-boundary tests, including viewer restrictions and non-member denial.
+- Existing local regression/pgTAP tests do not substitute for live remote API tests.
+
+### 3. AI provider activation
+- An authorized account owner configures `OPENAI_API_KEY` and `OPENAI_MODEL` as TEST server-side secrets only.
 - Verify successful authenticated draft generation and safe handling of invalid JWT, disallowed origin, oversized body, quota exhaustion and provider errors.
-- Confirm no publishing or external side effects occur.
+- Confirm that generation cannot publish content or send messages. Never place provider secrets in browser variables, Git or chat.
 
-### 3. Controlled test and stability
-- Run deterministic functional tests against TEST.
-- Run a modest, controlled concurrency/load test against TEST only after test accounts and safe test data are ready.
-- Record latency, error rate and resource observations. Do not run stress/DoS testing or load Production.
+### 4. Commerce and payment
+- Verify server-side product pricing, order ownership, stock handling, duplicate request behavior and order status transitions.
+- Inspect the order endpoint's bounded request parsing before deployment.
+- Configure SSLCommerz sandbox credentials and callback/public URL only through authorized server-side TEST secrets.
+- Run a complete sandbox transaction and provider IPN validation test, including amount/currency/order matching and replay/duplicate callback behavior.
+- Keep live checkout, real customer orders and Production payment disabled until all tests and operational/legal reviews pass.
 
-### 4. Product modules and integrations
+### 5. Product and external integrations
 - Complete CRM/client operations workflows and acceptance tests.
-- Implement commerce schema/RLS, order requests and stock controls before enabling live order acceptance.
-- Keep checkout and payment disabled until an approved provider and end-to-end tests exist.
-- Meta, Google Ads, TikTok, LinkedIn, YouTube and Microsoft integrations require owner-managed developer apps, OAuth approvals, scopes and server-side secrets.
+- Meta, Instagram, TikTok, LinkedIn, YouTube and Google integrations require owner-managed developer apps, OAuth approvals, least-privilege scopes and server-side token storage.
+- Keep external publishing, customer messaging, campaign creation and ad spend behind explicit human approval.
 
-### 5. Production operations and release approval
-- Review production configuration separately and only after explicit owner approval.
+### 6. Android and release readiness
+- Verify Android packaging workflow, application identity, signing configuration and build artifact provenance.
+- Build and test an APK on the user's Android device; verify login, navigation, session handling, core workflows, network failure handling and screen sizes.
+- A repository branch or workflow configuration is not evidence of a tested, installable release APK. No Play Store publication is authorized.
+
+### 7. Production operations
+- Review Production separately and only after explicit owner approval.
 - Complete backup/restore drills, monitoring, retention, rate limits, incident response, accessibility, privacy, performance and security acceptance.
 - Obtain owner sign-off and maintain a rollback plan.
 
 ## Release decision
 
-The browser MVP is published and the TEST backend foundation has three active JWT-protected Edge Functions. CI build/deploy is green. The Security Advisor still reports one WARN for leaked-password protection being disabled; the Performance Advisor reports three INFO-level unused-index notices. These facts do not certify production readiness. Live Auth, real multi-user isolation, AI provider activation, load testing, complete CRM/client operations, commerce, external integrations and production operations remain incomplete or unverified.
+The browser MVP is published. TEST has 10 migrations, eight RLS-enabled public tables and six ACTIVE Edge Functions. Security Advisor reports one WARN for disabled leaked-password protection; Performance Advisor reports six INFO unused-index notices. These findings and deployment states do **not** certify production readiness.
 
-Do not load real customer data, enable checkout/payment, publish social content or spend advertising budget until the relevant gates pass and the owner approves.
+Live Auth/email delivery, real multi-user API isolation, successful authenticated AI generation, SSLCommerz sandbox transaction, order/stock lifecycle, controlled load testing, complete CRM/client operations, external integrations, Android APK installation/QA and Production operations remain incomplete or unverified.
+
+Do not load real customer data, enable live checkout/payment, publish social content or spend advertising budget until the relevant gates pass and the owner approves. Production remains untouched.
 
 ## Evidence
 
 - [Live application](https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/)
 - [Repository](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system)
-- [Latest successful Build and Deploy workflow 44886059909](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/44886059909)
-- [Architecture and delivery](ARCHITECTURE_AND_DELIVERY.md)
+- [Latest observed main commit](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/commit/5b8b5345934fd636f2f8d6fe9b7b984a8d6f6be9)
 - [Security audit](SECURITY_AUDIT.md)
+- [Architecture and delivery](ARCHITECTURE_AND_DELIVERY.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
 - [Media integration plan](MEDIA_INTEGRATION_PLAN.md)
