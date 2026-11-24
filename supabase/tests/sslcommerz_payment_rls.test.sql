@@ -40,5 +40,23 @@ select ok(exists (
     and policyname='deny browser access to payment_transactions' and cmd='ALL'
 ), 'payment transactions has explicit browser deny policy');
 
+select ok(exists (
+  select 1 from pg_indexes
+  where schemaname='public' and tablename='payment_transactions'
+    and indexname='payment_transactions_one_active_per_order_idx'
+), 'one-active-payment-per-order index exists');
+select ok((
+  select indexdef ilike '%CREATE UNIQUE INDEX%'
+  from pg_indexes
+  where schemaname='public' and tablename='payment_transactions'
+    and indexname='payment_transactions_one_active_per_order_idx'
+), 'one-active-payment-per-order index is unique');
+select ok((
+  select indexdef ilike '%initiated%' and indexdef ilike '%pending%'
+  from pg_indexes
+  where schemaname='public' and tablename='payment_transactions'
+    and indexname='payment_transactions_one_active_per_order_idx'
+), 'one-active-payment-per-order index covers initiated and pending states');
+
 select * from finish();
 rollback;
