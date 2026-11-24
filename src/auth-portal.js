@@ -336,6 +336,46 @@ if (hasUrl !== hasKey) {
       // Ignore malformed or unavailable session storage; the form remains usable.
     }
   }
+
+  // Preserve unfinished lead entries when the user switches apps or pages.
+  // Drafts are scoped to the authenticated user and workspace and remain in this tab session.
+  function leadFormDraftKey() {
+    return session?.user?.id && activeId ? 'bkbusicare-lead-form-v1:' + session.user.id + ':' + activeId : '';
+  }
+  function persistLeadFormDraft(form) {
+    const key = leadFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const values = Object.fromEntries(new FormData(form).entries());
+      sessionStorage.setItem(key, JSON.stringify({ values, savedAt: Date.now() }));
+    } catch {
+      note('Lead draft could not be temporarily saved in this browser.', true);
+    }
+  }
+  function restoreLeadFormDraft(form) {
+    const key = leadFormDraftKey();
+    if (!key || !form) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+      if (!saved || typeof saved !== 'object' || !saved.values || typeof saved.values !== 'object') return;
+      const limits = { name:160, company:160, service:120, phone:40, email:254, value:24, follow_up:10, notes:4000 };
+      for (const [name, max] of Object.entries(limits)) {
+        const control = form.elements.namedItem(name);
+        const value = saved.values[name];
+        if (control && typeof value === 'string' && value.length <= max) control.value = value;
+      }
+      if (Object.values(saved.values).some(value => typeof value === 'string' && value.length > 0)) {
+        note('Unfinished Lead draft restored. Review it and select Add Lead to save.', false);
+      }
+    } catch {
+      // Ignore malformed or unavailable session storage; the form remains usable.
+    }
+  }
+  function clearLeadFormDraft() {
+    const key = leadFormDraftKey();
+    if (!key) return;
+    try { sessionStorage.removeItem(key); } catch { /* storage may be unavailable */ }
+  }
   function authView(mode) {
     card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>Securely access your workspace.</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
     root.querySelector('#auth-form').onsubmit = async e => {
@@ -407,6 +447,7 @@ if (hasUrl !== hasKey) {
     root.querySelector('#logout').onclick = logout;
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
+      persistLeadFormDraft(root.querySelector('#lead-form'));
       activeId=e.target.value;
       aiDraft = null;
       await refresh();
@@ -417,8 +458,15 @@ if (hasUrl !== hasKey) {
       currentAiForm.addEventListener('input', () => persistAiFormDraft(currentAiForm));
       currentAiForm.addEventListener('change', () => persistAiFormDraft(currentAiForm));
     }
+    const currentLeadForm = root.querySelector('#lead-form');
+    if (currentLeadForm) {
+      restoreLeadFormDraft(currentLeadForm);
+      currentLeadForm.addEventListener('input', () => persistLeadFormDraft(currentLeadForm));
+      currentLeadForm.addEventListener('change', () => persistLeadFormDraft(currentLeadForm));
+    }
     root.querySelectorAll('[data-page]').forEach(b => b.onclick = () => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
+      persistLeadFormDraft(root.querySelector('#lead-form'));
       page=b.dataset.page;
       portalView();
       bindDataActions();
@@ -513,6 +561,7 @@ if (hasUrl !== hasKey) {
       if (!payload.name || !Number.isFinite(payload.value)) return note('Enter a name and a valid value.',true);
       const r = await supabase.from('leads').insert(payload);
       if (r.error) return note(r.error.message,true);
+      clearLeadFormDraft();
       await refresh();
     };
     const cf = root.querySelector('#content-form');
