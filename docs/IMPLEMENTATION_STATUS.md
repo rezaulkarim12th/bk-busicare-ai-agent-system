@@ -170,3 +170,55 @@ It proves the TEST project is online, the ten listed migrations are recorded, an
 7. Produce and inspect a signed AAB, complete privacy/Data Safety and Play Console checks only after acceptance evidence exists.
 
 No provider secrets were read, requested in chat, or changed. No production project, live payment, Play Console release, or user device was modified.
+
+
+---
+
+## End-to-end verification evidence — 2026-11-24
+
+Read-only review of the BK-BusiCare-TEST project logs and database was performed. No customer data was created, modified, or deleted.
+
+### Authentication — PARTIALLY VERIFIED
+- Auth logs contain successful email/password login events (HTTP 200) and logout events (HTTP 204) originating from the published application.
+- Auth logs also contain rejected invalid-credential attempts (HTTP 400), which confirms the negative credential path is active.
+- Current TEST database counts: 1 Auth user, 1 workspace, 1 workspace membership.
+- Signup, email confirmation/delivery, password recovery, refresh/session expiry, invitation flow, and a second-user/two-workspace isolation test were not demonstrated by the available logs or data. Do not mark the complete Auth E2E suite as passed.
+
+### AI Integration — NOT VERIFIED
+- The deployed `ai-content` function is ACTIVE at version 9 and requires JWT.
+- Its source requires `OPENAI_API_KEY`, `OPENAI_MODEL`, caller authentication, allowed Origin, workspace membership and quota reservation.
+- No matching AI function invocation log was found in the queried Edge Function log window. Successful provider-backed generation is therefore not evidenced. Secret values are not exposed by the available tools and were not requested in chat.
+
+### Payment — NOT VERIFIED / KEEP DISABLED
+- The TEST project has active order, SSLCommerz session and IPN functions; the IPN function performs provider-side validation and checks transaction ID, validation ID, amount and currency before accepting a callback.
+- TEST database currently contains **0 orders** and **0 payment_transactions**. No sandbox payment session, success/failure/cancel callback, replay test, refund or reconciliation was evidenced.
+- Store credentials and sandbox configuration were not read or changed. Do not enable checkout.
+
+### Security — PARTIAL
+- All eight observed public tables have RLS enabled.
+- The six deployed Edge Functions and their gateway JWT settings are recorded in the preceding TEST recheck.
+- Security Advisor still reports one WARN: leaked-password protection disabled. The organization is on the Free plan. No plan upgrade or Auth setting change was made.
+- No live two-user isolation, role-boundary, penetration, or rate-limit acceptance test was performed.
+
+### Backup — LOCAL EXPORT/IMPORT ONLY
+- Source provides JSON backup export and JSON import with a 2 MB size limit, structural validation, confirmation before replacing local demo data, and rollback to prior in-memory data if local save fails.
+- This is browser-local demo backup, not server-side/cloud backup. No automated cloud backup, restore point, retention policy, or recovery drill is implemented/evidenced.
+
+### Android Device QA — NOT VERIFIED
+- The Android workflow creates a Debug APK with minSdk 26, compileSdk 36 and targetSdk 36.
+- The generated Android project/manifest is created during CI and is not committed as a native project in the repository. The available configuration does not demonstrate feature-specific native permission declarations or runtime permission handling.
+- No physical-device install, upgrade, permission prompt, offline, accessibility, crash or ANR test evidence is available. A Debug APK is not a signed Play release AAB.
+
+### Current test-data snapshot
+| Resource | Count |
+|---|---:|
+| Auth users | 1 |
+| Workspaces | 1 |
+| Workspace memberships | 1 |
+| Leads | 0 |
+| Content items | 0 |
+| Orders | 0 |
+| Payment transactions | 0 |
+
+### Acceptance decision
+Authentication has evidence of successful login/logout and invalid-login rejection, but the complete E2E suite is not passed. AI generation, payment, cloud backup/restore and physical Android QA remain unverified or incomplete. **Release remains HOLD.** No production project, payment credentials, Auth settings, device, Play Console, or live customer records were changed.
