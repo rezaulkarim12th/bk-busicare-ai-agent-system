@@ -64,7 +64,7 @@ Not yet certified:
 
 The Supabase Security Advisor currently reports a WARN for disabled leaked-password protection. Performance Advisor reports six INFO-level unused-index notices; these should be assessed against workload evidence, not removed blindly.
 
-The TEST payment functions currently live on the separate `feature/sslcommerz-sandbox-readiness` branch / Draft PR #14, not on `main`. A bounded streaming request-body fix and Deno tests have been pushed to that branch but are not deployed to TEST yet. The payment schema still needs a committed, versioned migration for reproducible release builds.
+The TEST payment functions currently live on the separate `feature/sslcommerz-sandbox-readiness` branch / Draft PR #14, not on `main`. A bounded streaming request-body fix and five Deno tests have been added there; the first Deno tests passed, but the overall CI failed because Node auto-discovered the Deno test file. The test file has been renamed and CI updated; a new CI result and TEST deployment are pending. The two timestamped payment migrations are now committed on that feature branch. A debug APK artifact exists, but it is unsigned and not device-tested.
 
 ## Security and release rules
 
