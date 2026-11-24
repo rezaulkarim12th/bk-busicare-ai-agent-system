@@ -376,6 +376,18 @@ if (hasUrl !== hasKey) {
     if (!key) return;
     try { sessionStorage.removeItem(key); } catch { /* storage may be unavailable */ }
   }
+  function clearLeadFormDraftsForUser(userId) {
+    if (!userId) return;
+    const prefix = 'bkbusicare-lead-form-v1:' + userId + ':';
+    try {
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith(prefix)) sessionStorage.removeItem(key);
+      }
+    } catch {
+      // Session storage may be unavailable; authentication still signs out safely.
+    }
+  }
   function authView(mode) {
     card('<b>BK-BusiCare · Secure Access</b><h2>' + (mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Sign in') + '</h2><p>Securely access your workspace.</p><form id="auth-form">' + field('Email','email','email',true,'') + (mode === 'reset' ? '' : field('Password (minimum 12 characters)','password','password',true,'')) + '<button>Continue</button></form><p>' + button('Sign in','mode-login') + button('Create account','mode-signup') + button('Forgot password','mode-reset') + '</p><p data-note></p><small>Supabase Auth handles passwords. This app does not store them.</small>');
     root.querySelector('#auth-form').onsubmit = async e => {
@@ -562,7 +574,7 @@ if (hasUrl !== hasKey) {
       signOutAllButton.disabled = true;
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) { signOutAllButton.disabled = false; note(error.message || 'Could not sign out all sessions.', true); }
-      else { clearLeadFormDraft(); const draftKey = aiFormDraftKey(); if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } } session = null; authView('login'); }
+      else { clearLeadFormDraftsForUser(session?.user?.id); const draftKey = aiFormDraftKey(); if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } } session = null; authView('login'); }
     };
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
@@ -762,7 +774,7 @@ if (hasUrl !== hasKey) {
   async function logout() {
     const r = await supabase.auth.signOut();
     if (r.error) { note(r.error.message,true); return; }
-    clearLeadFormDraft();
+    clearLeadFormDraftsForUser(session?.user?.id);
     const draftKey = aiFormDraftKey();
     if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
     session = null; workspaces = []; activeId = ''; leads = []; contentItems = []; aiDraft = null; authView('login');
@@ -776,6 +788,7 @@ if (hasUrl !== hasKey) {
       return;
     }
     if (event === 'SIGNED_OUT') {
+      clearLeadFormDraftsForUser(session?.user?.id);
       session = null; workspaces=[]; activeId=''; leads=[]; contentItems=[]; authView('login');
       return;
     }
