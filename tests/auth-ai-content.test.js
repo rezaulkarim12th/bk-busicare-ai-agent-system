@@ -11,7 +11,7 @@ test('authenticated portal exposes the AI Content Studio and invokes the protect
   assert.match(source, /save-ai-draft/);
   assert.match(source, /status: 'Draft'/);
   assert.match(source, /activeRole==='viewer'/);
-  assert.doesNotMatch(source, /functions\.invoke\(['\"](?:publish|send-message)/i);
+  assert.doesNotMatch(source, /functions\.invoke\(['"](?:publish|send-message)/i);
 });
 
 test('AI endpoint enforces workspace membership and role server-side', async () => {
@@ -35,8 +35,8 @@ test('workspace and team endpoints reject oversized or non-object JSON bodies', 
 
 test('AI endpoint parses standard Bearer authorization headers and joins prompt/output lines', async () => {
   const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
-  assert.ok(source.includes(String.raw`match(/^Bearer\s+(.+)$/i)`));
-  assert.ok(source.includes(String.raw`.join("\n")`));
+  assert.ok(source.includes(String.raw`match(/^Bearer\\s+(.+)$/i)`));
+  assert.ok(source.includes(String.raw`.join("\\n")`));
   const bearerPattern = /^Bearer\s+(.+)$/i;
   assert.equal('Bearer eyJhbGciOiJIUzI1NiJ9'.match(bearerPattern)?.[1], 'eyJhbGciOiJIUzI1NiJ9');
   assert.equal('Bearer'.match(bearerPattern), null);
@@ -53,13 +53,12 @@ test('AI Content Studio saves and restores unfinished form drafts per workspace'
   assert.ok(source.includes('sessionStorage.removeItem(draftKey)'));
 });
 
-
 test('AI endpoint allows browser preflight headers and validates JWT in its handler', async () => {
   const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
   const config = await readFile(new URL('../supabase/config.toml', import.meta.url), 'utf8');
-  assert.match(source, /Access-Control-Allow-Headers[^\\n]*x-client-info/);
+  assert.ok(source.includes('Access-Control-Allow-Headers') && source.includes('x-client-info'));
   assert.match(source, /req\.method === "OPTIONS"/);
   assert.match(source, /auth\.getUser\(token\)/);
   assert.match(source, /workspace_members/);
-  assert.match(config, /\\[functions\.ai-content\\][\\s\\S]*?verify_jwt = false/);
+  assert.match(config, /\[functions\.ai-content\][\s\S]*?verify_jwt = false/);
 });
