@@ -433,7 +433,7 @@ if (hasUrl !== hasKey) {
     const w = workspaces.find(x => x.id === activeId);
     if (!w) return;
     activeRole = w.role;
-    const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team'];
+    const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team','Settings'];
     let body = '';
     if (page === 'Dashboard') {
       body = '<h2>Workspace Overview</h2><div style="display:flex;gap:14px;flex-wrap:wrap"><div style="padding:18px;background:#edf5f0;border-radius:10px">Total Leads<br><strong style="font-size:28px">' + leads.length + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Open Pipeline<br><strong style="font-size:28px">BDT ' + leads.filter(x=>!['Won','Lost'].includes(x.status)).reduce((a,x)=>a+Number(x.value||0),0).toLocaleString('en-BD') + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Content Items<br><strong style="font-size:28px">' + contentItems.length + '</strong></div></div><p>Your data is isolated in Supabase Cloud by workspace-level Row Level Security (RLS).</p>';
@@ -443,11 +443,61 @@ if (hasUrl !== hasKey) {
       body = '<h2>Content Planner</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Title','title','text',true,'') + field('Platform','platform','text',true,'Facebook') + field('Schedule (ISO date/time)','scheduled_at','datetime-local',false,'') + '<label style="grid-column:1/-1">Content<textarea name="body" maxlength="10000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Content</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div><p>Content plans are saved here; they are not automatically published to social media.</p>';
     } else if (page === 'AI Content Studio') {
       body = '<h2>AI Content Studio</h2><p>Only authenticated workspace members can create drafts. AI does not publish posts or send messages to anyone.</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><label>Topic *<input name="topic" maxlength="500" required style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Platform<select name="platform" style="display:block;width:100%;padding:10px;margin-top:5px"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label style="grid-column:1/-1">Offer / verified facts<textarea name="offer" maxlength="300" style="display:block;width:100%;padding:10px;margin-top:5px"></textarea></label><button style="grid-column:1/-1">Generate AI draft</button></form>') + '<label style="display:block;margin-top:16px">Generated draft<textarea id="ai-draft-output" rows="12" readonly style="display:block;width:100%;padding:12px;margin-top:5px;box-sizing:border-box">' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output is a draft. Verify the information and obtain human approval before publishing.</p>';
+    } else if (page === 'Settings') {
+      let prefs = {};
+      try { prefs = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { prefs = {}; }
+      const checked = key => prefs[key] === true ? ' checked' : '';
+      body = '<h2>Settings</h2><p>Manage your account, workspace preferences and data.</p>' +
+        '<div class="settings-grid">' +
+        '<section class="settings-panel"><h3>Account & Profile</h3><p><b>Email:</b> ' + safe(session.user.email) + '</p><p><b>Workspace role:</b> ' + safe(activeRole) + '</p><p class="settings-help">Account email and role are managed by secure authentication and workspace permissions.</p><button type="button" id="settings-reset-password">Send password reset email</button></section>' +
+        '<section class="settings-panel"><h3>Workspace</h3><p><b>Name:</b> ' + safe(w.name) + '</p><p><b>Current workspace:</b> ' + safe(w.name) + '</p><p class="settings-help">Workspace members and role management are available in the Team section.</p><button type="button" data-settings-go="Team">Manage team</button></section>' +
+        '<section class="settings-panel"><h3>Preferences</h3><form id="settings-preferences"><label>Preferred language<select name="language"><option value="en"' + (prefs.language !== 'bn' ? ' selected' : '') + '>English</option><option value="bn"' + (prefs.language === 'bn' ? ' selected' : '') + '>বাংলা</option></select></label><label>Time zone<select name="timezone"><option value="Asia/Dhaka"' + ((prefs.timezone || 'Asia/Dhaka') === 'Asia/Dhaka' ? ' selected' : '') + '>Asia/Dhaka (Bangladesh)</option><option value="UTC"' + (prefs.timezone === 'UTC' ? ' selected' : '') + '>UTC</option><option value="Asia/Kolkata"' + (prefs.timezone === 'Asia/Kolkata' ? ' selected' : '') + '>Asia/Kolkata</option></select></label><label>Date format<select name="dateFormat"><option value="DD MMM YYYY"' + ((prefs.dateFormat || 'DD MMM YYYY') === 'DD MMM YYYY' ? ' selected' : '') + '>25 Nov 2026</option><option value="YYYY-MM-DD"' + (prefs.dateFormat === 'YYYY-MM-DD' ? ' selected' : '') + '>2026-11-25</option><option value="MM/DD/YYYY"' + (prefs.dateFormat === 'MM/DD/YYYY' ? ' selected' : '') + '>11/25/2026</option></select></label><button type="submit">Save preferences</button></form><p class="settings-help">These preferences are saved on this device. Language selection does not yet translate every app screen.</p></section>' +
+        '<section class="settings-panel"><h3>Notifications</h3><form id="settings-notifications"><label class="settings-check"><input type="checkbox" name="leadAlerts"' + checked('leadAlerts') + '> Lead updates</label><label class="settings-check"><input type="checkbox" name="followUpAlerts"' + checked('followUpAlerts') + '> Follow-up reminders</label><label class="settings-check"><input type="checkbox" name="contentAlerts"' + checked('contentAlerts') + '> Content planner updates</label><button type="submit">Save notification preferences</button></form><p class="settings-help">These are saved preferences only. Push and email notification delivery is not connected yet.</p></section>' +
+        '<section class="settings-panel"><h3>Data Management</h3><p>Export the Leads and Content Planner records currently available in this workspace.</p><button type="button" id="settings-export">Export workspace data (JSON)</button><p class="settings-help">This exports data visible to your current account. Automated cloud backup and one-click recovery are not enabled here.</p></section>' +
+        '<section class="settings-panel"><h3>About BK-BusiCare One</h3><p><b>Application:</b> BK-BusiCare One</p><p><b>Build channel:</b> Android Debug / Web MVP</p><p class="settings-help">Some integrations and advanced account controls are still under development.</p></section></div>';
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
     card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section><nav class="busicare-bottom-nav" aria-label="Quick navigation">' + [['Dashboard','⌂'],['Leads','◎'],['Content Planner','▤'],['AI Content Studio','✦'],['Team','♙']].map(([n,i]) => '<button type="button" data-page="' + n + '" class="' + (page===n?'active':'') + '"><span>' + i + '</span><small>' + (n==='Content Planner'?'Planner':n==='AI Content Studio'?'AI Studio':n) + '</small></button>').join('') + '</nav>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
+    root.querySelectorAll('[data-settings-go]').forEach(b => b.onclick = () => { page=b.dataset.settingsGo; portalView(); bindDataActions(); });
+    const preferencesForm = root.querySelector('#settings-preferences');
+    if (preferencesForm) preferencesForm.onsubmit = e => {
+      e.preventDefault();
+      const values = new FormData(preferencesForm);
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { current = {}; }
+      current.language = String(values.get('language') || 'en');
+      current.timezone = String(values.get('timezone') || 'Asia/Dhaka');
+      current.dateFormat = String(values.get('dateFormat') || 'DD MMM YYYY');
+      try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Preferences saved on this device.', false); }
+      catch { note('Could not save preferences on this device.', true); }
+    };
+    const notificationsForm = root.querySelector('#settings-notifications');
+    if (notificationsForm) notificationsForm.onsubmit = e => {
+      e.preventDefault();
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { current = {}; }
+      for (const key of ['leadAlerts','followUpAlerts','contentAlerts']) current[key] = notificationsForm.elements.namedItem(key).checked;
+      try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Notification preferences saved on this device. Delivery is not enabled yet.', false); }
+      catch { note('Could not save notification preferences on this device.', true); }
+    };
+    const resetPasswordButton = root.querySelector('#settings-reset-password');
+    if (resetPasswordButton) resetPasswordButton.onclick = async () => {
+      resetPasswordButton.disabled = true;
+      const { error } = await supabase.auth.resetPasswordForEmail(session.user.email);
+      resetPasswordButton.disabled = false;
+      note(error ? error.message : 'Password reset email requested. Check your inbox if email delivery is configured.', !!error);
+    };
+    const exportButton = root.querySelector('#settings-export');
+    if (exportButton) exportButton.onclick = () => {
+      const payload = { app: 'BK-BusiCare One', exportedAt: new Date().toISOString(), workspace: { id: activeId, name: w.name }, leads, contentItems };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'bkbusicare-workspace-export.json'; a.click();
+      URL.revokeObjectURL(url);
+      note('Workspace export prepared on this device.', false);
+    };
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
       persistLeadFormDraft(root.querySelector('#lead-form'));
