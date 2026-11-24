@@ -781,6 +781,7 @@ if (hasUrl !== hasKey) {
   }
   let passwordRecoveryPending = false;
   supabase.auth.onAuthStateChange((event,next) => {
+    const previousUserId = session?.user?.id;
     session = next;
     if (event === 'PASSWORD_RECOVERY') {
       passwordRecoveryPending = true;
@@ -788,7 +789,7 @@ if (hasUrl !== hasKey) {
       return;
     }
     if (event === 'SIGNED_OUT') {
-      clearLeadFormDraftsForUser(session?.user?.id);
+      clearLeadFormDraftsForUser(previousUserId);
       session = null; workspaces=[]; activeId=''; leads=[]; contentItems=[]; authView('login');
       return;
     }
