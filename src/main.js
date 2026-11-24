@@ -5,7 +5,7 @@ import { buildContentPrompt, getCopilotCapabilities } from './copilot.js';
 import { getContentPlannerModules, getContentPlannerModule } from './content-planner-modules.js';
 
 const KEY = 'bkbusicare-workspace-v1';
-const BRAND_LOGO_URL = 'https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-official-logo.png.jpg';
+const BRAND_LOGO_URL = '/bk-busicare-horizontal-logo.svg';
 const PROFILE_PHOTO_URL = 'https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg';
 const defaultData = {workspace:{name:'BK-BusiCare',plan:'Internal workspace'},leads:[],content:[]};
 let data = load();
