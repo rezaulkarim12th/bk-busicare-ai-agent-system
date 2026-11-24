@@ -135,3 +135,38 @@ This addendum supersedes older workflow references above where they conflict wit
 
 ### Decision
 **Release status remains HOLD.** The successful workflows establish build/test automation evidence for this revision only. They do not certify production readiness. Keep PR #13 as Draft and unmerged until the acceptance gaps are closed; do not change Production settings, perform live payment, or submit/publish to Google Play without separate explicit owner approval.
+
+
+---
+
+## TEST environment recheck — 2026-11-24 (live provider read)
+
+The BK-BusiCare-TEST project was queried directly after the previous report update.
+
+- Project `rmnoiwzkhjwmgxwkfdzb`: **ACTIVE_HEALTHY**, PostgreSQL 17.12, region `ap-northeast-1`.
+- Applied migrations observed: **10** (through `20261123094616_deny_browser_access_payment_tables`).
+- Active Edge Functions observed: **6**:
+  - `create-workspace` — version 11, JWT required
+  - `manage-workspace-member` — version 13, JWT required
+  - `ai-content` — version 9, JWT required
+  - `busicare-create-order` — version 1, JWT required
+  - `sslcommerz-create-session` — version 1, JWT required
+  - `sslcommerz-ipn` — version 3, JWT not required (payment-provider callback endpoint; callback authenticity must be validated in the function itself)
+- Security Advisor: **1 WARN** — leaked-password protection disabled. Remediation is the provider Auth setting: [Supabase password security](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+- Performance Advisor: **6 INFO** unused-index notices:
+  `orders_user_created_idx`, `payment_transactions_order_idx`, `product_catalog_active_idx`, `audit_events_actor_idx`, `leads_workspace_status_idx`, `audit_workspace_created_idx`.
+  These are informational observations, not proof that the indexes should be dropped. No index was removed because workload evidence is insufficient.
+
+### What this recheck proves — and does not prove
+It proves the TEST project is online, the ten listed migrations are recorded, and the six functions are deployed/active with the listed gateway JWT settings. It does **not** prove live signup/email delivery, successful OpenAI generation, two-user tenant isolation, SSLCommerz payment settlement, webhook authenticity under real provider callbacks, cloud backup/restore, or Android device acceptance.
+
+### Outstanding actions requiring external owner/device access
+1. Configure and verify the TEST OpenAI server-side secrets, then run authenticated AI E2E tests.
+2. Verify Auth Site URL, redirect allowlist and SMTP/email delivery; execute signup/login/recovery/logout and two-user/two-workspace authorization tests.
+3. Review the `sslcommerz-ipn` implementation for signature/transaction validation and run provider sandbox success/failure/IPN replay tests using owner-controlled sandbox credentials.
+4. Enable leaked-password protection in the Supabase Auth dashboard if the project plan supports it; re-run Security Advisor afterward.
+5. Implement a real cloud backup/restore and recovery drill; local JSON export/import is not a substitute.
+6. Implement only feature-required Android permissions, then install and test on a physical device.
+7. Produce and inspect a signed AAB, complete privacy/Data Safety and Play Console checks only after acceptance evidence exists.
+
+No provider secrets were read, requested in chat, or changed. No production project, live payment, Play Console release, or user device was modified.
