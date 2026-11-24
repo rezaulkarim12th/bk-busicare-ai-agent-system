@@ -93,3 +93,15 @@ Do not load real customer data, enable checkout/payment, publish social content 
 - [Security audit](SECURITY_AUDIT.md)
 - [Commerce integration plan](COMMERCE_INTEGRATION_PLAN.md)
 - [Media integration plan](MEDIA_INTEGRATION_PLAN.md)
+
+
+## SaaS capabilities review — 2026-11-25
+
+The Settings > Planned SaaS Capabilities screen now distinguishes implemented source-code foundations from unverified or unimplemented release gates. This is a documentation/UI status update, not evidence that the outstanding live tests or provider setup have passed.
+
+- Source-code foundations documented: workspace tenancy, workspace-scoped Leads/Content, role model, RLS, team administration functions, audit events and authenticated quota-limited AI draft generation.
+- Still outstanding: live Auth/email acceptance, two-user/two-workspace direct API isolation tests, subscription and billing, scheduled cloud backup and restore drills, production monitoring/incident response, external provider integrations, independent security review and production release approval.
+- Local browser JSON backup is not cloud backup. It does not provide cross-device synchronization.
+- No Production Supabase changes, payment-provider connections, live publishing or customer-data migration were performed for this update.
+
+The live TEST project state, deployed function versions and provider configuration were not re-queried as part of this source review. Refer to the evidence and limitations above; do not infer current runtime readiness from the UI status page.
