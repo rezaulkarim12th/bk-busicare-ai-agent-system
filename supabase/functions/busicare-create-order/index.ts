@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { readLimitedBody } from "../_shared/read-limited-body.ts";
 
 const headers = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -24,8 +25,8 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return response({ error: "Method not allowed" }, 405, origin);
 
   try {
-    const raw = await req.text();
-    if (raw.length > 8192) return response({ error: "Request too large" }, 413, origin);
+    const raw = await readLimitedBody(req, 8192);
+    if (raw === null) return response({ error: "Request too large" }, 413, origin);
     const auth = req.headers.get("Authorization") ?? "";
     if (!auth.startsWith("Bearer ")) return response({ error: "Authentication required" }, 401, origin);
 
