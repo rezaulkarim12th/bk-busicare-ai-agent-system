@@ -64,6 +64,8 @@ Not yet certified:
 
 The Supabase Security Advisor currently reports a WARN for disabled leaked-password protection. Performance Advisor reports six INFO-level unused-index notices; these should be assessed against workload evidence, not removed blindly.
 
+The TEST payment functions currently live on the separate `feature/sslcommerz-sandbox-readiness` branch / Draft PR #14, not on `main`. A bounded streaming request-body fix and Deno tests have been pushed to that branch but are not deployed to TEST yet. The payment schema still needs a committed, versioned migration for reproducible release builds.
+
 ## Security and release rules
 
 The GitHub repository is public. Do not commit credentials, customer data or backups. Never put service-role keys, database passwords, OpenAI keys, payment credentials or OAuth tokens in `VITE_` variables, browser code, Git or chat.
