@@ -1027,3 +1027,19 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
 .settings-panel .settings-check{display:flex;align-items:center;gap:9px;font-weight:600}
 .settings-panel .settings-check input{width:18px;height:18px;accent-color:#b58b37}
 @media(max-width:480px){.settings-grid{grid-template-columns:1fr}.settings-panel{padding:13px}}
+
+
+/* Expanded BK-BusiCare One Settings control center */
+.settings-panel{scroll-margin-top:16px}
+.settings-panel code{display:block;max-width:100%;overflow-wrap:anywhere;font-size:10px;color:#52657d;background:#f5f7fa;padding:7px;border-radius:7px}
+.settings-panel ul{padding-left:20px;color:#34445a;font-size:13px;line-height:1.7}
+.settings-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.settings-actions button,.settings-file-label{flex:1 1 145px;min-width:0}
+.settings-panel .settings-file-label{display:grid;gap:6px;margin:8px 0;padding:10px;border:1px dashed #c9a24f;border-radius:10px;background:#fffaf0;color:#5e4a22;font-size:12px;font-weight:750}
+.settings-file-label input{width:100%;max-width:100%;font-size:11px}
+.settings-panel button:disabled{opacity:.48;cursor:not-allowed}
+.settings-panel a{display:inline-flex;align-items:center;min-height:40px;color:#77591e;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:480px){
+ .settings-actions{display:grid;grid-template-columns:1fr}
+ .settings-actions button,.settings-file-label{width:100%;box-sizing:border-box}
+}
