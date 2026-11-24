@@ -74,9 +74,9 @@ The following remain unverified and must not be described as passed:
 ## Source-level review follow-ups
 
 - The three payment/order Edge Function sources are absent from `main` and are tracked on `feature/sslcommerz-sandbox-readiness` (open Draft PR #14). The deployed TEST code exactly matched those branch files during the 2026-11-24 inspection.
-- All three functions originally buffered the full body with `req.text()` before checking the configured limit. A shared streaming byte-limited reader has been wired into all three functions. Five Deno tests passed in the first CI attempt; the overall CI failed because Node's test auto-discovery also attempted to execute the Deno-specific test file. That file has been renamed and CI paths updated; a subsequent CI result and post-deploy verification are pending.
-- The two timestamped payment migrations are now committed on the feature branch. Local CI now applies these committed files directly; a fresh-database CI result is pending.
-- A debug APK artifact was uploaded successfully by workflow run `45426215584`, but it predates the latest streaming-reader and migration commits. It is not signed and has not passed physical Android device QA.
+- All three payment/order functions originally buffered the full body before checking the configured limit. A shared streaming byte-limited reader is now deployed to TEST: `busicare-create-order` v2, `sslcommerz-create-session` v2 and `sslcommerz-ipn` v4. Re-fetching the deployed source confirmed the bounded reader is imported and called in all three; no `await req.text()` path remains.
+- Five Deno tests passed. Build workflow `45426715210` and clean local Supabase migration/pgTAP workflow `45426715257` both succeeded. A subsequent documentation-PR local migration run `45426762999` also succeeded.
+- Android debug APK artifact `14936878142` was uploaded by workflow `45426715201` from commit `37ccdd6`. It is not signed and has not passed physical Android device QA.
 - Verify SSLCommerz IPN provider validation, amount/currency/order matching, idempotency and replay handling before any payment status is treated as confirmed.
 - Never place service-role keys, database passwords, OpenAI keys, payment credentials or OAuth tokens in frontend variables, source control or chat.
 
