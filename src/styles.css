@@ -984,3 +984,32 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
   .main{padding-left:10px!important;padding-right:10px!important}
   .main .user div small:last-child{display:none}
 }
+
+
+/* Lead Management: switch wide data table to readable cards on narrow screens */
+.portal-lead-cards{display:none}
+.portal-lead-card{background:#fff;border:1px solid #e7dfd1;border-radius:14px;padding:15px;margin:0 0 12px;box-shadow:0 5px 16px #172c4409;min-width:0}
+.portal-lead-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid #eee8dc;padding-bottom:12px}
+.portal-lead-card-head>div{min-width:0}
+.portal-lead-card h3{font-size:16px;line-height:1.35;margin:5px 0;color:#102542;overflow-wrap:anywhere}
+.portal-lead-card p{font-size:12px;line-height:1.5;color:#718096;margin:3px 0;overflow-wrap:anywhere}
+.portal-lead-label{display:block;font-size:10px;letter-spacing:1px;font-weight:800;color:#8b7957;margin-bottom:5px}
+.portal-lead-status{flex:0 0 auto;background:#f8f0dc;color:#75551c;border:1px solid #efe0b9;border-radius:20px;padding:5px 9px;font-size:10px;font-weight:800}
+.portal-lead-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:13px 0}
+.portal-lead-card-grid>div{min-width:0}
+.portal-lead-card-grid b{display:block;font-size:13px;color:#20344e;overflow-wrap:anywhere}
+.portal-lead-card-controls{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-top:1px solid #eee8dc;padding-top:12px}
+.portal-lead-card-controls label{display:grid;gap:5px;min-width:0;flex:1;font-size:10px;font-weight:800;letter-spacing:.7px;color:#718096}
+.portal-lead-card-controls select{width:100%;min-width:0;min-height:42px;padding:8px 10px;border:1px solid #e4ddcf;border-radius:9px;background:#fffdfa;color:#24344a;font-size:13px}
+.portal-lead-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.portal-lead-actions button{min-height:40px;padding:8px 12px;border:1px solid #d4ad5c;border-radius:9px;background:linear-gradient(135deg,#f5df9e,#d5a746);color:#13243b;font-weight:800}
+.portal-lead-empty{padding:18px;border:1px solid #e7dfd1;border-radius:12px;color:#718096;background:#fff}
+@media(max-width:700px){
+  .portal-leads-table{display:none!important}
+  .portal-lead-cards{display:grid;gap:0;margin-top:16px;min-width:0}
+}
+@media(max-width:380px){
+  .portal-lead-card{padding:12px}
+  .portal-lead-card-controls{align-items:stretch;flex-direction:column}
+  .portal-lead-actions{justify-content:flex-start}
+}
