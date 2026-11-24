@@ -83,8 +83,10 @@ These are informational, not proof of a defect. Do not drop indexes based only o
 
 ### 1. Documentation and source alignment
 - This status refresh records the current TEST migration, table and Edge Function inventory.
-- Review code and deployment configuration against the live deployed functions; confirm the repository source matches each deployed version.
-- Inspect and fix the order endpoint's request-size handling if it still buffers the entire body before enforcing its limit. Do not deploy an uncompiled/unverified patch.
+- The three payment/order function sources are absent from `main`; they are on `feature/sslcommerz-sandbox-readiness`, which is 33 commits ahead of `main` and is tracked by open Draft PR #14.
+- The three deployed TEST payment/order functions exactly match the source files on that feature branch as inspected on 2026-11-24.
+- Each of those three functions originally called `req.text()` before enforcing its byte limit. A streaming byte-limited reader, five Deno tests and CI test steps have now been pushed to the feature branch. **This patch is not deployed to TEST; CI results are pending.**
+- The payment schema is stored as `supabase/sql/sslcommerz_payment_schema.sql` on the feature branch, not as a timestamped file in `supabase/migrations`. Current local CI generates an ephemeral migration from that SQL file. Add a reproducible versioned migration before merge/release.
 
 ### 2. Authentication and tenancy
 - Verify TEST Auth Site URL, redirect URLs, email confirmation and SMTP delivery.
