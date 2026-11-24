@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { readLimitedBody } from "../_shared/read-limited-body.ts";
 
 function reply(status = 200) {
   return new Response(status === 200 ? "OK" : "Rejected", {
@@ -16,8 +17,8 @@ Deno.serve(async (req) => {
     if (!storeId || !storePassword || !supabaseUrl || !serviceKey ||
         Deno.env.get("SSLCOMMERZ_MODE") !== "sandbox") return reply(503);
 
-    const raw = await req.text();
-    if (raw.length > 16384) return reply(413);
+    const raw = await readLimitedBody(req, 16384);
+    if (raw === null) return reply(413);
     const params = new URLSearchParams(raw);
     const tranId = params.get("tran_id") ?? "";
     const valId = params.get("val_id") ?? "";
