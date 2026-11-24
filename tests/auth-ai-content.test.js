@@ -52,3 +52,14 @@ test('AI Content Studio saves and restores unfinished form drafts per workspace'
   assert.ok(source.includes('bkbusicare-ai-form-v1:'));
   assert.ok(source.includes('sessionStorage.removeItem(draftKey)'));
 });
+
+
+test('AI endpoint allows browser preflight headers and validates JWT in its handler', async () => {
+  const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
+  const config = await readFile(new URL('../supabase/config.toml', import.meta.url), 'utf8');
+  assert.match(source, /Access-Control-Allow-Headers[^\\n]*x-client-info/);
+  assert.match(source, /req\.method === "OPTIONS"/);
+  assert.match(source, /auth\.getUser\(token\)/);
+  assert.match(source, /workspace_members/);
+  assert.match(config, /\\[functions\.ai-content\\][\\s\\S]*?verify_jwt = false/);
+});
