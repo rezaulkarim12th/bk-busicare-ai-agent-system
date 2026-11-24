@@ -11,7 +11,7 @@ test('authenticated portal exposes the AI Content Studio and invokes the protect
   assert.match(source, /save-ai-draft/);
   assert.match(source, /status: 'Draft'/);
   assert.match(source, /activeRole==='viewer'/);
-  assert.doesNotMatch(source, /functions\.invoke\(['\"](?:publish|send-message)/i);
+  assert.doesNotMatch(source, /functions\.invoke\(['"](?:publish|send-message)/i);
 });
 
 test('AI endpoint enforces workspace membership and role server-side', async () => {
@@ -51,4 +51,14 @@ test('AI Content Studio saves and restores unfinished form drafts per workspace'
   assert.ok(source.includes("currentAiForm.addEventListener('change'"));
   assert.ok(source.includes('bkbusicare-ai-form-v1:'));
   assert.ok(source.includes('sessionStorage.removeItem(draftKey)'));
+});
+
+test('AI endpoint allows browser preflight headers and validates JWT in its handler', async () => {
+  const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
+  const config = await readFile(new URL('../supabase/config.toml', import.meta.url), 'utf8');
+  assert.ok(source.includes('Access-Control-Allow-Headers') && source.includes('x-client-info'));
+  assert.match(source, /req\.method === "OPTIONS"/);
+  assert.match(source, /auth\.getUser\(token\)/);
+  assert.match(source, /workspace_members/);
+  assert.match(config, /\[functions\.ai-content\][\s\S]*?verify_jwt = false/);
 });

@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+// Public client configuration for the isolated BK-BusiCare-TEST project.
+// Supabase publishable keys are intended for browser/mobile clients; never put service-role keys here.
+const url = import.meta.env.VITE_SUPABASE_URL?.trim() || 'https://rmnoiwzkhjwmgxwkfdzb.supabase.co';
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || 'sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw';
 const hasUrl = Boolean(url);
 const hasKey = Boolean(key);
 
@@ -10,7 +12,32 @@ if (hasUrl !== hasKey) {
   warning.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#f4f7f5;display:grid;place-items:center;padding:24px;font-family:Arial,sans-serif;color:#18372b';
   warning.innerHTML = '<div style="max-width:520px;background:white;border:1px solid #dce8df;border-radius:16px;padding:26px"><b>BK-BusiCare · Configuration required</b><h2>Supabase setup is incomplete</h2><p>Both VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be configured. Local Demo has been disabled for security.</p></div>';
   document.body.appendChild(warning);
-} else if (url && key) {
+} else {
+  if (!url && !key) {
+    const gate = document.createElement('section');
+    gate.id = 'bk-auth-setup-required';
+    gate.style.cssText = 'position:fixed;inset:0;z-index:100000;overflow:auto;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#071a32,#173b63);font-family:Arial,sans-serif;color:#14243b';
+    gate.innerHTML = `
+      <div style="width:min(100%,440px);box-sizing:border-box;padding:26px;border:1px solid #d3ad5e;border-radius:22px;background:#fff;box-shadow:0 18px 55px #0004">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+          <div style="width:58px;height:58px;display:grid;place-items:center;border:2px solid #d3ad5e;border-radius:15px;background:#f4f6fa;font-weight:900;color:#102542">BK</div>
+          <div><b style="font-size:23px;color:#102542">BusiCare</b><div style="font-size:11px;letter-spacing:1.5px;color:#66758a;font-weight:700">A BK-BusiCare Product</div></div>
+        </div>
+        <h1 style="margin:0 0 8px;font-size:26px;color:#102542">Login / Sign up</h1>
+        <p style="margin:0 0 18px;color:#526176;line-height:1.5">Your secure account access will appear here. Authentication is not connected in this build.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+          <button type="button" disabled style="min-height:46px;border:1px solid #d3ad5e;border-radius:11px;background:#f4e2b1;color:#102542;font-weight:700">Login</button>
+          <button type="button" disabled style="min-height:46px;border:1px solid #dfe5ee;border-radius:11px;background:#f3f6fa;color:#102542;font-weight:700">Create Account</button>
+        </div>
+        <div role="status" style="padding:14px;border:1px solid #e7c979;border-radius:12px;background:#fff9e9;color:#624b17;line-height:1.5">
+          <b>Setup required</b><br>
+          Supabase URL and Anon Key are not configured for this app build. Login, Signup and Logout cannot work until the authorized project configuration is added securely.
+        </div>
+        <p style="margin:16px 0 0;color:#7b8797;font-size:12px">Do not enter or share passwords or API keys on this screen.</p>
+      </div>`;
+    document.body.appendChild(gate);
+    throw new Error('BK-BusiCare authentication setup required: Supabase environment configuration is missing.');
+  }
   const supabase = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
   const root = document.createElement('section');
   root.id = 'bk-secure-gate';
@@ -241,29 +268,25 @@ if (hasUrl !== hasKey) {
     }
   `;
 
+  /* Mobile contrast correction: keep inactive workspace destinations readable. */
   responsiveStyle.textContent += `
-    #bk-secure-gate .busicare-bottom-nav{display:none}
     @media(max-width:640px){
-      #bk-secure-gate{padding-bottom:76px!important}
-      #bk-secure-gate .busicare-bottom-nav{
-        position:fixed;z-index:100001;left:8px;right:8px;bottom:8px;
-        display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;
-        padding:8px 5px calc(8px + env(safe-area-inset-bottom));
-        border:1px solid #caa452;border-radius:18px;
-        background:linear-gradient(110deg,#071a32f5,#14375cf5);
-        box-shadow:0 8px 28px #07172a40;backdrop-filter:blur(12px)
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button:not([style*="background:#dcefe4"]){
+        background:linear-gradient(145deg,#ffffff,#f3f6fb)!important;
+        border:1px solid #dfe5ee!important;
+        color:#102542!important;
+        -webkit-text-fill-color:#102542!important;
+        opacity:1!important;
       }
-      #bk-secure-gate .busicare-bottom-nav button{
-        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-        min-width:0;min-height:48px;padding:5px 2px!important;margin:0!important;
-        border:1px solid transparent!important;border-radius:12px!important;
-        background:transparent!important;color:#e8edf5!important;box-shadow:none!important
-      }
-      #bk-secure-gate .busicare-bottom-nav button span{font-size:20px;line-height:1}
-      #bk-secure-gate .busicare-bottom-nav button small{font-size:9px;line-height:1.15;white-space:nowrap}
-      #bk-secure-gate .busicare-bottom-nav button.active{
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button[style*="background:#dcefe4"]{
         background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;
-        border-color:#e7c979!important;color:#102542!important
+        border-color:#c9a24f!important;
+        color:#102542!important;
+        -webkit-text-fill-color:#102542!important;
+        opacity:1!important;
+      }
+      #bk-secure-gate nav[style]:not(.busicare-bottom-nav) button:focus-visible{
+        outline:3px solid #c9a24f!important;outline-offset:2px!important;
       }
     }
   `;
@@ -403,7 +426,7 @@ if (hasUrl !== hasKey) {
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
-    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/busicare-app-icon.jpg" alt="BusiCare app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section><nav class="busicare-bottom-nav" aria-label="Quick navigation">' + [['Dashboard','⌂'],['Leads','◎'],['Content Planner','▤'],['AI Content Studio','✦'],['Team','♙']].map(([n,i]) => '<button type="button" data-page="' + n + '" class="' + (page===n?'active':'') + '"><span>' + i + '</span><small>' + (n==='Content Planner'?'Planner':n==='AI Content Studio'?'AI Studio':n) + '</small></button>').join('') + '</nav>' + body + '<p data-note></p>');
+    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-official-logo.png.jpg" alt="BusiCare app icon"><div><b>BK-BusiCare One</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section>' + body + '<p data-note></p>');
     root.querySelector('#logout').onclick = logout;
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));

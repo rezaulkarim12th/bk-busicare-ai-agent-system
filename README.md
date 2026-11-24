@@ -1,4 +1,8 @@
-# BK-BusiCare AI Agent System
+# BK-BusiCare One
+
+**Product identity:** BK-BusiCare One is the mobile and workspace application from the parent brand **BK-BusiCare**. Public website, IT and website services, and the wider business brand remain **BK-BusiCare**. App listings and app icons use **BK-BusiCare One**.
+
+# Technical project
 
 Responsive Vite web-app MVP for BK-BusiCare. The repository contains a local operations demo, a Supabase authentication portal, and a multi-tenant workspace foundation. It is **not yet a complete production SaaS or a fully integrated AI agent**.
 
