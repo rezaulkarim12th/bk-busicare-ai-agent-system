@@ -2,7 +2,7 @@
 -- Run with: supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(18);
+select plan(21);
 
 select ok(to_regclass('public.product_catalog') is not null, 'product catalogue table exists');
 select ok(to_regclass('public.orders') is not null, 'orders table exists');
