@@ -447,14 +447,19 @@ if (hasUrl !== hasKey) {
       let prefs = {};
       try { prefs = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { prefs = {}; }
       const checked = key => prefs[key] === true ? ' checked' : '';
-      body = '<h2>Settings</h2><p>Manage your account, workspace preferences and data.</p>' +
+      const canManageWorkspace = activeRole === 'owner' || activeRole === 'admin';
+      body = '<h2>Settings & Control Center</h2><p>Account, workspace, preferences, notifications, security, backup and application information.</p>' +
         '<div class="settings-grid">' +
-        '<section class="settings-panel"><h3>Account & Profile</h3><p><b>Email:</b> ' + safe(session.user.email) + '</p><p><b>Workspace role:</b> ' + safe(activeRole) + '</p><p class="settings-help">Account email and role are managed by secure authentication and workspace permissions.</p><button type="button" id="settings-reset-password">Send password reset email</button></section>' +
-        '<section class="settings-panel"><h3>Workspace</h3><p><b>Name:</b> ' + safe(w.name) + '</p><p><b>Current workspace:</b> ' + safe(w.name) + '</p><p class="settings-help">Workspace members and role management are available in the Team section.</p><button type="button" data-settings-go="Team">Manage team</button></section>' +
-        '<section class="settings-panel"><h3>Preferences</h3><form id="settings-preferences"><label>Preferred language<select name="language"><option value="en"' + (prefs.language !== 'bn' ? ' selected' : '') + '>English</option><option value="bn"' + (prefs.language === 'bn' ? ' selected' : '') + '>বাংলা</option></select></label><label>Time zone<select name="timezone"><option value="Asia/Dhaka"' + ((prefs.timezone || 'Asia/Dhaka') === 'Asia/Dhaka' ? ' selected' : '') + '>Asia/Dhaka (Bangladesh)</option><option value="UTC"' + (prefs.timezone === 'UTC' ? ' selected' : '') + '>UTC</option><option value="Asia/Kolkata"' + (prefs.timezone === 'Asia/Kolkata' ? ' selected' : '') + '>Asia/Kolkata</option></select></label><label>Date format<select name="dateFormat"><option value="DD MMM YYYY"' + ((prefs.dateFormat || 'DD MMM YYYY') === 'DD MMM YYYY' ? ' selected' : '') + '>25 Nov 2026</option><option value="YYYY-MM-DD"' + (prefs.dateFormat === 'YYYY-MM-DD' ? ' selected' : '') + '>2026-11-25</option><option value="MM/DD/YYYY"' + (prefs.dateFormat === 'MM/DD/YYYY' ? ' selected' : '') + '>11/25/2026</option></select></label><button type="submit">Save preferences</button></form><p class="settings-help">These preferences are saved on this device. Language selection does not yet translate every app screen.</p></section>' +
-        '<section class="settings-panel"><h3>Notifications</h3><form id="settings-notifications"><label class="settings-check"><input type="checkbox" name="leadAlerts"' + checked('leadAlerts') + '> Lead updates</label><label class="settings-check"><input type="checkbox" name="followUpAlerts"' + checked('followUpAlerts') + '> Follow-up reminders</label><label class="settings-check"><input type="checkbox" name="contentAlerts"' + checked('contentAlerts') + '> Content planner updates</label><button type="submit">Save notification preferences</button></form><p class="settings-help">These are saved preferences only. Push and email notification delivery is not connected yet.</p></section>' +
-        '<section class="settings-panel"><h3>Data Management</h3><p>Export the Leads and Content Planner records currently available in this workspace.</p><button type="button" id="settings-export">Export workspace data (JSON)</button><p class="settings-help">This exports data visible to your current account. Automated cloud backup and one-click recovery are not enabled here.</p></section>' +
-        '<section class="settings-panel"><h3>About BK-BusiCare One</h3><p><b>Application:</b> BK-BusiCare One</p><p><b>Build channel:</b> Android Debug / Web MVP</p><p class="settings-help">Some integrations and advanced account controls are still under development.</p></section></div>';
+        '<section class="settings-panel"><h3>1. Account & Profile</h3><p><b>Signed-in email:</b> ' + safe(session.user.email) + '</p><p><b>Account ID:</b> <code>' + safe(session.user.id) + '</code></p><p><b>Workspace role:</b> ' + safe(activeRole) + '</p><p class="settings-help">Email and identity are managed by Supabase Authentication. Profile name/photo editing is not connected in this MVP.</p><button type="button" id="settings-reset-password">Request password reset</button></section>' +
+        '<section class="settings-panel"><h3>2. Workspace Settings</h3><form id="settings-workspace"><label>Workspace name<input name="workspaceName" maxlength="80" required value="' + safe(w.name) + '"' + (canManageWorkspace?'':' disabled') + '></label><button type="submit"' + (canManageWorkspace?'':' disabled') + '>Save workspace name</button></form><p class="settings-help">' + (canManageWorkspace?'Owners and admins can update this workspace name.':'Only workspace owners/admins can change workspace details.') + '</p><button type="button" data-settings-go="Team">Open team management</button></section>' +
+        '<section class="settings-panel"><h3>3. Preferences</h3><form id="settings-preferences"><label>Language<select name="language"><option value="en"' + (prefs.language !== 'bn' ? ' selected' : '') + '>English</option><option value="bn"' + (prefs.language === 'bn' ? ' selected' : '') + '>বাংলা</option></select></label><label>Time zone<select name="timezone"><option value="Asia/Dhaka"' + ((prefs.timezone || 'Asia/Dhaka') === 'Asia/Dhaka' ? ' selected' : '') + '>Asia/Dhaka</option><option value="UTC"' + (prefs.timezone === 'UTC' ? ' selected' : '') + '>UTC</option><option value="Asia/Kolkata"' + (prefs.timezone === 'Asia/Kolkata' ? ' selected' : '') + '>Asia/Kolkata</option></select></label><label>Date format<select name="dateFormat"><option value="DD MMM YYYY"' + ((prefs.dateFormat || 'DD MMM YYYY') === 'DD MMM YYYY' ? ' selected' : '') + '>25 Nov 2026</option><option value="YYYY-MM-DD"' + (prefs.dateFormat === 'YYYY-MM-DD' ? ' selected' : '') + '>2026-11-25</option><option value="MM/DD/YYYY"' + (prefs.dateFormat === 'MM/DD/YYYY' ? ' selected' : '') + '>11/25/2026</option></select></label><button type="submit">Save preferences</button></form><p class="settings-help">Preferences are stored on this device. Language/date/time preferences are not yet applied across every screen.</p></section>' +
+        '<section class="settings-panel"><h3>4. Notifications</h3><form id="settings-notifications"><label class="settings-check"><input type="checkbox" name="leadAlerts"' + checked('leadAlerts') + '> Lead updates</label><label class="settings-check"><input type="checkbox" name="followUpAlerts"' + checked('followUpAlerts') + '> Follow-up reminders</label><label class="settings-check"><input type="checkbox" name="contentAlerts"' + checked('contentAlerts') + '> Content planner updates</label><label class="settings-check"><input type="checkbox" name="securityAlerts"' + checked('securityAlerts') + '> Security notices preference</label><button type="submit">Save notification preferences</button></form><p class="settings-help">These are preference flags only. Push, email and scheduled notification delivery are not connected.</p></section>' +
+        '<section class="settings-panel"><h3>5. Data Backup & Restore</h3><p>Export the current workspace Leads and Content Planner records as a JSON backup. Restore adds or updates matching records in this workspace; it does not delete existing records.</p><div class="settings-actions"><button type="button" id="settings-export">JSON Backup Export</button><label class="settings-file-label">Choose backup JSON<input type="file" id="settings-import-file" accept=".json,application/json"></label><button type="button" id="settings-import" disabled>Restore JSON Backup</button></div><p class="settings-help">Keep backup files private. Restore accepts BK-BusiCare One backups for this same workspace only. Cloud-wide scheduled backups are not enabled.</p></section>' +
+        '<section class="settings-panel"><h3>6. Security & Sessions</h3><p><b>Authentication:</b> Supabase secure sign-in</p><p><b>Workspace access:</b> Role-based permissions with Row Level Security</p><button type="button" id="settings-signout-all">Sign out all sessions</button><p class="settings-help">This signs this account out across devices. You will need to sign in again. Two-factor authentication controls are not configured in this MVP.</p></section>' +
+        '<section class="settings-panel"><h3>7. Team & Access</h3><p>Manage workspace members and available roles. Member actions depend on your current role.</p><button type="button" data-settings-go="Team">Manage team access</button></section>' +
+        '<section class="settings-panel"><h3>8. App Information & Integrations</h3><p><b>Application:</b> BK-BusiCare One</p><p><b>Version:</b> 0.2.0 MVP</p><p><b>Build:</b> Android Debug / Web MVP</p><p><b>Connected data:</b> Current workspace Leads and Content Planner</p><p class="settings-help">Social publishing, push notifications, automated cloud backup, billing, analytics and some AI integrations are not confirmed as production-enabled.</p></section>' +
+        '<section class="settings-panel"><h3>9. Help & Support</h3><p>For app information and service details, visit the BK-BusiCare website.</p><a href="https://busicarecom.wordpress.com/" target="_blank" rel="noopener noreferrer">Open BK-BusiCare Website</a><p class="settings-help">Do not share passwords, access tokens or private customer data in support requests.</p></section>' +
+        '<section class="settings-panel"><h3>10. Planned SaaS Capabilities</h3><ul><li>Separate organization workspaces</li><li>Role-based team access</li><li>Subscription, billing and usage limits</li><li>Secure cloud database and audit logs</li><li>Cross-device sync and automated backups</li></ul><p class="settings-help">These are roadmap items, not active features unless separately enabled and tested.</p></section></div>';
     } else {
       body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
     }
@@ -473,15 +478,68 @@ if (hasUrl !== hasKey) {
       try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Preferences saved on this device.', false); }
       catch { note('Could not save preferences on this device.', true); }
     };
+    const workspaceSettingsForm = root.querySelector('#settings-workspace');
+    if (workspaceSettingsForm) workspaceSettingsForm.onsubmit = async e => {
+      e.preventDefault();
+      if (activeRole !== 'owner' && activeRole !== 'admin') return;
+      const name = String(new FormData(workspaceSettingsForm).get('workspaceName') || '').trim();
+      if (!name || name.length > 80) { note('Enter a workspace name between 1 and 80 characters.', true); return; }
+      const save = workspaceSettingsForm.querySelector('button[type="submit"]');
+      save.disabled = true;
+      const result = await supabase.from('workspaces').update({ name }).eq('id', activeId).select('id,name').single();
+      save.disabled = false;
+      if (result.error) { note(result.error.message || 'Workspace update failed. Check your role permissions.', true); return; }
+      const current = workspaces.find(x => x.id === activeId);
+      if (current) current.name = result.data.name;
+      await refresh();
+      note('Workspace name updated.', false);
+    };
     const notificationsForm = root.querySelector('#settings-notifications');
     if (notificationsForm) notificationsForm.onsubmit = e => {
       e.preventDefault();
       let current = {};
       try { current = JSON.parse(localStorage.getItem('bkbusicare-settings-v1') || '{}') || {}; } catch { current = {}; }
-      for (const key of ['leadAlerts','followUpAlerts','contentAlerts']) current[key] = notificationsForm.elements.namedItem(key).checked;
+      for (const key of ['leadAlerts','followUpAlerts','contentAlerts','securityAlerts']) current[key] = notificationsForm.elements.namedItem(key).checked;
       try { localStorage.setItem('bkbusicare-settings-v1', JSON.stringify(current)); note('Notification preferences saved on this device. Delivery is not enabled yet.', false); }
       catch { note('Could not save notification preferences on this device.', true); }
     };
+    const backupFileInput = root.querySelector('#settings-import-file');
+    const restoreButton = root.querySelector('#settings-import');
+    let selectedBackup = null;
+    if (backupFileInput && restoreButton) {
+      backupFileInput.onchange = async () => {
+        selectedBackup = backupFileInput.files?.[0] || null;
+        restoreButton.disabled = !selectedBackup;
+      };
+      restoreButton.onclick = async () => {
+        if (!selectedBackup) return;
+        if (selectedBackup.size > 5 * 1024 * 1024) { note('Backup file exceeds the 5 MB limit.', true); return; }
+        let backup;
+        try { backup = JSON.parse(await selectedBackup.text()); } catch { note('This file is not valid JSON.', true); return; }
+        if (backup?.app !== 'BK-BusiCare One' || backup?.schemaVersion !== 1 || backup?.workspace?.id !== activeId || !Array.isArray(backup.leads) || !Array.isArray(backup.contentItems)) {
+          note('Backup format or workspace does not match this account.', true); return;
+        }
+        if (backup.leads.length > 5000 || backup.contentItems.length > 5000) { note('Backup contains too many records.', true); return; }
+        if (!confirm('Restore this backup into the current workspace? Existing matching records will be updated; other records will remain.')) return;
+        restoreButton.disabled = true;
+        try {
+          const leadRows = backup.leads.map(row => {
+            if (!row || typeof row.id !== 'string' || typeof row.name !== 'string') throw new Error('Backup contains an invalid Lead record.');
+            const { id,name,company,service,phone,email,status,value,follow_up,notes,created_at,updated_at } = row;
+            return { id,workspace_id:activeId,name,company,service,phone,email,status,value,follow_up,notes,created_at,updated_at };
+          });
+          const contentRows = backup.contentItems.map(row => {
+            if (!row || typeof row.id !== 'string' || typeof row.title !== 'string') throw new Error('Backup contains an invalid Content record.');
+            const { id,title,platform,body,scheduled_at,status,created_at,updated_at } = row;
+            return { id,workspace_id:activeId,title,platform,body,scheduled_at,status,created_at,updated_at };
+          });
+          if (leadRows.length) { const result = await supabase.from('leads').upsert(leadRows,{onConflict:'id'}); if (result.error) throw result.error; }
+          if (contentRows.length) { const result = await supabase.from('content_items').upsert(contentRows,{onConflict:'id'}); if (result.error) throw result.error; }
+          selectedBackup = null; backupFileInput.value = ''; restoreButton.disabled = true;
+          await refresh(); note('Backup restore completed. Existing unmatched records were kept.', false);
+        } catch (err) { note(err.message || 'Backup restore failed.', true); restoreButton.disabled = false; }
+      };
+    }
     const resetPasswordButton = root.querySelector('#settings-reset-password');
     if (resetPasswordButton) resetPasswordButton.onclick = async () => {
       resetPasswordButton.disabled = true;
@@ -491,12 +549,20 @@ if (hasUrl !== hasKey) {
     };
     const exportButton = root.querySelector('#settings-export');
     if (exportButton) exportButton.onclick = () => {
-      const payload = { app: 'BK-BusiCare One', exportedAt: new Date().toISOString(), workspace: { id: activeId, name: w.name }, leads, contentItems };
+      const payload = { app: 'BK-BusiCare One', schemaVersion: 1, exportedAt: new Date().toISOString(), workspace: { id: activeId, name: w.name }, leads, contentItems };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'bkbusicare-workspace-export.json'; a.click();
-      URL.revokeObjectURL(url);
-      note('Workspace export prepared on this device.', false);
+      const a = document.createElement('a'); a.href = url; a.download = 'bkbusicare-workspace-backup.json'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      note('Workspace JSON backup downloaded.', false);
+    };
+    const signOutAllButton = root.querySelector('#settings-signout-all');
+    if (signOutAllButton) signOutAllButton.onclick = async () => {
+      if (!confirm('Sign out this account from all active sessions?')) return;
+      signOutAllButton.disabled = true;
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) { signOutAllButton.disabled = false; note(error.message || 'Could not sign out all sessions.', true); }
+      else { session = null; authView('login'); }
     };
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
