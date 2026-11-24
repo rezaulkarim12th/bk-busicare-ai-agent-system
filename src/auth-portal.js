@@ -562,7 +562,7 @@ if (hasUrl !== hasKey) {
       signOutAllButton.disabled = true;
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) { signOutAllButton.disabled = false; note(error.message || 'Could not sign out all sessions.', true); }
-      else { session = null; authView('login'); }
+      else { clearLeadFormDraft(); const draftKey = aiFormDraftKey(); if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } } session = null; authView('login'); }
     };
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
@@ -762,6 +762,7 @@ if (hasUrl !== hasKey) {
   async function logout() {
     const r = await supabase.auth.signOut();
     if (r.error) { note(r.error.message,true); return; }
+    clearLeadFormDraft();
     const draftKey = aiFormDraftKey();
     if (draftKey) { try { sessionStorage.removeItem(draftKey); } catch { /* storage may be unavailable */ } }
     session = null; workspaces = []; activeId = ''; leads = []; contentItems = []; aiDraft = null; authView('login');
