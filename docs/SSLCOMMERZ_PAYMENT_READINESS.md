@@ -78,3 +78,29 @@ This is a deployed TEST backend foundation, not a completed payment integration.
 - Android workflow run [45426215584](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426215584) successfully uploaded artifact `BK-BusiCare-Android-debug` (artifact ID 14936204125). This is a debug APK from commit `7e2bb03779f32f1ba3374143ba0e21e537758358`, before the latest streaming-reader and migration commits. It is not a signed release APK and has not passed physical-device QA.
 
 Keep PR #14 unmerged and checkout/payment disabled until the updated CI passes, the bounded-reader fix is deployed and verified in TEST, all provider-backed sandbox scenarios pass, and the authorized owner gates are complete.
+
+
+## TEST deployment verification — 2026-11-24
+
+After the streaming-reader patch passed the updated CI workflows, the three payment/order functions were deployed to the isolated BK-BusiCare-TEST project (`rmnoiwzkhjwmgxwkfdzb`):
+
+| Function | Deployed TEST version | Gateway JWT |
+|---|---:|---|
+| `busicare-create-order` | 2 | Required |
+| `sslcommerz-create-session` | 2 | Required |
+| `sslcommerz-ipn` | 4 | Not required; provider callback is validated in the function |
+
+A subsequent read-only fetch of all three deployed functions confirmed:
+- Each entrypoint imports the shared bounded reader.
+- Each entrypoint calls `readLimitedBody` with its intended limit (8192, 4096 and 16384 bytes).
+- None of the deployed entrypoints uses the former unbounded `await req.text()` parsing path.
+- The shared helper is present in each deployed function package.
+- All three functions are ACTIVE and retain their original gateway JWT settings.
+
+CI evidence:
+- Build workflow run [45426715210](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426715210): success, including dependency audit, all Edge Function type checks, Deno reader tests, migration safety checks and production bundle build.
+- Android workflow run [45426715201](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426715201): debug APK build and artifact upload succeeded.
+- Supabase local migration workflow run [45426715257](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426715257): success, including clean local migration reset and pgTAP RLS tests.
+- Documentation PR #15's local Supabase workflow [45426762999](https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/actions/runs/45426762999): success.
+
+These checks do not prove provider-backed checkout. No function invocation using a real user session, no SSLCommerz sandbox transaction, and no payment IPN round-trip have been run. Merchant sandbox secrets are not configured/verified in this workflow. Keep checkout disabled and do not use live payment until owner configuration and end-to-end sandbox tests pass.
