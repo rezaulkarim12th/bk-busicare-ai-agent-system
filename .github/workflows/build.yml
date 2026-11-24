@@ -39,6 +39,7 @@ jobs:
           deno check --node-modules-dir=none supabase/functions/busicare-create-order/index.ts
           deno check --node-modules-dir=none supabase/functions/sslcommerz-create-session/index.ts
           deno check --node-modules-dir=none supabase/functions/sslcommerz-ipn/index.ts
+          deno test supabase/functions/_shared/read-limited-body_test.ts
       - name: Run migration safety checks
         run: npm test
       - name: Check application JavaScript syntax
