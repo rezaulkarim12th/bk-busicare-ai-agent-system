@@ -117,7 +117,40 @@ return `<div class="settings-sections">
 <section class="panel settings-panel" id="team-access"><h3>7. Team & Access</h3><p class="muted">Multi-user invitations, member roles, and access controls are not enabled in this local MVP.</p><p>Team members: Not configured</p><p>Role-based access: Planned</p></section>
 <section class="panel settings-panel" id="about-busicare"><h3>8. About BK-BusiCare One</h3><p><b>Product:</b> BK-BusiCare One</p><p><b>Version:</b> 0.2.0 MVP</p><p><b>Build:</b> Android debug / web preview</p><p><b>Website:</b> <a href="https://busicarecom.wordpress.com/" target="_blank" rel="noopener noreferrer">busicarecom.wordpress.com</a></p><p><b>WhatsApp:</b> <a href="https://wa.me/8801912344300" target="_blank" rel="noopener noreferrer">+88 01912-344300</a></p><p><b>Play Store:</b> Not published</p></section>
 <section class="panel settings-panel" id="help-support"><h3>9. Help & Support</h3><p>For product and service information, visit the BK-BusiCare website.</p><a href="https://busicarecom.wordpress.com/" target="_blank" rel="noopener noreferrer">Open BK-BusiCare Website</a><p><b>WhatsApp Support:</b> <a href="https://wa.me/8801912344300" target="_blank" rel="noopener noreferrer">+88 01912-344300</a></p><p class="muted">This is the BK-BusiCare WhatsApp contact. Do not share passwords, access tokens, or private customer information in support requests.</p></section>
-<section class="panel settings-panel" id="saas-capabilities"><h3>10. Planned SaaS Capabilities</h3><ul><li>Separate organization workspaces</li><li>Role-based team access</li><li>Subscription, billing, and usage limits</li><li>Secure cloud database and audit logs</li><li>Cross-device sync and automated backups</li></ul><p class="muted">These are roadmap items, not active features in this MVP.</p></section>
+<section class="panel settings-panel" id="saas-capabilities">
+<h3>10. SaaS Capabilities & Delivery Status</h3>
+<p class="muted">This section separates working foundations from features that still require implementation, account-owner setup, or live acceptance testing. A green build alone does not mean a production SaaS feature is ready.</p>
+<h4>Implemented foundation in the codebase</h4>
+<ul>
+<li><b>Tenant/workspace foundation:</b> workspace creation and selection with workspace-scoped cloud Leads and Content.</li>
+<li><b>Access roles:</b> owner, admin, member and viewer role model; server-side membership checks and PostgreSQL Row Level Security.</li>
+<li><b>Team administration foundation:</b> invitation and role-management Edge Function paths with JWT checks, origin allowlisting, bounded requests and audit events.</li>
+<li><b>Audit foundation:</b> protected audit-event records for supported workspace administration actions.</li>
+<li><b>AI usage controls:</b> authenticated draft-generation endpoint with workspace authorization and database-backed quotas; it does not publish or message.</li>
+<li><b>Local data portability:</b> browser demo JSON export/import. This is not cloud backup or cross-device sync.</li>
+</ul>
+<h4>Not yet complete or not verified</h4>
+<ul>
+<li><b>Authentication acceptance:</b> live signup, login, logout, password recovery, redirect configuration and email delivery need TEST-account verification.</li>
+<li><b>Tenant isolation acceptance:</b> direct API tests with at least two separate users and workspaces, including viewer and non-member denial, remain outstanding.</li>
+<li><b>Subscription and billing:</b> plans, entitlements, invoices, payment-provider integration, webhook verification and cancellation are not implemented.</li>
+<li><b>Cloud backup and restore:</b> scheduled backups, retention policy, restore drills and recovery-point objectives are not certified.</li>
+<li><b>Operations:</b> production monitoring, alerting, incident response, rate-limit verification, privacy and retention controls remain release gates.</li>
+<li><b>Provider integrations:</b> Meta, Google, TikTok, LinkedIn, YouTube and commerce integrations are not connected; owner-managed app approvals and credentials are required.</li>
+<li><b>Production release:</b> Production backend has not been changed or certified. Independent security review and owner release approval are still required.</li>
+</ul>
+<h4>Release checklist</h4>
+<ol>
+<li>Complete TEST Auth and email-delivery acceptance with test accounts.</li>
+<li>Pass two-user/two-workspace RLS and direct-API isolation tests.</li>
+<li>Configure and verify AI provider secrets server-side, then test quota and error cases.</li>
+<li>Implement subscription/billing only after provider and legal/account ownership decisions.</li>
+<li>Implement cloud backup, monitoring, retention and recovery drills.</li>
+<li>Complete controlled TEST acceptance, security review, rollback plan and explicit production approval.</li>
+</ol>
+<p class="muted"><b>Current release decision:</b> SaaS foundation is partial; do not describe this build as a complete production SaaS. Do not enter real customer data, collect payments, or enable external publishing until the corresponding gates pass.</p>
+<p><a href="https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/blob/fix/lead-form-draft-autosave/docs/IMPLEMENTATION_STATUS.md" target="_blank" rel="noopener noreferrer">Open detailed implementation and release status</a></p>
+</section>
 </div>`;
 }
 
