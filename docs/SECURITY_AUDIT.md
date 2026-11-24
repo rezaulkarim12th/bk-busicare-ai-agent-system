@@ -73,8 +73,9 @@ The following remain unverified and must not be described as passed:
 
 ## Source-level review follow-ups
 
-- Compare each deployed Edge Function version with the source currently tracked in Git before redeployment.
-- Inspect `busicare-create-order` request parsing. If it calls `req.text()` before checking the maximum length, the limit is enforced only after the body has already been buffered. Use a bounded streaming reader or an equivalent early content-length/stream limit, then test malformed, missing-length and oversized requests.
+- The three payment/order Edge Function sources are absent from `main` and are tracked on `feature/sslcommerz-sandbox-readiness` (open Draft PR #14). The deployed TEST code exactly matched those branch files during the 2026-11-24 inspection.
+- All three functions originally buffered the full body with `req.text()` before checking the configured limit. A shared streaming byte-limited reader, five Deno tests and CI test steps have been pushed to the feature branch. The fix is not deployed; CI and post-deploy verification are pending.
+- The payment schema currently exists as `supabase/sql/sslcommerz_payment_schema.sql` on the feature branch, while TEST has two payment migrations applied. The repository's local CI generates an ephemeral migration from the SQL file; a timestamped, reproducible migration should be committed before release.
 - Verify SSLCommerz IPN provider validation, amount/currency/order matching, idempotency and replay handling before any payment status is treated as confirmed.
 - Never place service-role keys, database passwords, OpenAI keys, payment credentials or OAuth tokens in frontend variables, source control or chat.
 
