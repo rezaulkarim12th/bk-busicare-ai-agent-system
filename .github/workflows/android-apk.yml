@@ -56,6 +56,9 @@ jobs:
         run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
 
       - name: Build web application for Android assets
+        env:
+          VITE_SUPABASE_URL: https://rmnoiwzkhjwmgxwkfdzb.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw
         run: npm run build -- --base ./
 
       - name: Generate Android project
@@ -79,8 +82,8 @@ jobs:
               "targetSdkVersion": "36",
           }
           for key, value in expected.items():
-              pattern = rf"(?m)^(\s*{key}\s*=\s*)\d+(\s*)$"
-              content, count = re.subn(pattern, rf"\g<1>{value}\g<2>", content)
+              pattern = rf"(?m)^(\\s*{key}\\s*=\\s*)\\d+(\\s*)$"
+              content, count = re.subn(pattern, rf"\\g<1>{value}\\g<2>", content)
               if count != 1:
                   raise SystemExit(f"Expected exactly one {key} setting in variables.gradle; found {count}")
           variables.write_text(content)
@@ -88,8 +91,8 @@ jobs:
           root_build = Path("build.gradle")
           root_content = root_build.read_text()
           root_content, count = re.subn(
-              r"(com\.android\.tools\.build:gradle:)\d+\.\d+\.\d+",
-              r"\g<1>8.9.1",
+              r"(com\\.android\\.tools\\.build:gradle:)\\d+\\.\\d+\\.\\d+",
+              r"\\g<1>8.9.1",
               root_content,
               count=1,
           )
