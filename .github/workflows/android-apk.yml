@@ -56,6 +56,9 @@ jobs:
         run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
 
       - name: Build web application for Android assets
+        env:
+          VITE_SUPABASE_URL: https://rmnoiwzkhjwmgxwkfdzb.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw
         run: npm run build -- --base ./
 
       - name: Generate Android project
