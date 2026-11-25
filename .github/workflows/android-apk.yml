@@ -17,6 +17,7 @@ on:
     branches:
       - main
       - feature/android-apk-ci-clean
+      - fix/android-launcher-icon-and-back-navigation
     paths:
       - '.github/workflows/android-apk.yml'
       - 'capacitor.config.json'
