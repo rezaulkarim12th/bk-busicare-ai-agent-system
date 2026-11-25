@@ -82,8 +82,8 @@ jobs:
               "targetSdkVersion": "36",
           }
           for key, value in expected.items():
-              pattern = rf"(?m)^(\\s*{key}\\s*=\\s*)\\d+(\\s*)$"
-              content, count = re.subn(pattern, rf"\\g<1>{value}\\g<2>", content)
+              pattern = rf"(?m)^(\s*{key}\s*=\s*)\d+(\s*)$"
+              content, count = re.subn(pattern, rf"\g<1>{value}\g<2>", content)
               if count != 1:
                   raise SystemExit(f"Expected exactly one {key} setting in variables.gradle; found {count}")
           variables.write_text(content)
@@ -91,8 +91,8 @@ jobs:
           root_build = Path("build.gradle")
           root_content = root_build.read_text()
           root_content, count = re.subn(
-              r"(com\\.android\\.tools\\.build:gradle:)\\d+\\.\\d+\\.\\d+",
-              r"\\g<1>8.9.1",
+              r"(com\.android\.tools\.build:gradle:)\d+\.\d+\.\d+",
+              r"\g<1>8.9.1",
               root_content,
               count=1,
           )
