@@ -39,9 +39,6 @@ jobs:
       - name: Install Windows packaging tools
         run: npm install --no-save --package-lock=false electron electron-builder
       - name: Build portable web assets
-        env:
-          VITE_SUPABASE_URL: https://rmnoiwzkhjwmgxwkfdzb.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw
         run: npm run build -- --base ./
       - name: Package Windows x64 portable application
         run: npx electron-builder --win portable --x64 --config electron-builder.yml
