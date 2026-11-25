@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/windows-desktop.yml'
+      - 'capacitor.config.json'
       - 'electron-main.cjs'
       - 'electron-preload.cjs'
       - 'electron-builder.yml'
