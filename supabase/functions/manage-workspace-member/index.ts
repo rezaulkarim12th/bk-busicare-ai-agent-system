@@ -6,6 +6,8 @@ const allowedOrigins = new Set(
     .map((origin) => origin.trim())
     .filter(Boolean)
 );
+// Capacitor Android serves the app from this exact HTTPS origin.
+allowedOrigins.add('https://localhost');
 const MAX_BODY_BYTES = 12_000;
 async function readJsonObject(req: Request): Promise<Record<string, unknown> | null | undefined> {
   const declaredLength = Number(req.headers.get('content-length') || '0');
