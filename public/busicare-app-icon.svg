@@ -1,1 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t"><title id="t">BK-BusiCare App Icon</title><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b6b83"/><stop offset="1" stop-color="#1c8b67"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><path d="M126 104h145c83 0 121 39 121 99 0 40-20 70-59 83 49 12 78 47 78 94 0 68-49 110-134 110H126z" fill="#fff"/><path d="M206 179v127h69c33 0 53-22 53-64 0-40-20-63-53-63zm0 194v91h77c39 0 62-15 62-45s-23-46-62-46z" fill="#0b5265"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">BK-BusiCare App Icon</title>
+<defs>
+  <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#087bd8"/><stop offset="1" stop-color="#003b91"/></linearGradient>
+  <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#073c9c"/><stop offset="1" stop-color="#078ee7"/></linearGradient>
+  <clipPath id="globe"><circle cx="246" cy="238" r="153"/></clipPath>
+</defs>
+<rect width="512" height="512" rx="112" fill="#fff"/>
+<circle cx="246" cy="238" r="164" fill="url(#ocean)"/>
+<g clip-path="url(#globe)" fill="#dff4ff" opacity=".96">
+  <path d="M126 130l34-20 31 8 14 25-18 19-4 31-27 14-22-20-22-4-9-25zm118-44l28 12 11 25-20 18-26-8-8-22zm-15 108l31-20 38 10 24 29-12 27-34 9-7 37-25 22-7 43-22 24-18-32 8-38-18-27 5-37zm116-24l38 2 23 22-15 29-30 3-20-24zm-26 129l30-11 26 20-8 36-27 20-24-23z"/>
+  <path d="M95 235h302M110 177h272M110 295h272M246 82c-47 44-70 96-70 156s23 112 70 156M246 82c47 44 70 96 70 156s-23 112-70 156" fill="none" stroke="#8bdcff" stroke-width="3" opacity=".5"/>
+</g>
+<ellipse cx="256" cy="260" rx="222" ry="88" transform="rotate(-19 256 260)" fill="none" stroke="url(#orbit)" stroke-width="20"/>
+<path d="M82 332c83 29 177 20 274-28 48-24 83-53 109-87" fill="none" stroke="#13a538" stroke-width="22" stroke-linecap="round"/>
+<path d="M437 177l43 2-19-40" fill="none" stroke="#13a538" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#087bd8"><rect x="356" y="106" width="25" height="61" rx="5"/><rect x="390" y="84" width="25" height="83" rx="5"/></g>
+<path d="M405 90l42-47 15 61-25-17-22 29z" fill="#13a538"/>
+<circle cx="190" cy="172" r="7" fill="#fff"/><circle cx="292" cy="133" r="7" fill="#fff"/><circle cx="319" cy="276" r="7" fill="#fff"/>
+</svg>
