@@ -12,6 +12,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'src/**'
+      - 'tests/**'
       - 'index.html'
       - 'vite.config.js'
 
