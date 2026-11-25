@@ -30,14 +30,16 @@ const readLimitedBody = async (req: Request): Promise<string | null> => {
 };
 
 Deno.serve(async (req: Request) => {
-  const configuredOrigins = (Deno.env.get("APP_ALLOWED_ORIGINS") ?? "").split(",").map((value) => value.trim()).filter(Boolean);
+  const configuredOrigins = new Set((Deno.env.get("APP_ALLOWED_ORIGINS") ?? "").split(",").map((value) => value.trim()).filter(Boolean));
+  // Capacitor Android serves the app from this exact HTTPS origin.
+  configuredOrigins.add("https://localhost");
   const origin = req.headers.get("origin") ?? "";
   if (req.method === "OPTIONS") {
-    if (!origin || !configuredOrigins.includes(origin)) return new Response(null, { status: 403, headers: { "Vary": "Origin" } });
+    if (!origin || !configuredOrigins.has(origin)) return new Response(null, { status: 403, headers: { "Vary": "Origin" } });
     return new Response(null, { status: 204, headers: corsHeaders(origin) });
   }
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, origin || "null");
-  if (!origin || !configuredOrigins.includes(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+  if (!origin || !configuredOrigins.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
   const token = (req.headers.get("authorization") ?? "").match(/^Bearer\s+(.+)$/i)?.[1];
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
