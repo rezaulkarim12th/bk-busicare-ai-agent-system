@@ -1,0 +1,16 @@
+appId: com.bkbusicare.desktop
+productName: BK-BusiCare One
+directories:
+  output: release
+files:
+  - dist/**
+  - electron-main.cjs
+  - electron-preload.cjs
+extraMetadata:
+  main: electron-main.cjs
+win:
+  target:
+    - target: portable
+      arch:
+        - x64
+  artifactName: BK-BusiCare-One-Windows-${version}.${ext}
