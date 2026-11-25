@@ -160,8 +160,8 @@ test('invitation quota SQL function uses a valid dollar-quoted body', () => {
   const functionStart = sql.lastIndexOf('create or replace function public.reserve_workspace_invitation');
   const functionEnd = sql.indexOf('revoke all on function public.reserve_workspace_invitation', functionStart);
   const functionSql = sql.slice(functionStart, functionEnd);
-  assert.match(functionSql, /as \\$\\$\\s+declare/);
-  assert.match(functionSql, /end;\\s+\\$\\$;/);
+  assert.match(functionSql, /as \$\$\s+declare/);
+  assert.match(functionSql, /end;\s+\$\$;/);
 });
 
 test('team invitation email validation rejects whitespace', () => {
