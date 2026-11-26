@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t"><title id="t">BK-BusiCare App Icon</title><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b6b83"/><stop offset="1" stop-color="#1c8b67"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><path d="M126 104h145c83 0 121 39 121 99 0 40-20 70-59 83 49 12 78 47 78 94 0 68-49 110-134 110H126z" fill="#fff"/><path d="M206 179v127h69c33 0 53-22 53-64 0-40-20-63-53-63zm0 194v91h77c39 0 62-15 62-45s-23-46-62-46z" fill="#0b5265"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">BK-BusiCare App Icon</title>
+  <desc id="desc">Blue connected globe with a green growth arrow, inspired by the BK-BusiCare brand logo.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#073b83"/><stop offset="1" stop-color="#0879c9"/></linearGradient>
+    <linearGradient id="globe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bceaff"/><stop offset=".48" stop-color="#168fe0"/><stop offset="1" stop-color="#06458f"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="235" cy="258" r="157" fill="url(#globe)" stroke="#fff" stroke-width="9"/>
+  <ellipse cx="235" cy="258" rx="73" ry="157" fill="none" stroke="#d8f5ff" stroke-width="5" opacity=".8"/>
+  <path d="M83 258h304M104 190h262M104 326h262" fill="none" stroke="#d8f5ff" stroke-width="4" opacity=".55"/>
+  <path d="M129 155c35-37 79-54 119-54M103 258c0-83 59-153 140-170M129 361c35 37 79 54 119 54" fill="none" stroke="#d8f5ff" stroke-width="4" opacity=".55"/>
+  <path d="M106 337c86 67 204 72 292-4 20-17 36-39 47-64" fill="none" stroke="#fff" stroke-width="19" stroke-linecap="round"/>
+  <path d="M118 356c93 57 207 45 285-39 18-20 31-42 40-67" fill="none" stroke="#28d34a" stroke-width="13" stroke-linecap="round"/>
+  <path d="M400 111l77-48-13 94-22-26-43 68-28-18 43-68z" fill="#28d34a" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M337 229v-47h27v47M371 229v-76h27v76" fill="#fff" opacity=".95"/>
+  <circle cx="235" cy="258" r="157" fill="none" stroke="#fff" stroke-width="9"/>
+</svg>
