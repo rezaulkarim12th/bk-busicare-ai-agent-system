@@ -984,3 +984,33 @@ footer{color:#8592a4;border-top:1px solid #e5eaf1}
   .main{padding-left:10px!important;padding-right:10px!important}
   .main .user div small:last-child{display:none}
 }
+
+
+/* BK-BusiCare One — Design #4: Premium Corporate Ivory & Forest Green */
+:root{color-scheme:light;--ink:#202b25;--muted:#737d75;--line:#e8e4d9;--surface:#fff;--canvas:#f6f4ed;--forest:#174b38;--forest-deep:#103526;--forest-mid:#236248;--bronze:#a98753;--ivory:#f6f4ed;--green:#236248;--green-dark:#103526;font-family:Inter,'Hind Siliguri',Arial,sans-serif}
+html,body,.layout{background:var(--ivory);color:var(--ink)}
+.sidebar{background:linear-gradient(180deg,#123a2b,#174b38 62%,#1c563f);color:#edf3ee;box-shadow:7px 0 25px #163c2c12}
+.logo,.avatar{background:linear-gradient(145deg,#f3eee2,#d8c7a7);color:#174532;border:1px solid #cbb994;box-shadow:0 4px 12px #081f1525}
+.brand b{color:#fff}.brand small,.workspace{color:#bdcfc3}.workspace{border-top-color:#ffffff20}.workspace strong{color:#fff}
+.nav{color:#d2dfd6;border-color:transparent}.nav:hover{background:#ffffff12;color:#fff}
+.nav.active{color:#183d2d;background:#e9e2d2;border-color:#d5c7a9;box-shadow:inset 3px 0 var(--bronze);font-weight:750}.nav.active span{color:#174b38}
+.side-foot{color:#b8cabe}.status-dot{background:#b9c59a}
+header{border-bottom:1px solid var(--line)}.eyebrow{color:#88734e}h1,h2,h3{color:#20372b}
+.user{background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px #1a352608}
+.welcome{background:radial-gradient(ellipse at 85% 15%,#d6c39a26,transparent 30%),linear-gradient(112deg,#123a2b,#174b38 60%,#286248);border:1px solid #426b50;border-radius:17px;box-shadow:0 12px 28px #173f2b18}
+.welcome:after{border-color:#d7c39b45;box-shadow:0 0 0 18px #d7c39b0b,0 0 0 38px #d7c39b08}.welcome .eyebrow,.welcome .light{color:#e5d5b7}.welcome h2{color:#fff}.welcome p{color:#d9e5dc}.welcome-mark{color:#e6d9bd35}
+.stat,.panel,.store-card,.planner-nav{background:#fff;border:1px solid var(--line);box-shadow:0 5px 18px #26392b08}.stat{border-radius:14px}.stat:before{background:linear-gradient(180deg,#c9b58d,#94764a)}.stat span{color:#66756b}.stat strong{color:#214632}
+.primary{color:#fff;background:linear-gradient(135deg,#28664a,#174b38);border:1px solid #174b38;box-shadow:0 4px 12px #174b3820}.primary:hover{background:#103b2a;color:#fff}
+.secondary{color:#315642;background:#f2efe6;border:1px solid #e0d8c7}.secondary:hover{background:#eae4d6}
+.table-wrap{border:1px solid var(--line);box-shadow:0 4px 16px #26392b07}th{background:#f6f4ed;color:#7b715f}td,th{border-bottom:1px solid #efede6}tbody tr:hover{background:#fbfaf6}
+.pill{background:#edf3ed;color:#315d42;border:1px solid #dce8dc}.notice{background:linear-gradient(110deg,#f0f4ed,#faf9f4);border:1px solid #dfe7db}.notice p{color:#65756a}
+.stage{background:#f0f1e9;border:1px solid #e4e5da}.stage-title{color:#244734}.deal{border:1px solid #e8e7de;box-shadow:0 3px 10px #1b352509}
+.form input,.form select,.panel input,.filters input,.filters select,.deal select{border-color:#e2e4d9;background:#fff;color:#26392d}
+.form input:focus,.form select:focus,.panel input:focus,.filters input:focus,.filters select:focus{border-color:#8d9d79;box-shadow:0 0 0 3px #8d9d791c}
+.bar{background:#e9ece4}.bar i{background:linear-gradient(90deg,#426f50,#9aab83)}
+.planner-tab{background:#f8f8f3;color:#294536}.planner-tab.active{background:#edf3eb;border-color:#b9c9b2;box-shadow:inset 3px 0 #557b58}.planner-tab:hover{border-color:#cbd7c4;background:#f2f5ee}.planner-tab small,.planner-items li{color:#6d7b70}
+#planner-brief-output,#copilot-output{background:#fafaf6;border-color:#e4e5da;color:#2b4434}
+.store-art{background:linear-gradient(135deg,#123a2b,#286248);color:#e6d7b7}.store-quantity button{background:#f2f3eb;border-color:#dfe5d8;color:#315d42}
+.text-btn{color:#985b50}.empty-panel{background:#fbfaf6;border-color:#dcded2}footer{border-top:1px solid var(--line);color:#85877c}
+:focus-visible{outline:3px solid #a98753;outline-offset:2px}
+@media(max-width:700px){.sidebar{background:linear-gradient(180deg,#123a2b,#174b38)!important}.sidebar .nav.active{background:#e9e2d2!important;color:#183d2d!important;border-color:#d5c7a9!important}.sidebar .nav.active span{background:#174b38!important;color:#f3eee2!important}.welcome{border-radius:14px}}
