@@ -283,6 +283,7 @@ test('AI quota reservations have exact, server-only release semantics on provide
   assert.match(normalizedMigration, /revoke all on function public\.release_ai_content_generation_reservation\(bigint, uuid\) from public, anon, authenticated/);
   assert.match(normalizedMigration, /grant execute on function public\.release_ai_content_generation_reservation\(bigint, uuid\) to service_role/);
   assert.match(edge, /reserve_ai_content_generation_v2/);
+  assert.ok(edge.includes('!/^\\d+$/.test(reservationId)'), 'reservation identifier must be validated as decimal digits');
   assert.match(edge, /release_ai_content_generation_reservation/);
   assert.match(edge, /await releaseQuotaReservation\(\);[\s\S]*?AI provider request failed/);
   assert.match(edge, /A successful provider response may still incur usage/);
