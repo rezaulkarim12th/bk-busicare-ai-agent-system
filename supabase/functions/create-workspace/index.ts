@@ -1,9 +1,13 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const allowedOrigins = new Set(
-  (Deno.env.get('APP_ALLOWED_ORIGINS') || '')
-    .split(',').map((value) => value.trim()).filter(Boolean)
-);
+const allowedOrigins = new Set([
+  'https://localhost',
+  'https://rezaulkarim12th.github.io',
+  'https://busicarecom.wordpress.com',
+  'https://bk-busicare.com',
+  'https://go.bk-busicare.com',
+  ...(Deno.env.get('APP_ALLOWED_ORIGINS') || '').split(',').map((value) => value.trim()).filter(Boolean)
+]);
 // Capacitor Android serves the app from this exact HTTPS origin.
 allowedOrigins.add('https://localhost');
 
