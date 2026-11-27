@@ -1,6 +1,6 @@
 # Red Team Initial Execution Log
 
-Assessment status: **PARTIAL — active TEST-environment assessment not yet authorized/configured**
+Assessment status: **BLOCKED / PARTIAL — repository checks pass; dedicated TEST project is inactive and live assessment cannot proceed**
 Date: 2026-11-27
 Assessment branch: `security/red-team-readiness`
 Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/23
@@ -9,50 +9,45 @@ Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pu
 
 | Check | Result | Evidence / limitation |
 |---|---|---|
-| Dependency audit on Red Team PR | PASS | GitHub Build workflow 46023507477 completed successfully |
-| Supabase Edge Function type-check | PASS | Same Build workflow |
-| Migration safety checks | PASS | Same Build workflow |
-| JavaScript syntax checks | PASS | Same Build workflow |
-| Production web bundle build | PASS | Same Build workflow |
-| Local migration application | PASS | Supabase local CI run 46023507569; migrations applied to disposable local database |
-| Local pgTAP RLS isolation suite | PASS | Same run; pgTAP step completed successfully |
-| Local Supabase service checks | PASS | Same run; cleanup was still in progress at time of review |
-| Windows packaging pipeline | BLOCKED | Latest inspected Windows run 45924324002 failed at `npm test`; 63/64 tests passed. The failing assertion expected the older owner/admin/member role list while the Edge Function now includes editor. Packaging steps were skipped. The current Red Team PR test source includes the editor role; Windows workflow is configured for main pushes/manual dispatch, not pull requests. A fresh Windows run on the updated main commit is still required. |
-| Live two-account browser Auth / REST checks | NOT RUN | Exact TEST app URL and approved synthetic test accounts not supplied |
-| Live Edge Function authorization/CORS/quota tests | NOT RUN | Must use the exact configured TEST deployment and synthetic accounts |
-| Android device permission/deep-link/WebView tests | NOT RUN | No designated test device/build artifact supplied in this assessment |
+| Dependency audit on Red Team PR | PASS | GitHub Build workflow 46023933616 completed successfully |
+| Supabase Edge Function type-check | PASS | Build workflow 46023933616 |
+| Migration safety checks | PASS | Build workflow 46023933616 |
+| JavaScript syntax checks | PASS | Build workflow 46023933616 |
+| Production web bundle build | PASS | Build workflow 46023933616 |
+| Local migration application | PASS | Supabase local CI run 46023933630; all migrations applied to disposable local database |
+| Local pgTAP RLS isolation suite | PASS | Run 46023933630; pgTAP RLS isolation step completed successfully |
+| Local Supabase service checks | PASS | Run 46023933630; local services verified and stack stopped cleanly |
+| Windows packaging pipeline | BLOCKED | Latest inspected Windows run 45924324002 failed at `npm test`; 63/64 tests passed. The failing assertion expected the older role list; packaging steps were skipped. Current Red Team branch test source was updated, but a fresh Windows build/test run is still required. |
+| Dedicated Supabase TEST project availability | BLOCKED | Read-only project lookup returned status `INACTIVE` for `rmnoiwzkhjwmgxwkfdzb`. Database table/migration inspection calls timed out / reported database inaccessible. Do not interpret empty Advisor responses from this inactive project as a clean security scan. No restore/resume action was taken. |
+| TEST Edge Function inventory | OBSERVED | Supabase control plane lists six functions as ACTIVE: manage-workspace-member v14, busicare-create-order v2, create-workspace v12, sslcommerz-create-session v2, sslcommerz-ipn v4, ai-content v11. Function listing does not prove the project database or endpoint runtime is healthy. |
+| Live two-account browser Auth / REST checks | NOT RUN | TEST project is inactive; exact TEST app URL and synthetic test accounts are also not recorded |
+| Live Edge Function authorization/CORS/quota tests | NOT RUN | TEST project is inactive; runtime behavior cannot be validated |
+| Android device permission/deep-link/WebView tests | NOT RUN | No designated test device/build artifact and hash supplied |
 | Windows Electron runtime security tests | NOT RUN | No built artifact/hash supplied |
-| Payment/webhook tests | NOT RUN | No sandbox test endpoint/credentials supplied; no live payment attempted |
+| Payment/webhook tests | NOT RUN | No confirmed sandbox merchant credentials/test window; no payment attempted |
 | Backup/restore recovery exercise | NOT RUN | No disposable TEST backup checkpoint and recovery target supplied |
 
 ## Key technical observations
 
-1. The AI Content Edge Function verifies the caller's JWT with Supabase Auth, checks membership for the requested workspace on the server, constrains the role set, caps request body size, validates the workspace UUID, topic and platform, reserves quota, and returns a draft without publishing.
-2. The team-management Edge Function verifies the caller's JWT, checks owner/admin authority server-side, constrains roles and actions, caps request body size, rate-limits invitations and uses database RPCs for atomic membership/audit operations.
-3. These are source-level observations, not proof that the deployed TEST endpoints behave correctly under real signed-in sessions.
-4. The AI Content Function currently has a static list of allowed origins plus `APP_ALLOWED_ORIGINS`. The deployed TEST origin must be explicitly verified against the server-side configuration. Do not infer the active deployment origin from source code.
-5. The repository security review previously recorded a Supabase Security Advisor WARN for the authenticated SECURITY DEFINER workspace-creation RPC. It is documented as an intentional authenticated operation; its authorization behavior must remain covered by regression tests.
+1. The deployed TEST AI Content Function source (v11) validates the caller token through Supabase Auth, checks workspace membership server-side, limits the body size, validates workspace UUID/topic/platform, reserves AI quota, and returns a draft without publishing.
+2. The deployed TEST team-management Function source (v14) validates the caller token, requires owner/admin membership, constrains actions and roles, limits body size, rate-limits invitations, and uses database RPCs for membership/audit writes.
+3. The AI Content Function has `verify_jwt=false` at the gateway but performs explicit `auth.getUser(token)` validation inside the handler. This is a source-level design observation; live negative/positive authorization tests remain mandatory.
+4. The deployed TEST AI Content Function v11 permits roles `owner/admin/member`; the team-management function permits assignment of `admin/member/viewer`. Confirm the intended product role model against the live database once TEST is active. Do not assume the `editor` role is supported by the deployed function.
+5. The deployed payment-session Function requires `SSLCOMMERZ_MODE=sandbox`, validates the authenticated order owner, pending status, BDT currency and amount bounds, and uses the SSLCommerz sandbox URL. The IPN Function validates the provider response against transaction ID, validation ID, amount and currency before changing payment state. These source checks do not replace provider sandbox replay/idempotency testing.
+6. The deployed AI Content Function allows only configured `APP_ALLOWED_ORIGINS` plus the exact Android HTTPS origin `https://localhost`. The deployed origin configuration itself is not readable here and remains unverified.
+7. The repository security review previously recorded a Supabase Security Advisor WARN for an authenticated SECURITY DEFINER workspace-creation RPC. The latest TEST project Advisor calls returned no lints while the project was inactive; this is not evidence that the warning has been resolved.
+8. The Electron main process sets `contextIsolation: true`, `nodeIntegration: false`, and `sandbox: true`; navigation is restricted to the configured app origin. **Desktop architecture risk:** packaged Electron loads the hosted GitHub Pages URL rather than the packaged local `dist` bundle. The installed app therefore depends on remote content at launch. Confirm this trust model or change to a reviewed local bundle / signed pinned update channel before desktop release.
+9. Capacitor Android runtime permissions, deep links, WebView navigation, storage and release-signing behavior still require a real TEST APK and designated device.
 
-## Required inputs before active external testing
+## Required recovery and authorization inputs
 
-- Exact TEST web application URL.
-- Confirmation that the dedicated TEST project `rmnoiwzkhjwmgxwkfdzb` is the intended target.
-- Two synthetic test accounts in separate TEST workspaces (share account labels/roles only; never passwords or tokens in chat).
-- Exact Android and Windows TEST artifact links plus SHA-256 hashes, if device/desktop testing is expected.
-- Approved test window and rollback contact.
-- Confirmation that payment tests are limited to provider sandbox endpoints.
+- Owner-approved restoration/activation of the dedicated TEST project `rmnoiwzkhjwmgxwkfdzb` (the project is currently INACTIVE). This may affect billing; no resume/restore was initiated.
+- Exact TEST web application URL and confirmation that it targets this TEST project.
+- Two synthetic TEST accounts in separate TEST workspaces; share only labels/roles, never passwords, tokens or session cookies.
+- Exact Android and Windows TEST artifact links and SHA-256 hashes.
+- Approved test start/end time and rollback/emergency contact.
+- Confirmation that payment tests are restricted to provider sandbox endpoints and that sandbox credentials are configured directly by the authorized account owner.
 
 ## Safety / release decision
 
-No production resources were probed or changed. No real customer data, live payment, social publishing, ad spend, or third-party accounts were accessed. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until all required tests are executed, findings remediated and independently retested.
-
-
-## Additional static client review
-
-- Electron main process sets `contextIsolation: true`, `nodeIntegration: false` and `sandbox: true`; preload exposes no privileged API; new-window and navigation handlers restrict navigation to the configured app origin and open supported external links outside the app. These are positive source-level controls.
-- **Architecture risk to verify before desktop release:** packaged Electron currently loads the hosted GitHub Pages URL rather than the packaged local `dist` bundle. Therefore the installed desktop app depends on the remote site and receives future hosted content at launch. Confirm this is an intentional trust/deployment model; otherwise package and load the reviewed local bundle, or enforce a signed, pinned update channel. Runtime navigation tests and artifact inspection remain outstanding.
-- Capacitor config sets the Android scheme to HTTPS. Android runtime permission, deep-link, WebView navigation, storage and release-signing behavior still require an actual TEST APK and designated device.
-
-## Updated CI observation
-
-The Red Team PR's disposable local Supabase workflow **completed successfully** (run 46023507569). The migration-application, pgTAP RLS isolation and local service verification steps passed; the job completed cleanup. The PR's build workflow also passed. These validate CI/test-environment behavior only, not live deployed Auth/API behavior.
+No production resources were probed or changed. No real customer data, live payment, social publishing, ad spend, or third-party accounts were accessed. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until the TEST project is available, all required tests are executed, findings remediated, and independent retesting is complete.
