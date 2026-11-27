@@ -45,3 +45,14 @@ Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pu
 ## Safety / release decision
 
 No production resources were probed or changed. No real customer data, live payment, social publishing, ad spend, or third-party accounts were accessed. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until all required tests are executed, findings remediated and independently retested.
+
+
+## Additional static client review
+
+- Electron main process sets `contextIsolation: true`, `nodeIntegration: false` and `sandbox: true`; preload exposes no privileged API; new-window and navigation handlers restrict navigation to the configured app origin and open supported external links outside the app. These are positive source-level controls.
+- **Architecture risk to verify before desktop release:** packaged Electron currently loads the hosted GitHub Pages URL rather than the packaged local `dist` bundle. Therefore the installed desktop app depends on the remote site and receives future hosted content at launch. Confirm this is an intentional trust/deployment model; otherwise package and load the reviewed local bundle, or enforce a signed, pinned update channel. Runtime navigation tests and artifact inspection remain outstanding.
+- Capacitor config sets the Android scheme to HTTPS. Android runtime permission, deep-link, WebView navigation, storage and release-signing behavior still require an actual TEST APK and designated device.
+
+## Updated CI observation
+
+The Red Team PR's disposable local Supabase workflow **completed successfully** (run 46023507569). The migration-application, pgTAP RLS isolation and local service verification steps passed; the job completed cleanup. The PR's build workflow also passed. These validate CI/test-environment behavior only, not live deployed Auth/API behavior.
