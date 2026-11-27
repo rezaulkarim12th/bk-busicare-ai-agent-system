@@ -56,3 +56,15 @@ Latest observed PR CI merge commit: `cef9e720aab422d8c94f7b19859adc3254114dea` (
 ## Safety / release decision
 
 No production resources were probed or changed. No active Supabase project was paused. No plan upgrade, deployment, merge, real customer data access, live payment, social publishing, ad spend, or third-party account action occurred. The latest GitHub Pages workflow built the bundle but skipped artifact upload and deployment. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until the TEST project is available, all required tests are executed, findings remediated, and independent retesting is complete.
+
+
+## Follow-up verification — 2026-11-27
+
+After the previous log snapshot, the latest no-cost CI runs were checked:
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| GitHub Pages production bundle build | PASS | Run 46025175797 completed successfully; dependency audit reported 0 npm vulnerabilities, Edge Function type-check, migration safety, JavaScript syntax and production bundle build passed. Artifact upload and deploy jobs were skipped, so no deployment occurred. |
+| Disposable local Supabase migration and RLS workflow | PASS | Run 46025175779 completed successfully. All migrations applied to the disposable local database; pgTAP RLS isolation tests passed; local Supabase services verified; local stack stopped cleanly. |
+
+This confirms repository-level and isolated local checks only. It does not resolve the inactive hosted TEST project or replace live Auth/RLS, Edge Function, Android, Windows, payment sandbox, or backup/restore testing. Production release remains blocked.
