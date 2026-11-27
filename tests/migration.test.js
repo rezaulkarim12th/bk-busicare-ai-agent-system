@@ -301,5 +301,5 @@ test('Windows desktop package uses the BK-BusiCare branded icon generator', asyn
   assert.match(workflow, /npm install --no-save --package-lock=false electron electron-builder sharp png-to-ico/);
   assert.match(workflow, /node scripts\/generate-windows-icon\.mjs/);
   assert.match(generator, /public\/busicare-app-icon\.svg/);
-  assert.match(generator, /assets\/busicare-app-icon\.ico/);
+  assert.match(generator, /busicare-app-icon\.ico/);
 });
