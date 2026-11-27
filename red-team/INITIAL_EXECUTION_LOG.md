@@ -100,3 +100,36 @@ This is a read-only control-plane and catalog review of the currently active app
 5. Do not merge PR #23, deploy, enable payments, or grant release clearance on the basis of these read-only observations.
 
 No database schema, table data, Edge Function, secret, project state, billing setting, deployment, or production resource was changed during this follow-up. The Red Team assessment remains **PARTIAL / BLOCKED**, and production release remains blocked.
+
+
+## Verification follow-up — CI completion and current release gates — 2026-11-27
+
+The two workflows triggered by commit `b4ab9bf350ca276170770eae07e72f267adb39d5` have now completed:
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Application Node test suite | PASS | Run 46037640886: `npm test` reports 64 tests, 64 passed, 0 skipped. |
+| Disposable local Supabase migration | PASS | Run 46037640886: all migrations applied to an isolated local Supabase database; pgTAP RLS test files completed successfully; local services verified and stopped. |
+| Edge Function type-check | PASS | Run 46037640834: Deno type-check for `manage-workspace-member` and `ai-content` completed successfully. |
+| Dependency audit | PASS | Run 46037640834: npm audit reported 0 vulnerabilities. |
+| JavaScript syntax / production bundle | PASS | Run 46037640834: syntax checks passed; Vite transformed 52 modules and built successfully. |
+| Pages artifact upload / deployment | NOT DEPLOYED | Artifact upload step was skipped and deploy job was skipped because this run was on the Red Team branch. No live deployment resulted. |
+| CI warnings | INFO | Build log contains Node.js 20 action deprecation and Node `punycode` deprecation warnings; no build failure. |
+| Android APK / Windows package / Play AAB | NOT VERIFIED IN THIS RUN | These workflows were not run by the two CI jobs above. No new mobile/desktop artifact or device-test evidence was produced. |
+| PR #23 | OPEN / DRAFT | PR remains unmerged; branch protection is not enabled on the assessment branch. Do not treat this documentation PR as a release candidate. |
+
+The active BK-BusiCare One Supabase inventory was rechecked:
+- `BK-BusiCare-One` and `BK-BusiCare` remain `ACTIVE_HEALTHY`; `BK-BusiCare-TEST` remains `INACTIVE`.
+- BK-BusiCare One still lists 14 applied migrations.
+- Health Advisor remains clear.
+- Security Advisor still reports one WARN: leaked-password protection disabled.
+- Performance Advisor still reports six INFO unused-index notices. No index was removed because usage is too low to make a safe removal decision.
+- The active `ai-assistant` v3 function source still contains wildcard CORS. No live function was changed. The finding remains open pending owner/product confirmation whether this alternate function is needed and a safe TEST validation path.
+
+## Final status of this verification pass
+
+**Repository / isolated CI verification: PASS. Hosted TEST and end-to-end release verification: BLOCKED / NOT RUN.**
+
+The successful CI run proves the tested source branch builds, the 64 application tests pass, and migrations/RLS tests pass on a disposable local Supabase stack. It does not prove hosted tenant isolation, live Auth, AI provider configuration, Android or Windows runtime behavior, payment sandbox integrity, backup restoration, or production readiness.
+
+No TEST restore, paid upgrade, production deployment, merge, live payment, secret change, database mutation, or Edge Function change was performed. Keep production release blocked pending a working dedicated TEST environment and fresh Android/Windows artifact and runtime evidence.
