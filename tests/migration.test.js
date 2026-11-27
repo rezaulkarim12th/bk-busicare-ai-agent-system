@@ -278,7 +278,7 @@ test('AI quota reservations have exact, server-only release semantics on provide
   const normalizedMigration = migration.replace(/--.*$/gm, '').replace(/\s+/g, ' ').toLowerCase();
   assert.match(normalizedMigration, /create or replace function public\.reserve_ai_content_generation_v2\(target_actor uuid\)[\s\S]*?returns text/);
   assert.match(normalizedMigration, /insert into private\.ai_content_usage\(user_id\) values \(target_actor\) returning id into reservation_id/);
-  assert.match(normalizedMigration, /create or replace function public\.release_ai_content_generation_reservation\(target_reservation bigint, target_actor uuid\)/);
+  assert.match(normalizedMigration, /create or replace function public\.release_ai_content_generation_reservation\(\s*target_reservation bigint, target_actor uuid\s*\)/);
   assert.match(normalizedMigration, /where id = target_reservation and user_id = target_actor/);
   assert.match(normalizedMigration, /revoke all on function public\.release_ai_content_generation_reservation\(bigint, uuid\) from public, anon, authenticated/);
   assert.match(normalizedMigration, /grant execute on function public\.release_ai_content_generation_reservation\(bigint, uuid\) to service_role/);
