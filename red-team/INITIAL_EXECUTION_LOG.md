@@ -1,23 +1,27 @@
 # Red Team Initial Execution Log
 
-Assessment status: **BLOCKED / PARTIAL — repository checks pass; dedicated TEST project cannot be restored under the current Supabase free-project limit**
+Assessment status: **PARTIAL / BLOCKED — repository and disposable local security checks pass; live TEST validation remains blocked by Supabase free-project limit**
 Date: 2026-11-27
 Assessment branch: `security/red-team-readiness`
 Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pull/23
 
-## Evidence-backed checks observed
+## Latest no-cost verification
+
+Latest observed PR CI merge commit: `cef9e720aab422d8c94f7b19859adc3254114dea` (includes Red Team commit `96da20b704afa1897d6bc727b5121bad1e0cddef`).
 
 | Check | Result | Evidence / limitation |
 |---|---|---|
-| Dependency audit on Red Team PR | PASS | GitHub Build workflow 46023933616 completed successfully |
-| Supabase Edge Function type-check | PASS | Build workflow 46023933616 |
-| Migration safety checks | PASS | Build workflow 46023933616 |
-| JavaScript syntax checks | PASS | Build workflow 46023933616 |
-| Production web bundle build | PASS | Build workflow 46023933616 |
-| Local migration application | PASS | Supabase local CI run 46023933630; all migrations applied to disposable local database |
-| Local pgTAP RLS isolation suite | PASS | Run 46023933630; pgTAP RLS isolation step completed successfully |
-| Local Supabase service checks | PASS | Run 46023933630; local services verified and stack stopped cleanly |
-| Windows packaging pipeline | BLOCKED | Latest inspected Windows run 45924324002 failed at `npm test`; 63/64 tests passed. The failing assertion expected the older role list; packaging steps were skipped. Current Red Team branch test source was updated, but a fresh Windows build/test run is still required. |
+| Node application test suite | PASS | Local Supabase workflow run 46024806046; `npm test`: 64 passed, 0 failed, 0 skipped |
+| SQL / pgTAP suite | PASS | Run 46024806046; 4 files, 44 tests, all successful |
+| Dependency audit | PASS | Build workflow run 46024806000; 0 npm vulnerabilities |
+| Supabase Edge Function type-check | PASS | Build workflow run 46024806000 |
+| Migration safety checks | PASS | Build workflow run 46024806000 |
+| JavaScript syntax checks | PASS | Build workflow run 46024806000 |
+| Production web bundle build | PASS | Build workflow run 46024806000 |
+| GitHub Pages artifact upload / deployment | NOT DEPLOYED | Upload step skipped and deploy job skipped in run 46024806000; this was a successful build workflow, not a live deployment |
+| Full disposable local Supabase migration | PASS | Run 46024806046; all migrations applied to disposable local database |
+| Local Supabase service verification and cleanup | PASS | Run 46024806046; services verified, stack stopped cleanly |
+| Windows packaging pipeline | NOT REVERIFIED | Historical run 45924324002 failed at `npm test` (63/64); the current Linux CI suite passes 64/64, but no fresh Windows runner/build evidence is available |
 | Dedicated Supabase TEST project availability | BLOCKED | Project `rmnoiwzkhjwmgxwkfdzb` is `INACTIVE`. An explicitly authorized restore attempt was rejected by Supabase: the organization has reached its maximum of two active free projects. |
 | Active Supabase projects | OBSERVED | `BK-BusiCare` (`ekznyijmghrjtovbbgun`) and `BK-BusiCare-One` (`pdcpntalufiiilmpevnn`) are `ACTIVE_HEALTHY`; TEST project remains inactive. Neither active project was paused because that could interrupt production/app services. |
 | TEST Edge Function inventory | OBSERVED | Supabase control plane lists six functions as ACTIVE: manage-workspace-member v14, busicare-create-order v2, create-workspace v12, sslcommerz-create-session v2, sslcommerz-ipn v4, ai-content v11. Function listing does not prove the project database or endpoint runtime is healthy. |
@@ -42,8 +46,8 @@ Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pu
 
 ## Required next actions
 
-- Resolve the Supabase free-project cap without pausing either active project: choose an eligible plan upgrade for this organization, or explicitly choose an active project to pause after reviewing its service impact. The authorized restore was attempted, but the platform rejected it; no billing change or pause was performed.
-- After TEST becomes active, verify the exact TEST web URL, database connectivity, migrations, RLS and Security Advisor findings.
+- Keep the current no-cost posture. Do not pause either active project or upgrade the Supabase plan without a separate, informed future decision.
+- Once the user decides on a future TEST environment path, verify the exact TEST web URL, database connectivity, migrations, RLS and Security Advisor findings.
 - Provide two synthetic TEST accounts in separate TEST workspaces; share only labels/roles, never passwords, tokens or session cookies.
 - Provide exact Android and Windows TEST artifact links and SHA-256 hashes.
 - Record approved test start/end time and rollback/emergency contact.
@@ -51,4 +55,4 @@ Assessment PR: https://github.com/rezaulkarim12th/bk-busicare-ai-agent-system/pu
 
 ## Safety / release decision
 
-No production resources were probed or changed. No active Supabase project was paused. No plan upgrade, deployment, merge, real customer data access, live payment, social publishing, ad spend, or third-party account action occurred. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until the TEST project is available, all required tests are executed, findings remediated, and independent retesting is complete.
+No production resources were probed or changed. No active Supabase project was paused. No plan upgrade, deployment, merge, real customer data access, live payment, social publishing, ad spend, or third-party account action occurred. The latest GitHub Pages workflow built the bundle but skipped artifact upload and deployment. The Red Team assessment is **not complete** and no security clearance is granted. Keep production release blocked until the TEST project is available, all required tests are executed, findings remediated, and independent retesting is complete.
