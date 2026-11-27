@@ -1,7 +1,5 @@
 appId: com.bkbusicare.desktop
 productName: BK-BusiCare One
-win:
-  icon: assets/busicare-app-icon.ico
 directories:
   output: release
 files:
@@ -11,6 +9,7 @@ files:
 extraMetadata:
   main: electron-main.cjs
 win:
+  icon: assets/busicare-app-icon.ico
   target:
     - target: portable
       arch:
