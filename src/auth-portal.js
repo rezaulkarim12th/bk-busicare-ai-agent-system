@@ -270,6 +270,7 @@ if (hasUrl !== hasKey) {
     }
   `;
 
+  responsiveStyle.textContent += `
   /* Approved 10-folder home dashboard — mobile-first, navy and gold. */
   #bk-secure-gate .busicare-secure-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px!important;background:linear-gradient(115deg,#081a32,#173b61)!important;border:1px solid #d2ad5d!important;border-radius:18px!important;color:#fff!important}
   #bk-secure-gate .busicare-secure-brand{display:flex;align-items:center;gap:11px;min-width:0}
@@ -358,7 +359,7 @@ if (hasUrl !== hasKey) {
     #bk-secure-gate .busicare-bottom-nav button.active{background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;border-color:#e7c979!important;color:#102542!important}
   }
   @media(max-width:360px){#bk-secure-gate .busicare-folder-grid{grid-template-columns:1fr}}
-
+  `;
   document.head.appendChild(responsiveStyle);
 
   let session = null;
