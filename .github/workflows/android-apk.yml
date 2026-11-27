@@ -18,6 +18,7 @@ on:
     branches:
       - main
       - feature/android-apk-ci-clean
+      - redteam/ai-quota-refund-20261127
     paths:
       - '.github/workflows/android-apk.yml'
       - 'capacitor.config.json'
