@@ -133,3 +133,35 @@ The active BK-BusiCare One Supabase inventory was rechecked:
 The successful CI run proves the tested source branch builds, the 64 application tests pass, and migrations/RLS tests pass on a disposable local Supabase stack. It does not prove hosted tenant isolation, live Auth, AI provider configuration, Android or Windows runtime behavior, payment sandbox integrity, backup restoration, or production readiness.
 
 No TEST restore, paid upgrade, production deployment, merge, live payment, secret change, database mutation, or Edge Function change was performed. Keep production release blocked pending a working dedicated TEST environment and fresh Android/Windows artifact and runtime evidence.
+
+
+## Verification follow-up — Android WebView AI Content CORS patch — 2026-11-28
+
+A narrowly scoped source change was committed to the existing assessment branch:
+
+- Commit: `dcd75483a2444d3d2b37a8fd3c90f3675f88a402`
+- File: `supabase/functions/ai-content/index.ts`
+- Change: the OPTIONS preflight response now reflects the browser's requested header list only after the request Origin passes the existing exact allowlist. The response varies on both Origin and Access-Control-Request-Headers. No wildcard origin was introduced.
+- Preserved: handler-side Supabase Auth token validation, workspace membership authorization, body-size and input limits, quota reservation, and server-only OpenAI provider key use.
+- Review path: PR #23, already open as a draft. No merge was performed.
+
+### Runtime evidence and limits
+
+A read-only log review of active BK-BusiCare One showed Android 16 WebView requests from `https://localhost`. The observed AI Content OPTIONS requests returned HTTP 204, and ordinary authenticated REST reads for workspace members, leads, and content items returned HTTP 200. This proves those specific preflight/read requests succeeded at the recorded time; it does **not** prove the subsequent AI Content POST, provider response, or end-to-end draft generation succeeded.
+
+The latest GitHub workflow lookup for the new commit returned no associated PR-triggered workflow runs at the time of review. Therefore this new patch is **not yet CI-verified**. It has not been deployed to any Supabase project.
+
+### Updated status
+
+| Work item | Status |
+|---|---|
+| CORS source patch committed to assessment branch | DONE |
+| Patch CI/type-check/regression test | PENDING |
+| Dedicated hosted TEST project | BLOCKED — inactive; previous restore attempt was rejected because the Free organization already has two active projects |
+| Live authenticated AI Content POST / OpenAI generation | NOT VERIFIED |
+| Android 16 device retest with a recorded build SHA | NOT RUN |
+| Windows package and runtime security test | NOT RUN |
+| Payment sandbox and backup/restore exercises | NOT RUN |
+| Production deployment / Play Store release | HOLD |
+
+No active Supabase project was paused, no Free-tier limit was bypassed, no plan upgrade was made, and no deployment, merge, secret change, payment, or production modification occurred. Do not treat the source patch as a verified fix until CI passes and an authenticated Android 16 POST/generation test succeeds in a dedicated authorized TEST environment.
