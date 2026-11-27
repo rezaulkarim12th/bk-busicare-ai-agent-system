@@ -11,6 +11,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'src/**'
+      - 'public/**'
       - 'index.html'
       - 'vite.config.js'
   push:
@@ -23,6 +24,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'src/**'
+      - 'public/**'
       - 'index.html'
       - 'vite.config.js'
 
@@ -53,12 +55,12 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Install Capacitor Android tooling
-        run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+        run: npm install --no-save --package-lock=false @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets@3
 
       - name: Build web application for Android assets
         env:
-          VITE_SUPABASE_URL: https://rmnoiwzkhjwmgxwkfdzb.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_roW_rFCQjnHVp_4GdWdR0w_1JP_XmUw
+          VITE_SUPABASE_URL: https://pdcpntalufiiilmpevnn.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_-96_0LXAtVAqXsNF48IXUA_M_j2x1B2
         run: npm run build -- --base ./
 
       - name: Generate Android project
@@ -66,6 +68,12 @@ jobs:
 
       - name: Sync web assets
         run: npx cap sync android
+
+      - name: Generate branded Android launcher and adaptive icons
+        run: |
+          mkdir -p assets
+          cp public/busicare-app-icon.svg assets/logo.svg
+          npx @capacitor/assets generate --android --iconBackgroundColor '#081a33' --iconBackgroundColorDark '#081a33' --splashBackgroundColor '#081a33' --splashBackgroundColorDark '#081a33'
 
       - name: Configure Android SDK levels
         working-directory: android
