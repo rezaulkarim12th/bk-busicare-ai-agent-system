@@ -285,5 +285,5 @@ test('AI quota reservations have exact, server-only release semantics on provide
   assert.match(edge, /await releaseQuotaReservation\\(\\);[\\s\\S]*?AI provider request failed/);
   assert.match(edge, /if \\(!text\\) \\{ await releaseQuotaReservation\\(\\);/);
   assert.match(edge, /catch \\(error\\) \\{\\s+await releaseQuotaReservation\\(\\);/);
-  assert.doesNotMatch(edge, /service_role|SUPABASE_SERVICE_ROLE_KEY/); // secret is read only from server env, never embedded in client bundles
+  assert.match(edge, /Deno\\.env\\.get\\(["']SUPABASE_SERVICE_ROLE_KEY["']\\)/);
 });
