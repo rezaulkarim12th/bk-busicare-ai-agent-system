@@ -362,7 +362,13 @@ if (hasUrl !== hasKey) {
           if (r.error) throw r.error;
           note('If the account exists, a password reset link has been sent.');
         }
-      } catch (err) { note(err.message || 'Authentication failed.', true); }
+      } catch (err) {
+        const detail = String(err?.message || '');
+        const networkFailure = err instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(detail);
+        note(networkFailure
+          ? 'Could not reach Supabase Auth. Check your internet connection, Android Private DNS/VPN settings, and try again. If the connection is stable, contact support to check the Auth service.'
+          : (detail || 'Authentication failed. Please try again.'), true);
+      }
     };
     root.querySelectorAll('[data-action^="mode-"]').forEach(b => b.onclick = () => authView(b.dataset.action.replace('mode-','')));
   }
@@ -567,9 +573,10 @@ if (hasUrl !== hasKey) {
         root.querySelector('#workspace-form').onsubmit = async e => {
           e.preventDefault();
           const name = String(new FormData(e.currentTarget).get('name')).trim();
-          const { data: created, error } = await supabase.functions.invoke('create-workspace', { body: { workspace_name: name } });
-          if (error || created?.error) { note(created?.error || error?.message || 'Workspace creation failed.',true); return; }
-          activeId = created.workspace_id;
+          if (name.length < 2 || name.length > 120) { note('Workspace name must be between 2 and 120 characters.', true); return; }
+          const { data: workspaceId, error } = await supabase.rpc('create_workspace', { workspace_name: name });
+          if (error || !workspaceId) { note(error?.message || 'Workspace creation failed. Please try again.',true); return; }
+          activeId = workspaceId;
           await portal();
         };
         root.querySelector('#logout').onclick = logout;
