@@ -30,7 +30,14 @@ const readLimitedBody = async (req: Request): Promise<string | null> => {
 };
 
 Deno.serve(async (req: Request) => {
-  const configuredOrigins = new Set((Deno.env.get("APP_ALLOWED_ORIGINS") ?? "").split(",").map((value) => value.trim()).filter(Boolean));
+  const configuredOrigins = new Set([
+    "https://localhost",
+    "https://rezaulkarim12th.github.io",
+    "https://busicarecom.wordpress.com",
+    "https://bk-busicare.com",
+    "https://go.bk-busicare.com",
+    ...(Deno.env.get("APP_ALLOWED_ORIGINS") ?? "").split(",").map((value) => value.trim()).filter(Boolean),
+  ]);
   // Capacitor Android serves the app from this exact HTTPS origin.
   configuredOrigins.add("https://localhost");
   const origin = req.headers.get("origin") ?? "";
@@ -72,7 +79,7 @@ Deno.serve(async (req: Request) => {
     console.error("AI workspace authorization lookup failed", { code: membershipError.code });
     return json({ error: "Unable to verify workspace permissions" }, 503, origin);
   }
-  if (!membership || !["owner", "admin", "member"].includes(membership.role)) {
+  if (!membership || !["owner", "admin", "member", "editor"].includes(membership.role)) {
     return json({ error: "Workspace membership with content-generation permission is required" }, 403, origin);
   }
 
@@ -84,7 +91,7 @@ Deno.serve(async (req: Request) => {
   if (!topic || topic.length > 500 || !allowedPlatforms.has(platform)) return json({ error: "Provide a topic (max 500 characters) and a supported platform" }, 400, origin);
 
   const apiKey = Deno.env.get("OPENAI_API_KEY");
-  const model = Deno.env.get("OPENAI_MODEL");
+  const model = Deno.env.get("OPENAI_MODEL") || "gpt-5-mini";
   if (!apiKey || !model) return json({ error: "AI provider is not configured" }, 503, origin);
 
   const { data: quotaAllowed, error: quotaError } = await admin.rpc("reserve_ai_content_generation", { target_actor: authData.user.id });
