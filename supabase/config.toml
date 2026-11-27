@@ -9,3 +9,7 @@ verify_jwt = true
 [functions.ai-content]
 # AI generation is user-authenticated and additionally validates the JWT in the handler.
 verify_jwt = true
+
+[functions.ai-assistant]
+# Legacy assistant endpoint: require a valid Supabase JWT at the gateway.
+verify_jwt = true

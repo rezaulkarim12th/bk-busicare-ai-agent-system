@@ -36,6 +36,7 @@ jobs:
         run: |
           deno check supabase/functions/manage-workspace-member/index.ts
           deno check supabase/functions/ai-content/index.ts
+          deno check supabase/functions/ai-assistant/index.ts
       - name: Run migration safety checks
         run: npm test
       - name: Check application JavaScript syntax
