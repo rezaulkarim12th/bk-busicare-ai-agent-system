@@ -474,10 +474,19 @@ if (hasUrl !== hasKey) {
         offer: String(f.get('offer') || '').trim()
       };
       try {
-        const result = await supabase.functions.invoke('ai-content', { body: payload });
+        const message = [
+          'Create a practical social media marketing draft for BK-BusiCare.',
+          'Topic: ' + payload.topic,
+          'Platform: ' + payload.platform,
+          'Audience: ' + (payload.audience || 'General audience'),
+          'Objective: ' + (payload.objective || 'Useful, accurate engagement'),
+          'Offer and verified facts: ' + (payload.offer || 'None supplied'),
+          'Return the draft only. Do not invent factual claims, prices, guarantees, or customer results.'
+        ].join('\n');
+        const result = await supabase.functions.invoke('ai-assistant', { body: { message } });
         if (result.error || result.data?.error) throw new Error(result.data?.error || result.error?.message || 'AI generation failed');
-        if (typeof result.data?.text !== 'string' || !result.data.text.trim()) throw new Error('AI provider returned an empty draft');
-        aiDraft = { text: result.data.text.trim(), title: payload.topic.slice(0,200), platform: payload.platform };
+        if (typeof result.data?.reply !== 'string' || !result.data.reply.trim()) throw new Error('AI provider returned an empty draft');
+        aiDraft = { text: result.data.reply.trim(), title: payload.topic.slice(0,200), platform: payload.platform };
         persistAiFormDraft(aiForm);
         const output = root.querySelector('#ai-draft-output');
         if (output) output.value = aiDraft.text;
