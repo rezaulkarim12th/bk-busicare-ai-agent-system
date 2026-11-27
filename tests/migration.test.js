@@ -271,6 +271,7 @@ test('AI quota lockdown migration is safe on a clean database before the quota R
 
 
 
+
 test('AI quota reservations have exact, server-only release semantics on provider failure', async () => {
   const migration = await readFile(new URL('../supabase/migrations/20261127180000_ai_content_quota_release.sql', import.meta.url), 'utf8');
   const edge = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
@@ -284,7 +285,8 @@ test('AI quota reservations have exact, server-only release semantics on provide
   assert.match(edge, /reserve_ai_content_generation_v2/);
   assert.match(edge, /release_ai_content_generation_reservation/);
   assert.match(edge, /await releaseQuotaReservation\(\);[\s\S]*?AI provider request failed/);
-  assert.match(edge, /if \(!text\) \{ await releaseQuotaReservation\(\);/);
-  assert.match(edge, /catch \(error\) \{\s+await releaseQuotaReservation\(\);/);
+  assert.match(edge, /A successful provider response may still incur usage/);
+  assert.match(edge, /A timeout\/network failure is ambiguous/);
+  assert.doesNotMatch(edge, /catch \(error\) \{\s+await releaseQuotaReservation/);
   assert.match(edge, /Deno\.env\.get\(["']SUPABASE_SERVICE_ROLE_KEY["']\)/);
 });
