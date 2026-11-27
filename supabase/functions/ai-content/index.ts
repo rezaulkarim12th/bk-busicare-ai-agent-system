@@ -94,9 +94,20 @@ Deno.serve(async (req: Request) => {
   const model = Deno.env.get("OPENAI_MODEL") || "gpt-5-mini";
   if (!apiKey || !model) return json({ error: "AI provider is not configured" }, 503, origin);
 
-  const { data: quotaAllowed, error: quotaError } = await admin.rpc("reserve_ai_content_generation", { target_actor: authData.user.id });
+  const { data: reservationId, error: quotaError } = await admin.rpc("reserve_ai_content_generation_v2", { target_actor: authData.user.id });
   if (quotaError) { console.error("AI quota reservation failed", { code: quotaError.code }); return json({ error: "Usage limit service temporarily unavailable" }, 503, origin); }
-  if (quotaAllowed !== true) return json({ error: "AI usage limit reached. Try again later." }, 429, origin);
+  if (reservationId === null) return json({ error: "AI usage limit reached. Try again later." }, 429, origin);
+  if (typeof reservationId !== "string" || !/^\\d+$/.test(reservationId)) {
+    console.error("AI quota reservation returned an invalid identifier");
+    return json({ error: "Usage limit service temporarily unavailable" }, 503, origin);
+  }
+  const releaseQuotaReservation = async () => {
+    const { error } = await admin.rpc("release_ai_content_generation_reservation", {
+      target_reservation: reservationId,
+      target_actor: authData.user.id,
+    });
+    if (error) console.error("AI quota reservation release failed", { code: error.code });
+  };
 
   const prompt = [
     "Create one accurate, non-deceptive social media draft.",
@@ -118,15 +129,17 @@ Deno.serve(async (req: Request) => {
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
       console.error("OpenAI request failed", { status: response.status, requestId: response.headers.get("x-request-id") });
+      await releaseQuotaReservation();
       return json({ error: "AI provider request failed" }, 502, origin);
     }
     const output = Array.isArray(result.output) ? result.output : [];
     const text = output.flatMap((item: Record<string, unknown>) => item.type === "message" && Array.isArray(item.content) ? item.content : [])
       .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
       .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
-    if (!text) return json({ error: "AI provider returned no text" }, 502, origin);
+    if (!text) { await releaseQuotaReservation(); return json({ error: "AI provider returned no text" }, 502, origin); }
     return json({ text, provider: "openai", published: false }, 200, origin);
   } catch (error) {
+    await releaseQuotaReservation();
     console.error("AI request unavailable", error instanceof Error ? error.name : "unknown");
     return json({ error: "AI service temporarily unavailable" }, 503, origin);
   }
