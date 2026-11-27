@@ -270,20 +270,21 @@ test('AI quota lockdown migration is safe on a clean database before the quota R
 });
 
 
+
 test('AI quota reservations have exact, server-only release semantics on provider failure', async () => {
   const migration = await readFile(new URL('../supabase/migrations/20261127180000_ai_content_quota_release.sql', import.meta.url), 'utf8');
   const edge = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
-  const normalizedMigration = migration.replace(/--.*$/gm, '').replace(/\\s+/g, ' ').toLowerCase();
-  assert.match(normalizedMigration, /create or replace function public\\.reserve_ai_content_generation_v2\\(target_actor uuid\\)[\\s\\S]*?returns text/);
-  assert.match(normalizedMigration, /insert into private\\.ai_content_usage\\(user_id\\) values \\(target_actor\\) returning id into reservation_id/);
-  assert.match(normalizedMigration, /create or replace function public\\.release_ai_content_generation_reservation\\(target_reservation bigint, target_actor uuid\\)/);
+  const normalizedMigration = migration.replace(/--.*$/gm, '').replace(/\s+/g, ' ').toLowerCase();
+  assert.match(normalizedMigration, /create or replace function public\.reserve_ai_content_generation_v2\(target_actor uuid\)[\s\S]*?returns text/);
+  assert.match(normalizedMigration, /insert into private\.ai_content_usage\(user_id\) values \(target_actor\) returning id into reservation_id/);
+  assert.match(normalizedMigration, /create or replace function public\.release_ai_content_generation_reservation\(target_reservation bigint, target_actor uuid\)/);
   assert.match(normalizedMigration, /where id = target_reservation and user_id = target_actor/);
-  assert.match(normalizedMigration, /revoke all on function public\\.release_ai_content_generation_reservation\\(bigint, uuid\\) from public, anon, authenticated/);
-  assert.match(normalizedMigration, /grant execute on function public\\.release_ai_content_generation_reservation\\(bigint, uuid\\) to service_role/);
+  assert.match(normalizedMigration, /revoke all on function public\.release_ai_content_generation_reservation\(bigint, uuid\) from public, anon, authenticated/);
+  assert.match(normalizedMigration, /grant execute on function public\.release_ai_content_generation_reservation\(bigint, uuid\) to service_role/);
   assert.match(edge, /reserve_ai_content_generation_v2/);
   assert.match(edge, /release_ai_content_generation_reservation/);
-  assert.match(edge, /await releaseQuotaReservation\\(\\);[\\s\\S]*?AI provider request failed/);
-  assert.match(edge, /if \\(!text\\) \\{ await releaseQuotaReservation\\(\\);/);
-  assert.match(edge, /catch \\(error\\) \\{\\s+await releaseQuotaReservation\\(\\);/);
-  assert.match(edge, /Deno\\.env\\.get\\(["']SUPABASE_SERVICE_ROLE_KEY["']\\)/);
+  assert.match(edge, /await releaseQuotaReservation\(\);[\s\S]*?AI provider request failed/);
+  assert.match(edge, /if \(!text\) \{ await releaseQuotaReservation\(\);/);
+  assert.match(edge, /catch \(error\) \{\s+await releaseQuotaReservation\(\);/);
+  assert.match(edge, /Deno\.env\.get\(["']SUPABASE_SERVICE_ROLE_KEY["']\)/);
 });
