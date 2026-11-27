@@ -102,11 +102,15 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Usage limit service temporarily unavailable" }, 503, origin);
   }
   const releaseQuotaReservation = async () => {
-    const { error } = await admin.rpc("release_ai_content_generation_reservation", {
-      target_reservation: reservationId,
-      target_actor: authData.user.id,
-    });
-    if (error) console.error("AI quota reservation release failed", { code: error.code });
+    try {
+      const { error } = await admin.rpc("release_ai_content_generation_reservation", {
+        target_reservation: reservationId,
+        target_actor: authData.user.id,
+      });
+      if (error) console.error("AI quota reservation release failed", { code: error.code });
+    } catch (error) {
+      console.error("AI quota reservation release unavailable", error instanceof Error ? error.name : "unknown");
+    }
   };
 
   const prompt = [
