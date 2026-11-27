@@ -113,13 +113,15 @@ return `<div class="panel" id="workspace-settings"><h3>Workspace Settings</h3><l
 
 function renderStore(){
   const count=Object.values(storeCart).reduce((sum,n)=>sum+n,0);
+  const paymentMethods=['bKash','Rocket','Visa / Mastercard','Bank payment'];
   return `<div class="welcome"><div><div class="eyebrow light">BK-BUSICARE / STORE PREVIEW</div><h2>BK-BusiCare Store</h2><p>Catalogue and cart interface preview — live sales are not enabled.</p></div><div class="welcome-mark">BK</div></div>
   <div class="notice"><b>Demo catalogue only</b><p>All products and services below are samples. They are not real offers, inventory, prices, or orders. The cart is a temporary demo in this browser; checkout, payments, and order submission are disabled.</p></div>
   <div class="store-toolbar" id="store-catalogue"><div><h3>Catalogue</h3><p class="muted">Sample products and services</p></div><span class="pill">Cart items: ${count}</span></div>
   <div class="store-grid">${demoProducts.map(p=>`<article class="store-card"><div class="store-art">BK</div><span class="pill">${esc(p.kind)}</span><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="store-meta"><b>Price unavailable</b><small>Price not set</small></div><button class="secondary" data-cart-add="${esc(p.id)}">Add to Demo Cart</button></article>`).join('')}</div>
   <div class="panel store-cart" id="store-cart"><div class="section-head"><div><h3>Demo Cart</h3><p>Cart quantities are stored for this session only</p></div><button class="text-btn" id="clear-cart">Clear Cart</button></div>
   ${count?demoProducts.filter(p=>storeCart[p.id]).map(p=>`<div class="report-row"><span>${esc(p.name)}</span><div class="store-quantity"><button data-cart-minus="${p.id}">−</button><b>${storeCart[p.id]}</b><button data-cart-plus="${p.id}">+</button></div><button class="text-btn" data-cart-remove="${p.id}">Delete</button></div>`).join(''):'<p class="empty">Your cart is empty.</p>'}
-  <button class="primary" disabled title="Order submission is not connected">Checkout / Order — Not Available Yet</button></div>`;
+  <div class="notice"><b>Planned payment gateway: SSLCOMMERZ</b><p>Selected methods: ${paymentMethods.map(esc).join(' · ')}. This is a display-only preview. No payment session is created and no money can be collected.</p><p><b>Activation blocked:</b> a responsible adult business owner must complete merchant onboarding and authorization. Sandbox integration, server-side payment validation, IPN verification, refund handling, and security tests must be completed before any live payment is considered.</p></div>
+  <button class="primary" disabled title="Payment integration is not connected">Checkout — Disabled (Sandbox readiness pending)</button></div>`;
 }
 
 function renderContentPlanner(){

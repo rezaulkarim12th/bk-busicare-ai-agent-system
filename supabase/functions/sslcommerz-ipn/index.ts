@@ -1,0 +1,110 @@
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { readLimitedBody } from "../_shared/read-limited-body.ts";
+
+function reply(status = 200) {
+  return new Response(status === 200 ? "OK" : "Rejected", {
+    status, headers: { "Content-Type": "text/plain", "Cache-Control": "no-store" },
+  });
+}
+
+Deno.serve(async (req) => {
+  if (req.method !== "POST") return reply(405);
+  try {
+    const storeId = Deno.env.get("SSLCOMMERZ_STORE_ID");
+    const storePassword = Deno.env.get("SSLCOMMERZ_STORE_PASSWORD");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!storeId || !storePassword || !supabaseUrl || !serviceKey ||
+        Deno.env.get("SSLCOMMERZ_MODE") !== "sandbox") return reply(503);
+
+    const raw = await readLimitedBody(req, 16384);
+    if (raw === null) return reply(413);
+    const params = new URLSearchParams(raw);
+    const tranId = params.get("tran_id") ?? "";
+    const valId = params.get("val_id") ?? "";
+    if (!tranId || !valId || tranId.length > 50 || valId.length > 50 ||
+        params.get("store_id") !== storeId) return reply(400);
+
+    const admin = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: tx, error: txError } = await admin.from("payment_transactions")
+      .select("id,order_id,tran_id,amount,currency,status,val_id,risk_level")
+      .eq("tran_id", tranId).maybeSingle();
+    if (txError) throw txError;
+    if (!tx) return reply(404);
+
+    const validationUrl = new URL("https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php");
+    validationUrl.search = new URLSearchParams({
+      val_id: valId, store_id: storeId, store_passwd: storePassword, v: "1", format: "json",
+    }).toString();
+    const validationResponse = await fetch(validationUrl, { signal: AbortSignal.timeout(15000) });
+    const validation = await validationResponse.json().catch(() => ({}));
+    const valid = validationResponse.ok &&
+      (validation.status === "VALID" || validation.status === "VALIDATED") &&
+      String(validation.tran_id) === tranId &&
+      String(validation.val_id) === valId &&
+      Number.isFinite(Number(validation.amount)) &&
+      Number(validation.amount).toFixed(2) === Number(tx.amount).toFixed(2) &&
+      String(validation.currency_type) === tx.currency;
+    // Do not mutate transaction state for an untrusted or mismatched callback.
+    // Otherwise, anyone who learns a transaction ID could poison a pending payment
+    // by sending an arbitrary validation ID before the genuine provider IPN arrives.
+    if (!valid) return reply(400);
+
+    // A failed, cancelled, or refunded attempt is terminal. Never let a late IPN
+    // turn it into a paid order. Repeated callbacks are accepted only for the
+    // same provider validation ID.
+    if (["failed", "cancelled", "refunded"].includes(tx.status)) return reply(409);
+    if (["validated", "manual_review"].includes(tx.status) && tx.val_id !== valId) return reply(409);
+
+    const riskLevel = Number(validation.risk_level ?? 0);
+    const needsReview = riskLevel === 1;
+    let effectiveStatus: string;
+    let effectiveRiskLevel: number;
+
+    if (tx.status === "validated" || tx.status === "manual_review") {
+      effectiveStatus = tx.status;
+      effectiveRiskLevel = Number(tx.risk_level ?? riskLevel);
+    } else {
+      const finalStatus = needsReview ? "manual_review" : "validated";
+      const { data: updated, error: updateTxError } = await admin.from("payment_transactions")
+        .update({
+          status: finalStatus, val_id: valId, risk_level: riskLevel,
+          provider_status: String(validation.status).slice(0, 80),
+          validation_payload: {
+            tran_id: tranId, val_id: valId, amount: validation.amount,
+            currency_type: validation.currency_type, risk_level: riskLevel,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", tx.id).in("status", ["initiated", "pending"])
+        .select("status,val_id,risk_level").maybeSingle();
+      if (updateTxError) throw updateTxError;
+
+      // If another IPN won the race, read its committed state before reconciling.
+      let committed = updated;
+      if (!committed) {
+        const { data, error } = await admin.from("payment_transactions")
+          .select("status,val_id,risk_level").eq("id", tx.id).maybeSingle();
+        if (error) throw error;
+        committed = data;
+      }
+      if (!committed || ["failed", "cancelled", "refunded"].includes(committed.status) ||
+          committed.val_id !== valId) return reply(409);
+      effectiveStatus = committed.status;
+      effectiveRiskLevel = Number(committed.risk_level ?? riskLevel);
+    }
+
+    const orderStatus = effectiveStatus === "manual_review" || effectiveRiskLevel === 1
+      ? "manual_review" : "paid";
+    const { error: orderUpdateError } = await admin.from("orders").update({
+      status: orderStatus, updated_at: new Date().toISOString(),
+    }).eq("id", tx.order_id).eq("status", "pending");
+    if (orderUpdateError) throw orderUpdateError;
+    return reply(200);
+  } catch (error) {
+    console.error("sslcommerz-ipn", error instanceof Error ? error.message : "unknown");
+    return reply(500);
+  }
+});
