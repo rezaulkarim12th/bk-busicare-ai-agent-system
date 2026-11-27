@@ -165,3 +165,27 @@ The latest GitHub workflow lookup for the new commit returned no associated PR-t
 | Production deployment / Play Store release | HOLD |
 
 No active Supabase project was paused, no Free-tier limit was bypassed, no plan upgrade was made, and no deployment, merge, secret change, payment, or production modification occurred. Do not treat the source patch as a verified fix until CI passes and an authenticated Android 16 POST/generation test succeeds in a dedicated authorized TEST environment.
+
+
+## Verification follow-up — deployed AI Content function comparison — 2026-11-28
+
+A read-only inspection compared the current hosted BK-BusiCare One Edge Function with the proposed source patch on the Red Team branch.
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Hosted BK-BusiCare One `ai-content` function | ACTIVE, version 2 | Supabase control-plane inventory. This establishes deployment presence, not correctness. |
+| Hosted source CORS behavior | PATCH NOT PRESENT | Retrieved hosted `index.ts` still has a fixed `Access-Control-Allow-Headers` list and `Vary: Origin`; its OPTIONS handler calls `corsHeaders(origin)` without reflecting `Access-Control-Request-Headers`. The branch patch is therefore not present in the hosted source snapshot. |
+| Hosted function JWT gateway setting | ENABLED | Control-plane inventory reports `verify_jwt=true`. Handler source also performs explicit `auth.getUser(token)`. |
+| Android 16 WebView AI Content preflight | OBSERVED PASS, LIMITED | Six logged `OPTIONS` requests to `/functions/v1/ai-content` returned HTTP 204 on 2026-11-27. This only confirms preflight status; request headers and the actual POST were not verified. |
+| Authenticated AI Content POST / OpenAI generation | NOT OBSERVED | The reviewed seven-day logs contained no AI Content POST record. No provider-backed generation success can be claimed. |
+| GitHub Actions for assessment head `3678eb757a209e50906a9b15d0fdd4f9e70e8480` | NO PR WORKFLOW RUN FOUND | The commit workflow lookup returned an empty workflow_runs list. The branch patch remains unverified by CI. |
+| Hosted deployment of branch patch | NOT DEPLOYED | The hosted source comparison shows the proposed dynamic-header patch is absent. No deployment was initiated. |
+
+### Required remediation / next safe actions
+
+1. Keep the hosted function unchanged until the branch patch is reviewed and CI/type-check results are available.
+2. Run the repository test and Deno checks for the exact PR head. The workflow lookup currently exposes no PR run for that head; if the repository workflow is not configured to run on this branch, correct the workflow trigger on the branch before considering deployment.
+3. In a dedicated authorized TEST project, test preflight using the exact header set emitted by the Android 16 WebView, then perform authenticated positive and negative POST cases with synthetic test accounts. Confirm AI generation, quota enforcement, and no publication side effect.
+4. Only after independent review and successful TEST evidence should a separate deployment decision be considered. Do not deploy this patch to the active application project as a substitute for TEST.
+
+No hosted function, database, secret, billing plan, project state, or production resource was changed in this verification. Production release remains HOLD.
