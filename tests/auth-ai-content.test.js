@@ -18,7 +18,7 @@ test('AI endpoint enforces workspace membership and role server-side', async () 
   const source = await readFile(new URL('../supabase/functions/ai-content/index.ts', import.meta.url), 'utf8');
   assert.match(source, /workspace_id/);
   assert.match(source, /from\("workspace_members"\)/);
-  assert.match(source, /!\["owner", "admin", "member"\]\.includes\(membership\.role\)/);
+  assert.match(source, /!\["owner", "admin", "member", "editor"\]\.includes\(membership\.role\)/);
   assert.match(source, /membership with content-generation permission/i);
   assert.match(source, /readLimitedBody/);
 });
