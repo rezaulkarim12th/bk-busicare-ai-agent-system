@@ -97,7 +97,7 @@ Deno.serve(async (req: Request) => {
   const { data: reservationId, error: quotaError } = await admin.rpc("reserve_ai_content_generation_v2", { target_actor: authData.user.id });
   if (quotaError) { console.error("AI quota reservation failed", { code: quotaError.code }); return json({ error: "Usage limit service temporarily unavailable" }, 503, origin); }
   if (reservationId === null) return json({ error: "AI usage limit reached. Try again later." }, 429, origin);
-  if (typeof reservationId !== "string" || !/^\\d+$/.test(reservationId)) {
+  if (typeof reservationId !== "string" || !/^\d+$/.test(reservationId)) {
     console.error("AI quota reservation returned an invalid identifier");
     return json({ error: "Usage limit service temporarily unavailable" }, 503, origin);
   }
