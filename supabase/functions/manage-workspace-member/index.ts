@@ -1,11 +1,13 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const allowedOrigins = new Set(
-  (Deno.env.get('APP_ALLOWED_ORIGINS') || '')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean)
-);
+const allowedOrigins = new Set([
+  'https://localhost',
+  'https://rezaulkarim12th.github.io',
+  'https://busicarecom.wordpress.com',
+  'https://bk-busicare.com',
+  'https://go.bk-busicare.com',
+  ...(Deno.env.get('APP_ALLOWED_ORIGINS') || '').split(',').map((origin) => origin.trim()).filter(Boolean)
+]);
 // Capacitor Android serves the app from this exact HTTPS origin.
 allowedOrigins.add('https://localhost');
 const MAX_BODY_BYTES = 12_000;
@@ -97,7 +99,8 @@ Deno.serve(async (req: Request) => {
     });
     if (rateError) return json(500, { error: 'Unable to verify invitation rate limit' }, origin);
     if (invitationAllowed !== true) return json(429, { error: 'Invitation limit reached. Try again later.' }, origin);
-    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email);
+    const redirectTo = Deno.env.get('APP_REDIRECT_URL') || 'https://rezaulkarim12th.github.io/bk-busicare-ai-agent-system/';
+    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
     if (inviteError || !invited.user) {
       return json(400, { error: 'Unable to create invitation. The email may already be registered.' }, origin);
     }
