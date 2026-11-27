@@ -1,18 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">BK-BusiCare App Icon</title>
-  <desc id="desc">Blue connected globe with a green growth arrow, inspired by the BK-BusiCare brand logo.</desc>
+  <title id="title">BK-BusiCare One</title>
+  <desc id="desc">Premium navy and gold BK monogram with an upward business growth arrow.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#073b83"/><stop offset="1" stop-color="#0879c9"/></linearGradient>
-    <linearGradient id="globe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bceaff"/><stop offset=".48" stop-color="#168fe0"/><stop offset="1" stop-color="#06458f"/></linearGradient>
+    <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102d50"/><stop offset="1" stop-color="#06152b"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#fff0ad"/><stop offset=".45" stop-color="#e8bd55"/><stop offset="1" stop-color="#a86f16"/></linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <circle cx="235" cy="258" r="157" fill="url(#globe)" stroke="#fff" stroke-width="9"/>
-  <ellipse cx="235" cy="258" rx="73" ry="157" fill="none" stroke="#d8f5ff" stroke-width="5" opacity=".8"/>
-  <path d="M83 258h304M104 190h262M104 326h262" fill="none" stroke="#d8f5ff" stroke-width="4" opacity=".55"/>
-  <path d="M129 155c35-37 79-54 119-54M103 258c0-83 59-153 140-170M129 361c35 37 79 54 119 54" fill="none" stroke="#d8f5ff" stroke-width="4" opacity=".55"/>
-  <path d="M106 337c86 67 204 72 292-4 20-17 36-39 47-64" fill="none" stroke="#fff" stroke-width="19" stroke-linecap="round"/>
-  <path d="M118 356c93 57 207 45 285-39 18-20 31-42 40-67" fill="none" stroke="#28d34a" stroke-width="13" stroke-linecap="round"/>
-  <path d="M400 111l77-48-13 94-22-26-43 68-28-18 43-68z" fill="#28d34a" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
-  <path d="M337 229v-47h27v47M371 229v-76h27v76" fill="#fff" opacity=".95"/>
-  <circle cx="235" cy="258" r="157" fill="none" stroke="#fff" stroke-width="9"/>
+  <rect width="512" height="512" rx="112" fill="url(#navy)"/>
+  <rect x="13" y="13" width="486" height="486" rx="101" fill="none" stroke="url(#gold)" stroke-width="13"/>
+  <rect x="27" y="27" width="458" height="458" rx="88" fill="none" stroke="#f7df9a" stroke-opacity=".45" stroke-width="2"/>
+  <path d="M92 355V157h88c55 0 83 24 83 66 0 27-14 47-39 58 33 8 51 30 51 64 0 49-34 78-94 78H92zm55-116h31c22 0 33-9 33-28s-11-27-33-27h-31v55zm0 101h39c25 0 38-10 38-30s-13-29-38-29h-39v59z" fill="url(#gold)"/>
+  <path d="M264 393V235h54v158h-54zm0-190v-48h54v48h-54z" fill="url(#gold)"/>
+  <path d="M296 327c45-66 89-114 153-167" fill="none" stroke="#fff3c4" stroke-width="15" stroke-linecap="round"/>
+  <path d="M401 154l71-54-7 88-23-24-52 54-28-27 52-54z" fill="url(#gold)" stroke="#fff0bd" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M315 422h101" stroke="url(#gold)" stroke-width="9" stroke-linecap="round"/>
 </svg>
