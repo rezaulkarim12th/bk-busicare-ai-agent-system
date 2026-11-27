@@ -269,6 +269,96 @@ if (hasUrl !== hasKey) {
       }
     }
   `;
+
+  /* Approved 10-folder home dashboard — mobile-first, navy and gold. */
+  #bk-secure-gate .busicare-secure-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px!important;background:linear-gradient(115deg,#081a32,#173b61)!important;border:1px solid #d2ad5d!important;border-radius:18px!important;color:#fff!important}
+  #bk-secure-gate .busicare-secure-brand{display:flex;align-items:center;gap:11px;min-width:0}
+  #bk-secure-gate .busicare-secure-brand img{width:46px;height:46px;flex:0 0 46px;object-fit:contain;border:2px solid #e3c16d;border-radius:12px;background:#fff}
+  #bk-secure-gate .busicare-secure-brand b{font-size:clamp(15px,2vw,20px)!important;color:#fff!important}
+  #bk-secure-gate .busicare-secure-brand p{margin:4px 0 0;color:#d8e3ef!important;font-size:12px}
+  #bk-secure-gate .busicare-header-actions{display:flex;align-items:center;gap:10px;min-width:0}
+  #bk-secure-gate .busicare-header-actions span{font-size:11px;color:#dce5ef;overflow-wrap:anywhere}
+  #bk-secure-gate .busicare-header-actions button,#bk-secure-gate .busicare-portal-content button,#bk-secure-gate .busicare-action-grid button{background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;color:#102542!important;border:1px solid #c9a24f!important}
+  #bk-secure-gate #workspace-select{width:100%;margin:7px 0 12px!important;border:1px solid #dce2ea!important;border-radius:12px!important}
+  #bk-secure-gate .busicare-profile-hero{margin:14px 0;padding:18px 20px;border:1px solid #d2ad5d;border-radius:18px;background:linear-gradient(110deg,#0a203b,#173d65);color:#fff}
+  #bk-secure-gate .busicare-profile-hero small{color:#f1d58f;font-size:10px;letter-spacing:1.5px;font-weight:800}
+  #bk-secure-gate .busicare-profile-hero h2{color:#fff!important;margin:5px 0!important}
+  #bk-secure-gate .busicare-profile-hero p{color:#d8e3ef;margin:0}
+  #bk-secure-gate .busicare-course-promo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 18px;padding:16px 18px;border:1px solid #d4ae5d;border-radius:16px;background:linear-gradient(110deg,#0a203b,#174a7b);color:#fff}
+  #bk-secure-gate .busicare-course-promo small{display:block;color:#f0d48d;font-size:9px;font-weight:800;letter-spacing:1.4px;margin-bottom:5px}
+  #bk-secure-gate .busicare-course-promo b{display:block;color:#fff;font-size:17px;line-height:1.25}
+  #bk-secure-gate .busicare-course-promo span{display:block;color:#f3d991;font-size:11px;margin-top:7px}
+  #bk-secure-gate .busicare-portal-content{padding:2px 0 16px}
+  #bk-secure-gate .busicare-home-hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:12px;padding:20px 22px;margin:4px 0 18px;border:1px solid #cba34e;border-radius:18px;background:linear-gradient(115deg,#0a203b,#173d65);color:#fff}
+  #bk-secure-gate .busicare-home-hero>div:first-child{position:relative;z-index:1}
+  #bk-secure-gate .busicare-home-hero span{color:#f1d58f;font-size:10px;font-weight:800;letter-spacing:1.5px}
+  #bk-secure-gate .busicare-home-hero h2{color:#fff!important;font-size:clamp(22px,4vw,30px)!important;margin:7px 0!important}
+  #bk-secure-gate .busicare-home-hero p{color:#e0e8f0;margin:0 0 13px;font-size:13px}
+  #bk-secure-gate .busicare-home-tags{display:flex;flex-wrap:wrap;gap:7px}
+  #bk-secure-gate .busicare-home-tags span{padding:5px 9px;border:1px solid #e6c87866;border-radius:30px;background:#ffffff12;color:#f5dfaa;font-size:10px;letter-spacing:0}
+  #bk-secure-gate .busicare-home-mark{align-self:center;color:#f3d78b55;font-size:clamp(42px,8vw,72px);font-weight:900;letter-spacing:-7px}
+  #bk-secure-gate .busicare-folder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  #bk-secure-gate .busicare-folder-card{position:relative;display:flex!important;align-items:center!important;gap:12px!important;min-width:0!important;min-height:94px!important;margin:0!important;padding:13px!important;text-align:left!important;border:1px solid #e7e0d3!important;border-radius:17px!important;background:linear-gradient(145deg,#fff,#fbf8f0)!important;color:#142943!important;box-shadow:0 5px 14px #10254212!important;transition:transform .16s ease,box-shadow .16s ease}
+  #bk-secure-gate .busicare-folder-card:active{transform:scale(.985)}
+  #bk-secure-gate .busicare-folder-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:13px;background:linear-gradient(145deg,#0d2a49,#081a32);color:#f1cc69;font-size:25px;font-weight:800}
+  #bk-secure-gate .busicare-folder-copy{display:grid;gap:5px;min-width:0;flex:1}
+  #bk-secure-gate .busicare-folder-copy b{font-size:clamp(13px,2vw,16px);line-height:1.2;color:#142943}
+  #bk-secure-gate .busicare-folder-copy small{font-size:10px;line-height:1.35;color:#778292}
+  #bk-secure-gate .busicare-folder-arrow{font-size:25px;color:#b58b37;line-height:1}
+  #bk-secure-gate .busicare-home-note,#bk-secure-gate .busicare-info-card{display:grid;gap:7px;margin-top:17px;padding:15px 17px;border:1px solid #e8dfcc;border-radius:14px;background:#fbf8f0;color:#142943}
+  #bk-secure-gate .busicare-home-note span,#bk-secure-gate .busicare-info-card span{font-size:12px;color:#667489;line-height:1.6}
+  #bk-secure-gate .busicare-secure-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0;padding:15px;border:1px solid #e7e0d3;border-radius:15px;background:#fff}
+  #bk-secure-gate .busicare-secure-form label{display:grid;gap:6px;min-width:0;font-size:12px;color:#56677e}
+  #bk-secure-gate .busicare-secure-form input,#bk-secure-gate .busicare-secure-form select,#bk-secure-gate .busicare-secure-form textarea{width:100%;min-width:0;padding:10px!important;border:1px solid #dce2ea!important;border-radius:10px!important;background:#fff!important}
+  #bk-secure-gate .busicare-secure-form textarea{min-height:86px}
+  #bk-secure-gate .busicare-form-wide{grid-column:1/-1}
+  #bk-secure-gate .busicare-secure-form button{grid-column:1/-1;min-height:44px;background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;color:#102542!important;border:1px solid #c9a24f!important}
+  #bk-secure-gate .busicare-data-table{overflow-x:auto;margin-top:14px;border:1px solid #e7e0d3;border-radius:13px;background:#fff}
+  #bk-secure-gate .busicare-data-table table{min-width:560px}
+  #bk-secure-gate .busicare-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+  #bk-secure-gate .busicare-action-grid button{min-height:48px}
+  #bk-secure-gate .busicare-invite-form{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  #bk-secure-gate .busicare-invite-form input{flex:1 1 180px;min-width:0}
+  #bk-secure-gate .busicare-output-label{display:grid;gap:7px;margin-top:14px;color:#53657b;font-size:12px}
+  #bk-secure-gate #ai-draft-output{width:100%;padding:12px;border:1px solid #dce2ea;border-radius:10px;background:#fff}
+  #bk-secure-gate .busicare-bottom-nav{display:none}
+  @media(max-width:640px){
+    #bk-secure-gate{padding-bottom:82px!important}
+    #bk-secure-gate>div{padding:11px!important}
+    #bk-secure-gate .busicare-secure-header{padding:12px!important}
+    #bk-secure-gate .busicare-secure-brand img{width:40px;height:40px;flex-basis:40px}
+    #bk-secure-gate .busicare-secure-brand b{font-size:15px!important}
+    #bk-secure-gate .busicare-secure-brand p{font-size:10px}
+    #bk-secure-gate .busicare-header-actions span{display:none}
+    #bk-secure-gate .busicare-profile-hero{padding:13px 15px}
+    #bk-secure-gate .busicare-profile-hero h2{font-size:18px!important}
+    #bk-secure-gate .busicare-course-promo{padding:13px 15px}
+    #bk-secure-gate .busicare-course-promo b{font-size:14px}
+    #bk-secure-gate .busicare-home-hero{padding:17px 15px}
+    #bk-secure-gate .busicare-home-mark{display:none}
+    #bk-secure-gate .busicare-folder-grid{gap:9px}
+    #bk-secure-gate .busicare-folder-card{gap:8px!important;min-height:88px!important;padding:10px!important;border-radius:14px!important}
+    #bk-secure-gate .busicare-folder-icon{width:39px;height:39px;flex-basis:39px;border-radius:11px;font-size:21px}
+    #bk-secure-gate .busicare-folder-copy b{font-size:12px}
+    #bk-secure-gate .busicare-folder-copy small{font-size:9px}
+    #bk-secure-gate .busicare-folder-arrow{font-size:20px}
+    #bk-secure-gate .busicare-secure-form{grid-template-columns:1fr;padding:12px}
+    #bk-secure-gate .busicare-form-wide{grid-column:auto}
+    #bk-secure-gate .busicare-bottom-nav{
+      position:fixed;z-index:100001;left:8px;right:8px;bottom:8px;
+      display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;
+      padding:7px 5px calc(7px + env(safe-area-inset-bottom));
+      border:1px solid #caa452;border-radius:17px;
+      background:linear-gradient(110deg,#071a32f5,#14375cf5);
+      box-shadow:0 8px 28px #07172a40;backdrop-filter:blur(12px)
+    }
+    #bk-secure-gate .busicare-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:47px;padding:4px 2px!important;margin:0!important;border:1px solid transparent!important;border-radius:11px!important;background:transparent!important;color:#e8edf5!important;box-shadow:none!important}
+    #bk-secure-gate .busicare-bottom-nav button span{font-size:19px;line-height:1}
+    #bk-secure-gate .busicare-bottom-nav button small{font-size:9px;line-height:1.15;white-space:nowrap}
+    #bk-secure-gate .busicare-bottom-nav button.active{background:linear-gradient(135deg,#f4e2b1,#d0a650)!important;border-color:#e7c979!important;color:#102542!important}
+  }
+  @media(max-width:360px){#bk-secure-gate .busicare-folder-grid{grid-template-columns:1fr}}
+
   document.head.appendChild(responsiveStyle);
 
   let session = null;
@@ -398,20 +488,57 @@ if (hasUrl !== hasKey) {
     const w = workspaces.find(x => x.id === activeId);
     if (!w) return;
     activeRole = w.role;
-    const nav = ['Dashboard','Leads','Content Planner','AI Content Studio','Team'];
+    const folderItems = [
+      ['AI Tools','✦','Create · Write · Automate','AI Content Studio'],
+      ['Marketing','◉','Plan · Ads · Campaigns','Marketing'],
+      ['SEO Growth','↗','Rank · Traffic · Conversion','SEO Growth'],
+      ['Freelancing','▣','Skills · Gigs · Career','Freelancing'],
+      ['Training','⌂','Courses · Live Class · Skills','Training'],
+      ['Projects','▤','Plan · Tasks · Progress','Projects'],
+      ['E-commerce','▧','Store · Products · Orders','E-commerce'],
+      ['Team','♙','Members · Roles · Work','Team'],
+      ['Profile','◎','Account · Workspace','Profile'],
+      ['Settings','⚙','Security · Backup · Help','Settings']
+    ];
     let body = '';
     if (page === 'Dashboard') {
-      body = '<h2>Workspace Overview</h2><div style="display:flex;gap:14px;flex-wrap:wrap"><div style="padding:18px;background:#edf5f0;border-radius:10px">Total Leads<br><strong style="font-size:28px">' + leads.length + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Open Pipeline<br><strong style="font-size:28px">BDT ' + leads.filter(x=>!['Won','Lost'].includes(x.status)).reduce((a,x)=>a+Number(x.value||0),0).toLocaleString('en-BD') + '</strong></div><div style="padding:18px;background:#edf5f0;border-radius:10px">Content Items<br><strong style="font-size:28px">' + contentItems.length + '</strong></div></div><p>Your data is isolated in Supabase Cloud by workspace-level Row Level Security (RLS).</p>';
+      body = '<section class="busicare-home-hero"><div><span>WELCOME TO ONE</span><h2>Grow your business with AI</h2><p>Your business and career workspace</p><div class="busicare-home-tags"><span>AI</span><span>Marketing</span><span>Freelancing</span><span>E-commerce</span><span>Training</span></div></div><div class="busicare-home-mark">BK</div></section>' +
+        '<div class="busicare-folder-grid" aria-label="Workspace folders">' + folderItems.map(([name,icon,description,route]) => '<button type="button" class="busicare-folder-card" data-folder="' + safe(route) + '"><span class="busicare-folder-icon">' + icon + '</span><span class="busicare-folder-copy"><b>' + safe(name) + '</b><small>' + safe(description) + '</small></span><span class="busicare-folder-arrow" aria-hidden="true">›</span></button>').join('') + '</div>' +
+        '<div class="busicare-home-note"><b>Workspace Overview</b><span>' + leads.length + ' leads · ' + contentItems.length + ' content items · ' + safe(activeRole) + ' access</span></div>';
     } else if (page === 'Leads') {
-      body = '<h2>Lead Management</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="lead-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Name','name','text',true,'') + field('Company','company','text',false,'') + field('Service','service','text',false,'Digital Marketing') + field('Phone','phone','tel',false,'') + field('Email','email','email',false,'') + field('Value (BDT)','value','number',false,'0') + field('Follow-up date','follow_up','date',false,'') + '<label style="grid-column:1/-1">Notes<textarea name="notes" maxlength="4000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Lead</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>' + leadRows() + '</tbody></table></div>';
-    } else if (page === 'Content Planner') {
-      body = '<h2>Content Planner</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">' + field('Title','title','text',true,'') + field('Platform','platform','text',true,'Facebook') + field('Schedule (ISO date/time)','scheduled_at','datetime-local',false,'') + '<label style="grid-column:1/-1">Content<textarea name="body" maxlength="10000" style="display:block;width:100%;padding:10px"></textarea></label><button style="grid-column:1/-1">Add Content</button></form>') + '<div style="overflow:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div><p>Content plans are saved here; they are not automatically published to social media.</p>';
-    } else if (page === 'AI Content Studio') {
-      body = '<h2>AI Content Studio</h2><p>Only authenticated workspace members can create drafts. AI does not publish posts or send messages to anyone.</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><label>Topic *<input name="topic" maxlength="500" required style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Platform<select name="platform" style="display:block;width:100%;padding:10px;margin-top:5px"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement" style="display:block;width:100%;padding:10px;margin-top:5px"></label><label style="grid-column:1/-1">Offer / verified facts<textarea name="offer" maxlength="300" style="display:block;width:100%;padding:10px;margin-top:5px"></textarea></label><button style="grid-column:1/-1">Generate AI draft</button></form>') + '<label style="display:block;margin-top:16px">Generated draft<textarea id="ai-draft-output" rows="12" readonly style="display:block;width:100%;padding:12px;margin-top:5px;box-sizing:border-box">' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output is a draft. Verify the information and obtain human approval before publishing.</p>';
+      body = '<h2>Lead Management</h2>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="lead-form" class="busicare-secure-form">' + field('Name','name','text',true,'') + field('Company','company','text',false,'') + field('Service','service','text',false,'Digital Marketing') + field('Phone','phone','tel',false,'') + field('Email','email','email',false,'') + field('Value (BDT)','value','number',false,'0') + field('Follow-up date','follow_up','date',false,'') + '<label class="busicare-form-wide">Notes<textarea name="notes" maxlength="4000"></textarea></label><button>Add Lead</button></form>') + '<div class="busicare-data-table"><table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Value</th><th>Actions</th></tr></thead><tbody>' + leadRows() + '</tbody></table></div>';
+    } else if (page === 'Content Planner' || page === 'Marketing') {
+      body = '<h2>' + (page === 'Marketing' ? 'Marketing Workspace' : 'Content Planner') + '</h2><p>Plan campaigns and manage content drafts. No campaign is published or ad spend initiated from this workspace.</p>' +
+        (page === 'Marketing' ? '<div class="busicare-action-grid">' + button('Lead Management','page',' data-page="Leads"') + button('Content Planner','page',' data-page="Content Planner"') + '</div>' : '') +
+        (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="content-form" class="busicare-secure-form">' + field('Title','title','text',true,'') + '<label>Platform<select name="platform"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label>' + field('Schedule','scheduled_at','datetime-local',false,'') + '<label class="busicare-form-wide">Content<textarea name="body" maxlength="10000"></textarea></label><button>Add Content Draft</button></form>') +
+        '<div class="busicare-data-table"><table><thead><tr><th>Title</th><th>Platform</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + contentRows() + '</tbody></table></div>';
+    } else if (page === 'AI Content Studio' || page === 'AI Tools') {
+      body = '<h2>AI Content Studio</h2><p>Only authenticated workspace members can create drafts. AI does not publish posts or send messages to anyone.</p>' + (activeRole==='viewer'?'<p>Read-only access</p>':'<form id="ai-content-form" class="busicare-secure-form"><label>Topic *<input name="topic" maxlength="500" required></label><label>Platform<select name="platform"><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>YouTube</option></select></label><label>Audience<input name="audience" maxlength="240" value="General audience"></label><label>Objective<input name="objective" maxlength="240" value="Useful, accurate engagement"></label><label class="busicare-form-wide">Offer / verified facts<textarea name="offer" maxlength="300"></textarea></label><button>Generate AI draft</button></form>') + '<label class="busicare-output-label">Generated draft<textarea id="ai-draft-output" rows="12" readonly>' + safe(aiDraft?.text || '') + '</textarea></label>' + (activeRole==='viewer'?'':button('Save draft to Content Planner','save-ai-draft','' + (aiDraft?'':' disabled'))) + '<p>AI output is a draft. Verify the information and obtain human approval before publishing.</p>';
+    } else if (page === 'Team') {
+      body = '<h2>Team & Collaboration</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" class="busicare-invite-form"><input name="email" type="email" required placeholder="Member email"><select name="role"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
+    } else if (page === 'Profile') {
+      body = '<h2>My Profile</h2><div class="busicare-info-card"><b>' + safe(session.user.email) + '</b><span>Signed-in account</span><span>Workspace role: ' + safe(activeRole) + '</span><span>Workspace: ' + safe(w.name) + '</span></div>';
+    } else if (page === 'Settings') {
+      body = '<h2>Workspace Settings</h2><div class="busicare-info-card"><b>Security & Access</b><span>Authenticated Supabase session</span><span>Workspace-level data access protected by Row Level Security (RLS)</span><span>Current role: ' + safe(activeRole) + '</span></div><p>Account, workspace, security and recovery controls remain managed by the secure workspace services.</p>';
     } else {
-      body = '<h2>Team</h2><p>Role: ' + safe(activeRole) + '</p>' + ((activeRole==='owner'||activeRole==='admin')?'<form id="invite-form" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input name="email" type="email" required placeholder="Member email" style="flex:1;min-width:200px;padding:10px"><select name="role" style="padding:10px"><option value="member">Member</option><option value="viewer">Viewer</option>' + (activeRole==='owner'?'<option value="admin">Admin</option>':'') + '</select><button>Send invitation</button></form>':'') + '<div id="members">Loading members…</div>';
+      const info = {
+        'SEO Growth':['SEO Growth','SEO Audit · Keyword Research · On-page SEO · Local SEO','SEO tools are planned for this workspace. No external site is crawled and no SEO changes are published yet.'],
+        'Freelancing':['Freelancing','Profile · Portfolio · Proposals · Client Pipeline','Freelancing workspace structure is reserved. Marketplace connections and proposal submission are not enabled.'],
+        'Training':['Learning & Training','Courses · Live Classes · Learning Progress · Certificates','Training section is reserved for course access and progress tracking.'],
+        'Projects':['Projects & Tasks','Projects · Tasks · Milestones · Reports','Project tracking modules are planned. No project tasks are currently synchronized.'],
+        'E-commerce':['E-commerce','Store · Products · Orders · Customers','E-commerce section is a workspace placeholder. Live inventory, checkout and payments are not enabled.'],
+        'More':['More Workspace Sections','Leads · Team · Profile · Settings','Open a workspace folder from the Home dashboard to continue.']
+      }[page] || ['Workspace Section', 'Workspace modules', 'This section is not connected yet.'];
+      body = '<h2>' + safe(info[0]) + '</h2><div class="busicare-info-card"><b>' + safe(info[1]) + '</b><span>' + safe(info[2]) + '</span></div>' +
+        (page === 'More' ? '<div class="busicare-action-grid">' + button('Leads','page',' data-page="Leads"') + button('Team','page',' data-page="Team"') + button('Profile','page',' data-page="Profile"') + button('Settings','page',' data-page="Settings"') + '</div>' : '');
     }
-    card('<header class="busicare-secure-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="busicare-secure-brand"><img src="' + import.meta.env.BASE_URL + 'busicare-app-icon.svg" alt="BK-BusiCare One app icon"><div><b>Busi<span>Care</span> · Secure Workspace</b><p style="margin:5px 0">' + safe(session.user.email) + '</p></div></div><button type="button" id="logout">Sign out</button></header><section class="busicare-profile-hero"><img src="https://busicarecom.wordpress.com/wp-content/uploads/2026/11/bk-busicare-profile.jpg" alt="Workspace owner profile"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section><hr><label>Workspace<select id="workspace-select" style="padding:10px;margin:8px">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label><nav style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + nav.map(n => button(n,'page',' data-page="' + n + '"' + (n===page?' style="background:#dcefe4;padding:10px;border-radius:8px"':''))).join('') + '</nav><section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section><nav class="busicare-bottom-nav" aria-label="Quick navigation">' + [['Dashboard','⌂'],['Leads','◎'],['Content Planner','▤'],['AI Content Studio','✦'],['Team','♙']].map(([n,i]) => '<button type="button" data-page="' + n + '" class="' + (page===n?'active':'') + '"><span>' + i + '</span><small>' + (n==='Content Planner'?'Planner':n==='AI Content Studio'?'AI Studio':n) + '</small></button>').join('') + '</nav>' + body + '<p data-note></p>');
+    const bottomNav = [['Dashboard','⌂','Home'],['AI Content Studio','✦','AI Tools'],['Marketing','◉','Marketing'],['SEO Growth','↗','SEO'],['More','▦','More']];
+    card('<header class="busicare-secure-header"><div class="busicare-secure-brand"><img src="' + import.meta.env.BASE_URL + 'busicare-app-icon.svg" alt="BK-BusiCare One app icon"><div><b>BK-BusiCare One</b><p>AI Business & Career Platform</p></div></div><div class="busicare-header-actions"><span>' + safe(session.user.email) + '</span><button type="button" id="logout">Sign out</button></div></header>' +
+      '<label>Workspace<select id="workspace-select">' + workspaces.map(x => '<option value="' + safe(x.id) + '"' + (x.id===activeId?' selected':'') + '>' + safe(x.name) + ' · ' + safe(x.role) + '</option>').join('') + '</select></label>' +
+      '<section class="busicare-profile-hero"><div><small>WELCOME BACK</small><h2>Md. Rezaul Karim</h2><p>AI Skills Mentor | Business Growth Consultant</p></div></section>' +
+      '<section class="busicare-course-promo"><div><small>FEATURED LEARNING</small><b>AI Powered Digital Marketing Mastery Course</b><span>Learn · Practice · Earn</span></div><div class="course-mark">↗</div></section>' +
+      '<main class="busicare-portal-content">' + body + '<p data-note aria-live="polite"></p></main>' +
+      '<nav class="busicare-bottom-nav" aria-label="Quick navigation">' + bottomNav.map(([route,icon,label]) => '<button type="button" data-page="' + route + '" class="' + (page===route?'active':'') + '"><span>' + icon + '</span><small>' + label + '</small></button>').join('') + '</nav>');
     root.querySelector('#logout').onclick = logout;
     root.querySelector('#workspace-select').onchange = async e => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
@@ -428,6 +555,12 @@ if (hasUrl !== hasKey) {
     root.querySelectorAll('[data-page]').forEach(b => b.onclick = () => {
       persistAiFormDraft(root.querySelector('#ai-content-form'));
       page=b.dataset.page;
+      portalView();
+      bindDataActions();
+    });
+    root.querySelectorAll('[data-folder]').forEach(b => b.onclick = () => {
+      persistAiFormDraft(root.querySelector('#ai-content-form'));
+      page=b.dataset.folder;
       portalView();
       bindDataActions();
     });
