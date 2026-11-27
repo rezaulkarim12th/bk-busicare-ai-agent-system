@@ -474,19 +474,10 @@ if (hasUrl !== hasKey) {
         offer: String(f.get('offer') || '').trim()
       };
       try {
-        const message = [
-          'Create a practical social media marketing draft for BK-BusiCare.',
-          'Topic: ' + payload.topic,
-          'Platform: ' + payload.platform,
-          'Audience: ' + (payload.audience || 'General audience'),
-          'Objective: ' + (payload.objective || 'Useful, accurate engagement'),
-          'Offer and verified facts: ' + (payload.offer || 'None supplied'),
-          'Return the draft only. Do not invent factual claims, prices, guarantees, or customer results.'
-        ].join('\n');
-        const result = await supabase.functions.invoke('ai-assistant', { body: { message } });
+        const result = await supabase.functions.invoke('ai-content', { body: payload });
         if (result.error || result.data?.error) throw new Error(result.data?.error || result.error?.message || 'AI generation failed');
-        if (typeof result.data?.reply !== 'string' || !result.data.reply.trim()) throw new Error('AI provider returned an empty draft');
-        aiDraft = { text: result.data.reply.trim(), title: payload.topic.slice(0,200), platform: payload.platform };
+        if (typeof result.data?.text !== 'string' || !result.data.text.trim()) throw new Error('AI provider returned an empty draft');
+        aiDraft = { text: result.data.text.trim(), title: payload.topic.slice(0,200), platform: payload.platform };
         persistAiFormDraft(aiForm);
         const output = root.querySelector('#ai-draft-output');
         if (output) output.value = aiDraft.text;
@@ -583,9 +574,9 @@ if (hasUrl !== hasKey) {
           e.preventDefault();
           const name = String(new FormData(e.currentTarget).get('name')).trim();
           if (name.length < 2 || name.length > 120) { note('Workspace name must be between 2 and 120 characters.', true); return; }
-          const { data: workspaceId, error } = await supabase.rpc('create_workspace', { workspace_name: name });
-          if (error || !workspaceId) { note(error?.message || 'Workspace creation failed. Please try again.',true); return; }
-          activeId = workspaceId;
+          const { data: created, error } = await supabase.functions.invoke('create-workspace', { body: { workspace_name: name } });
+          if (error || created?.error || !created?.workspace_id) { note(created?.error || error?.message || 'Workspace creation failed. Please try again.',true); return; }
+          activeId = created.workspace_id;
           await portal();
         };
         root.querySelector('#logout').onclick = logout;
