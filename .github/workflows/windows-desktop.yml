@@ -2,8 +2,22 @@ name: BK-BusiCare One Windows Build
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/windows-desktop.yml'
+      - 'capacitor.config.json'
+      - 'electron-main.cjs'
+      - 'electron-preload.cjs'
+      - 'electron-builder.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'tests/**'
+      - 'index.html'
+      - 'vite.config.js'
+  push:
+    branches: [main, redteam/ai-quota-refund-20261127]
     paths:
       - '.github/workflows/windows-desktop.yml'
       - 'capacitor.config.json'
@@ -37,9 +51,11 @@ jobs:
       - name: Run project tests
         run: npm test
       - name: Install Windows packaging tools
-        run: npm install --no-save --package-lock=false electron electron-builder
+        run: npm install --no-save --package-lock=false electron electron-builder sharp png-to-ico
       - name: Build portable web assets
         run: npm run build -- --base ./
+      - name: Generate BK-BusiCare branded Windows icon
+        run: node scripts/generate-windows-icon.mjs
       - name: Package Windows x64 portable application
         run: npx electron-builder --win portable --x64 --config electron-builder.yml
       - name: Upload Windows installer
