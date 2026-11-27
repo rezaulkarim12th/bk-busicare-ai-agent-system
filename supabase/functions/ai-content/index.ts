@@ -2,7 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = (origin: string) => ({
   "Access-Control-Allow-Origin": origin,
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-supabase-api-version, x-requested-with",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
 });
@@ -132,7 +132,15 @@ Deno.serve(async (req: Request) => {
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      console.error("OpenAI request failed", { status: response.status, requestId: response.headers.get("x-request-id") });
+      const providerError = result && typeof result === "object" && "error" in result
+        ? (result as { error?: Record<string, unknown> }).error
+        : undefined;
+      console.error("OpenAI request failed", {
+        status: response.status,
+        requestId: response.headers.get("x-request-id"),
+        errorType: typeof providerError?.type === "string" ? providerError.type.slice(0, 80) : undefined,
+        errorCode: typeof providerError?.code === "string" ? providerError.code.slice(0, 80) : undefined,
+      });
       await releaseQuotaReservation();
       return json({ error: "AI provider request failed" }, 502, origin);
     }
@@ -140,7 +148,9 @@ Deno.serve(async (req: Request) => {
     const text = output.flatMap((item: Record<string, unknown>) => item.type === "message" && Array.isArray(item.content) ? item.content : [])
       .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
       .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
-    // A successful provider response may still incur usage; keep the reservation if it returns no usable text.
+    // A successful provider response may incur usage even if it contains no usable text.
+    // Keep the reservation, but return an explicit failure rather than a successful empty draft.
+    if (!text) return json({ error: "AI provider returned no usable text" }, 502, origin);
     return json({ text, provider: "openai", published: false }, 200, origin);
   } catch (error) {
     // A timeout/network failure is ambiguous: the provider may have processed and billed the request.
