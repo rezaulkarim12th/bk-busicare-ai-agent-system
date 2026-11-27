@@ -291,3 +291,15 @@ test('AI quota reservations have exact, server-only release semantics on provide
   assert.doesNotMatch(edge, /catch \(error\) \{\s+await releaseQuotaReservation/);
   assert.match(edge, /Deno\.env\.get\(["']SUPABASE_SERVICE_ROLE_KEY["']\)/);
 });
+
+
+test('Windows desktop package uses the BK-BusiCare branded icon generator', async () => {
+  const config = await readFile(new URL('../electron-builder.yml', import.meta.url), 'utf8');
+  const workflow = await readFile(new URL('../.github/workflows/windows-desktop.yml', import.meta.url), 'utf8');
+  const generator = await readFile(new URL('../scripts/generate-windows-icon.mjs', import.meta.url), 'utf8');
+  assert.match(config, /icon: assets\/busicare-app-icon\.ico/);
+  assert.match(workflow, /npm install --no-save --package-lock=false electron electron-builder sharp png-to-ico/);
+  assert.match(workflow, /node scripts\/generate-windows-icon\.mjs/);
+  assert.match(generator, /public\/busicare-app-icon\.svg/);
+  assert.match(generator, /assets\/busicare-app-icon\.ico/);
+});
