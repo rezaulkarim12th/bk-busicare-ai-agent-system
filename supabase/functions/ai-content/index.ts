@@ -103,11 +103,11 @@ Deno.serve(async (req: Request) => {
   }
   const releaseQuotaReservation = async () => {
     try {
-      const { error } = await admin.rpc("release_ai_content_generation_reservation", {
+      const { data: released, error } = await admin.rpc("release_ai_content_generation_reservation", {
         target_reservation: reservationId,
         target_actor: authData.user.id,
       });
-      if (error) console.error("AI quota reservation release failed", { code: error.code });
+      if (error || !released) console.error("AI quota reservation release failed", { code: error?.code ?? "reservation_not_found" });
     } catch (error) {
       console.error("AI quota reservation release unavailable", error instanceof Error ? error.name : "unknown");
     }
@@ -140,10 +140,11 @@ Deno.serve(async (req: Request) => {
     const text = output.flatMap((item: Record<string, unknown>) => item.type === "message" && Array.isArray(item.content) ? item.content : [])
       .filter((item: Record<string, unknown>) => item.type === "output_text" && typeof item.text === "string")
       .map((item: Record<string, unknown>) => item.text as string).join("\n").trim();
-    if (!text) { await releaseQuotaReservation(); return json({ error: "AI provider returned no text" }, 502, origin); }
+    // A successful provider response may still incur usage; keep the reservation if it returns no usable text.
     return json({ text, provider: "openai", published: false }, 200, origin);
   } catch (error) {
-    await releaseQuotaReservation();
+    // A timeout/network failure is ambiguous: the provider may have processed and billed the request.
+    // Keep the reservation to prevent retries from bypassing the per-user usage limit.
     console.error("AI request unavailable", error instanceof Error ? error.name : "unknown");
     return json({ error: "AI service temporarily unavailable" }, 503, origin);
   }
