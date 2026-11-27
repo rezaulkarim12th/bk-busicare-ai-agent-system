@@ -286,7 +286,7 @@ test('AI quota reservations have exact, server-only release semantics on provide
   assert.ok(edge.includes('!/^\\d+$/.test(reservationId)'), 'reservation identifier must be validated as decimal digits');
   assert.match(edge, /release_ai_content_generation_reservation/);
   assert.match(edge, /await releaseQuotaReservation\(\);[\s\S]*?AI provider request failed/);
-  assert.match(edge, /A successful provider response may still incur usage/);
+  assert.match(edge, /A successful provider response may incur usage even if it contains no usable text/);
   assert.match(edge, /A timeout\/network failure is ambiguous/);
   assert.doesNotMatch(edge, /catch \(error\) \{\s+await releaseQuotaReservation/);
   assert.match(edge, /Deno\.env\.get\(["']SUPABASE_SERVICE_ROLE_KEY["']\)/);
