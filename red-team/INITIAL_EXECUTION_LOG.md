@@ -189,3 +189,19 @@ A read-only inspection compared the current hosted BK-BusiCare One Edge Function
 4. Only after independent review and successful TEST evidence should a separate deployment decision be considered. Do not deploy this patch to the active application project as a substitute for TEST.
 
 No hosted function, database, secret, billing plan, project state, or production resource was changed in this verification. Production release remains HOLD.
+
+
+## Correction / follow-up — PR CI evidence for CORS patch — 2026-11-28
+
+A repository-wide Actions run inventory was used after the exact-commit workflow lookup returned no rows. The PR run records include a successful validation for the current PR #23 head (e3a595fbcf9f5b6f591c8b8cf84dc4b5041d7d30):
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Build workflow | PASS | Run 46038147731, event pull_request, associated with PR #23 whose current head was e3a595fbcf9f5b6f591c8b8cf84dc4b5041d7d30. Dependency audit, Deno Edge Function type-check, Node test suite, JavaScript syntax checks and production bundle build all succeeded. |
+| Supabase local migration / RLS workflow | PASS | Run 46038147646, event pull_request, associated with PR #23 at the same head. Application/migration tests, Deno type-check, disposable local Supabase startup, migration reset, pgTAP RLS tests, service verification and cleanup all succeeded. |
+| Pages artifact / deployment | NOT DEPLOYED | Artifact upload was skipped and deploy job skipped because this was a pull-request run. |
+| Hosted AI Content function patch | NOT DEPLOYED | Read-only hosted source inspection still shows the old fixed CORS allow-header list. CI success does not deploy the patch. |
+
+The earlier statement that no PR CI run existed was based on a lookup filtered by the raw head SHA, which did not expose the PR's synthetic merge-commit run records. The broader branch Actions inventory identifies the successful PR runs above. This entry supersedes that CI-status statement. No hosted deployment, merge, secret change or production modification occurred.
+
+The assessment remains PARTIAL / BLOCKED because hosted TEST, authenticated AI POST/generation, Android/Windows device acceptance, payment sandbox, backup restore, independent security review and the legacy ai-assistant wildcard-CORS disposition are still open.
