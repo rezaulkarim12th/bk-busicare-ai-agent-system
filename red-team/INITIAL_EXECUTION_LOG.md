@@ -68,3 +68,35 @@ After the previous log snapshot, the latest no-cost CI runs were checked:
 | Disposable local Supabase migration and RLS workflow | PASS | Run 46025175779 completed successfully. All migrations applied to the disposable local database; pgTAP RLS isolation tests passed; local Supabase services verified; local stack stopped cleanly. |
 
 This confirms repository-level and isolated local checks only. It does not resolve the inactive hosted TEST project or replace live Auth/RLS, Edge Function, Android, Windows, payment sandbox, or backup/restore testing. Production release remains blocked.
+
+
+## Follow-up verification — active BK-BusiCare One inventory — 2026-11-27
+
+This is a read-only control-plane and catalog review of the currently active application project. It is **not** a substitute for the dedicated TEST assessment, and no active penetration testing was performed.
+
+| Check | Result | Evidence / limitation |
+|---|---|---|
+| Supabase organization plan | FREE | Organization inventory reports `tier_free`; no upgrade or billing change was made. |
+| Dedicated TEST project | BLOCKED / INACTIVE | `BK-BusiCare-TEST` (`rmnoiwzkhjwmgxwkfdzb`) remains inactive. No restore attempted in this follow-up. |
+| Active application project | OBSERVED | `BK-BusiCare-One` (`pdcpntalufiiilmpevnn`) is `ACTIVE_HEALTHY`; it was not modified. |
+| Applied migrations on BK-BusiCare-One | OBSERVED | 14 migrations listed by Supabase. |
+| Edge Function inventory on BK-BusiCare-One | OBSERVED | `create-workspace` v1, `manage-workspace-member` v1, `ai-assistant` v3 and `ai-content` v1 are listed ACTIVE with gateway JWT verification enabled. Inventory does not prove end-to-end runtime behavior. |
+| RLS inventory on BK-BusiCare-One | PASS — configuration inventory only | Read-only SQL catalog query found RLS enabled on all 9 application tables checked: 8 public tables and private.ai_content_usage. Policy counts were present on each table. This is not a tenant-isolation penetration test. |
+| Browser-role table grants | OBSERVED | Read-only grants inventory showed no anon/PUBLIC table grants in the returned application-schema rows; authenticated grants are limited by table. RLS remains the row-level boundary and still needs synthetic-user API tests. |
+| Supabase Health Advisor | PASS | No health lints returned. |
+| Supabase Security Advisor | WARN | One finding: leaked-password protection disabled. Organization is Free tier; this provider-level feature is not safely remediated by SQL or client-side code. No plan upgrade was made. |
+| Supabase Performance Advisor | INFO | Six unused-index notices. No index was removed because the tables are new/low-usage and removal could degrade future workloads. |
+| GitHub main build/deploy workflow | PASS | Run 46032855006 completed successfully on main. The workflow includes dependency audit, Deno checks, migration tests, syntax checks and production bundle build. A successful workflow does not prove device QA or live Auth/API correctness. |
+| Red Team PR CI | PASS | Runs 46026023183 (build) and 46026023158 (local Supabase) completed successfully for PR #23. |
+| Active AI Content Function source review | SOURCE REVIEW | Function validates the caller token, checks workspace membership/role, bounds request size, reserves per-user quota and returns draft-only output. Successful provider-backed generation remains unverified; server-side provider secret presence/value is not exposed by this review. |
+| Legacy/alternate AI Assistant Function source review | FINDING — REVIEW REQUIRED | Active `ai-assistant` v3 source uses wildcard CORS (`Access-Control-Allow-Origin: *`). It also validates a bearer token with Supabase Auth and the current browser portal invokes `ai-content`, not `ai-assistant`. Determine whether `ai-assistant` is still required; if retained, replace wildcard CORS with an exact origin allowlist and retest. No live function or project configuration was changed. |
+
+## Updated blockers and next actions
+
+1. Keep `BK-BusiCare-TEST` inactive under the current Free-tier/no-cost constraint. Do not pause either active project to make room.
+2. Treat leaked-password protection as a documented provider-plan limitation unless the owner separately approves a paid-plan decision. Do not claim it is enabled.
+3. Review the unused `ai-assistant` function and remove it only through a separately reviewed, owner-approved change; if retained, implement exact-origin CORS in a TEST environment first.
+4. Continue source/CI improvements and device packaging checks on non-production branches. Obtain exact TEST URL and Android/Windows artifact hashes before device or endpoint testing.
+5. Do not merge PR #23, deploy, enable payments, or grant release clearance on the basis of these read-only observations.
+
+No database schema, table data, Edge Function, secret, project state, billing setting, deployment, or production resource was changed during this follow-up. The Red Team assessment remains **PARTIAL / BLOCKED**, and production release remains blocked.
