@@ -1,10 +1,13 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const corsHeaders = (origin: string) => ({
+const corsHeaders = (origin: string, requestedHeaders?: string | null) => ({
   "Access-Control-Allow-Origin": origin,
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  // Reflect only the browser's requested header list after the Origin has
+  // passed the strict allowlist check below. This keeps Capacitor/WebView and
+  // newer supabase-js preflights compatible without allowing arbitrary origins.
+  "Access-Control-Allow-Headers": requestedHeaders || "authorization, apikey, content-type, x-client-info, x-supabase-api-version, x-requested-with, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Vary": "Origin",
+  "Vary": "Origin, Access-Control-Request-Headers",
 });
 const json = (body: Record<string, unknown>, status: number, origin: string) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -43,7 +46,7 @@ Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
   if (req.method === "OPTIONS") {
     if (!origin || !configuredOrigins.has(origin)) return new Response(null, { status: 403, headers: { "Vary": "Origin" } });
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    return new Response(null, { status: 204, headers: corsHeaders(origin, req.headers.get("access-control-request-headers")) });
   }
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, origin || "null");
   if (!origin || !configuredOrigins.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
