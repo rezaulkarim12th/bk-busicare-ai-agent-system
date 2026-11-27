@@ -3,7 +3,7 @@ name: BK-BusiCare One Windows Build
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, redteam/ai-quota-refund-20261127]
     paths:
       - '.github/workflows/windows-desktop.yml'
       - 'capacitor.config.json'
